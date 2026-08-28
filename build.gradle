@@ -113,6 +113,12 @@ configurations {
 }
 
 dependencies {
+    // Plain unit tests for the parts that do not touch Minecraft,
+    // such as the bit packing used by .litematic files.
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
@@ -187,4 +193,8 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }

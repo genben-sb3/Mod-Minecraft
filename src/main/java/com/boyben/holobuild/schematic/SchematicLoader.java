@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.schematic.format.LitematicaReader;
 import com.boyben.holobuild.schematic.format.RawSchematic;
 import com.boyben.holobuild.schematic.format.SpongeSchematicReader;
 import com.boyben.holobuild.schematic.format.StructureNbt;
@@ -33,8 +34,7 @@ import net.neoforged.fml.loading.FMLPaths;
 /**
  * Reads schematic files from disk into Minecraft's own StructureTemplate.
  *
- * Understands Minecraft .nbt structures and Sponge .schem files.
- * .litematic is still to come.
+ * Understands Minecraft .nbt structures, Sponge .schem and .litematic files.
  */
 public final class SchematicLoader {
     private SchematicLoader() {}
@@ -47,7 +47,11 @@ public final class SchematicLoader {
     /** Sponge Schematic, what WorldEdit and the schematic websites hand out. */
     private static final String SCHEM_EXTENSION = ".schem";
 
-    private static final List<String> EXTENSIONS = List.of(NBT_EXTENSION, SCHEM_EXTENSION);
+    /** Litematica's own format. */
+    private static final String LITEMATIC_EXTENSION = ".litematic";
+
+    private static final List<String> EXTENSIONS =
+            List.of(NBT_EXTENSION, SCHEM_EXTENSION, LITEMATIC_EXTENSION);
 
     /** The folder players drop their schematic files into. */
     public static Path getSchematicFolder() {
@@ -94,8 +98,13 @@ public final class SchematicLoader {
         CompoundTag structureTag;
         List<StructureTemplate.StructureBlockInfo> blocks;
 
-        if (fileName(file).endsWith(SCHEM_EXTENSION)) {
+        String lowerName = fileName(file);
+        if (lowerName.endsWith(SCHEM_EXTENSION)) {
             RawSchematic raw = SpongeSchematicReader.read(fileTag, blockLookup);
+            structureTag = StructureNbt.toCompound(raw);
+            blocks = raw.blocks();
+        } else if (lowerName.endsWith(LITEMATIC_EXTENSION)) {
+            RawSchematic raw = LitematicaReader.read(fileTag, blockLookup);
             structureTag = StructureNbt.toCompound(raw);
             blocks = raw.blocks();
         } else {
