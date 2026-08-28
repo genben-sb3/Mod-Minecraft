@@ -8,6 +8,13 @@
   "key.holobuild.mirror": "Bauplan spiegeln",
   "key.holobuild.up": "Bauplan nach oben",
   "key.holobuild.down": "Bauplan nach unten",
+  "key.holobuild.open": "Bauplan auswaehlen",
+
+  "screen.holobuild.title": "Bauplan auswaehlen",
+  "screen.holobuild.search": "Suchen...",
+  "screen.holobuild.empty": "Noch keine Schematics gefunden. Leg .nbt-Dateien hier ab:",
+  "screen.holobuild.no_match": "Nichts gefunden - such mal anders.",
+  "screen.holobuild.count": "%s von %s",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt-Dateien hier ab: %s",
@@ -20,5 +27,6 @@
   "message.holobuild.too_big_to_undo": "Zu gross fuer Rueckgaengig (ueber %s Bloecke) - trotzdem gebaut.",
   "message.holobuild.adjusted": "%s° gedreht, %s, Hoehe %s",
   "message.holobuild.mirror_on": "gespiegelt",
-  "message.holobuild.mirror_off": "nicht gespiegelt"
+  "message.holobuild.mirror_off": "nicht gespiegelt",
+  "message.holobuild.selected": "Bauplan gewaehlt: %s"
 }

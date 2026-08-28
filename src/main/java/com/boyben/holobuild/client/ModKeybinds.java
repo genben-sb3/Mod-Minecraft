@@ -30,6 +30,7 @@ public final class ModKeybinds {
     public static final KeyMapping MIRROR = key("mirror", GLFW.GLFW_KEY_M);
     public static final KeyMapping UP = key("up", GLFW.GLFW_KEY_PAGE_UP);
     public static final KeyMapping DOWN = key("down", GLFW.GLFW_KEY_PAGE_DOWN);
+    public static final KeyMapping OPEN = key("open", GLFW.GLFW_KEY_G);
 
     private static KeyMapping key(String name, int defaultKey) {
         return new KeyMapping("key.holobuild." + name, InputConstants.Type.KEYSYM, defaultKey, CATEGORY);
@@ -45,16 +46,24 @@ public final class ModKeybinds {
             event.register(MIRROR);
             event.register(UP);
             event.register(DOWN);
+            event.register(OPEN);
         }
     }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        LocalPlayer player = Minecraft.getInstance().player;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
         if (player == null || !holdingWand(player)) {
             // Still drain the queue, otherwise presses pile up and all fire at
             // once the moment the wand is picked up.
             drain();
+            return;
+        }
+
+        // Opening a screen mid-tick is fine, but only when nothing else is open.
+        if (OPEN.consumeClick() && mc.screen == null) {
+            mc.setScreen(new SchematicScreen());
             return;
         }
 
@@ -84,6 +93,7 @@ public final class ModKeybinds {
         while (MIRROR.consumeClick()) { /* discard */ }
         while (UP.consumeClick()) { /* discard */ }
         while (DOWN.consumeClick()) { /* discard */ }
+        while (OPEN.consumeClick()) { /* discard */ }
     }
 
     private static boolean holdingWand(LocalPlayer player) {
