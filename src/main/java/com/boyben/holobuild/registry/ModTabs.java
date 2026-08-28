@@ -21,6 +21,9 @@ public final class ModTabs {
                     .title(Component.translatable("itemGroup.holobuild"))
                     .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                     .icon(() -> ModItems.BLUEPRINT_WAND.get().getDefaultInstance())
-                    .displayItems((parameters, output) -> output.accept(ModItems.BLUEPRINT_WAND.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(ModItems.BLUEPRINT_WAND.get());
+                        output.accept(ModItems.SELECTION_WAND.get());
+                    })
                     .build());
 }

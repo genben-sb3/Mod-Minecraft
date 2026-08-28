@@ -166,6 +166,47 @@ public final class SchematicLoader {
         return EXTENSIONS.stream().anyMatch(lower::endsWith);
     }
 
+    /** Longer than any sensible file name; stops a huge string arriving over the network. */
+    public static final int MAX_NAME_LENGTH = 128;
+
+    /**
+     * Only plain file names. Anything that could climb out of the schematics
+     * folder - slashes, backslashes, "..", a drive letter - is rejected.
+     *
+     * Names reach us from the network and from commands, so this check and
+     * {@link #findByName} together are what keep those inputs harmless.
+     */
+    public static boolean isSafeName(String name) {
+        if (name.isEmpty() || name.length() > MAX_NAME_LENGTH) {
+            return false;
+        }
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            boolean allowed = (c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= '0' && c <= '9')
+                    || c == '_' || c == '-' || c == ' ' || c == '.';
+            if (!allowed) {
+                return false;
+            }
+        }
+        return !name.contains("..");
+    }
+
+    /**
+     * Where a new schematic of this name would be written.
+     *
+     * @return the path, or null if the name is not safe to use
+     */
+    public static Path pathForNewFile(String name) {
+        if (!isSafeName(name)) {
+            return null;
+        }
+        Path folder = getSchematicFolder().toAbsolutePath().normalize();
+        Path file = folder.resolve(name + NBT_EXTENSION).toAbsolutePath().normalize();
+        return file.startsWith(folder) ? file : null;
+    }
+
     /**
      * Finds the file behind a display name, trying every supported extension.
      *

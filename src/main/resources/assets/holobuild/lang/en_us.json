@@ -31,5 +31,16 @@
   "message.holobuild.selected": "Blueprint chosen: %s",
   "message.holobuild.build_started": "Building %s - %s blocks (%s)",
   "message.holobuild.build_finished": "%s done - %s blocks placed",
-  "message.holobuild.build_cancelled": "Build cancelled."
+  "message.holobuild.build_cancelled": "Build cancelled.",
+  "item.holobuild.selection_wand": "Selection Wand",
+
+  "message.holobuild.corner_one": "Corner 1 set: %s %s %s",
+  "message.holobuild.corner_two": "Corner 2 set: %s %s %s",
+  "message.holobuild.selection_size": "Selection: %s (%s blocks) - now /holobuild save <name>",
+  "message.holobuild.no_selection": "Mark two corners with the Selection Wand first.",
+  "message.holobuild.selection_too_big": "Selection too big: %s blocks, limit is %s.",
+  "message.holobuild.bad_name": "'%s' will not work as a file name. Allowed: letters, digits, spaces, - and _",
+  "message.holobuild.save_failed": "Could not save %s - check the log.",
+  "message.holobuild.saved": "Saved %s (%s)",
+  "message.holobuild.list_header": "%s schematics:"
 }

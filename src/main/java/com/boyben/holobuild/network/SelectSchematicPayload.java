@@ -26,14 +26,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  */
 public record SelectSchematicPayload(String schematic) implements CustomPacketPayload {
 
-    /** Longer than any sensible file name; stops a client sending a huge string. */
-    private static final int MAX_NAME_LENGTH = 128;
-
     public static final Type<SelectSchematicPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(HoloBuild.MODID, "select_schematic"));
 
     public static final StreamCodec<ByteBuf, SelectSchematicPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.stringUtf8(MAX_NAME_LENGTH), SelectSchematicPayload::schematic,
+            ByteBufCodecs.stringUtf8(SchematicLoader.MAX_NAME_LENGTH), SelectSchematicPayload::schematic,
             SelectSchematicPayload::new);
 
     @Override
@@ -48,7 +45,7 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
         }
 
         String name = payload.schematic();
-        if (!isSafeName(name) || !existsInFolder(name)) {
+        if (!SchematicLoader.isSafeName(name) || !existsInFolder(name)) {
             // Never trust a name off the network: it ends up in a file path.
             HoloBuild.LOGGER.warn("Verdaechtiger Schematic-Name von {} abgelehnt: {}",
                     player.getGameProfile().getName(), name);
@@ -69,27 +66,6 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
         player.displayClientMessage(
                 Component.translatable("message.holobuild.selected", name)
                         .withStyle(ChatFormatting.GREEN), true);
-    }
-
-    /**
-     * Only plain file names. Anything that could climb out of the schematics
-     * folder - slashes, backslashes, "..", a drive letter - is rejected.
-     */
-    private static boolean isSafeName(String name) {
-        if (name.isEmpty() || name.length() > MAX_NAME_LENGTH) {
-            return false;
-        }
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            boolean allowed = (c >= 'a' && c <= 'z')
-                    || (c >= 'A' && c <= 'Z')
-                    || (c >= '0' && c <= '9')
-                    || c == '_' || c == '-' || c == ' ' || c == '.';
-            if (!allowed) {
-                return false;
-            }
-        }
-        return !name.contains("..");
     }
 
     /**

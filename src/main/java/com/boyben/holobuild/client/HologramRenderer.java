@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.Selection;
 import com.boyben.holobuild.item.BlueprintWandItem;
+import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.Placement;
@@ -59,6 +61,11 @@ public final class HologramRenderer {
     private static final float OUTLINE_B = 1.00f;
     private static final float OUTLINE_A = 0.85f;
 
+    /** Selection box is amber, so it never gets confused with the blueprint outline. */
+    private static final float SELECT_R = 1.00f;
+    private static final float SELECT_G = 0.78f;
+    private static final float SELECT_B = 0.20f;
+
     /** Logged once instead of every frame - a broken hologram must not spam the log. */
     private static boolean warned = false;
 
@@ -91,6 +98,8 @@ public final class HologramRenderer {
         if (player == null || mc.level == null || !player.isCreative()) {
             return;
         }
+
+        renderSelection(event, player);
 
         ItemStack stack = wandInHand(player);
         if (stack == null) {
@@ -166,16 +175,45 @@ public final class HologramRenderer {
         buffers.endBatch(RenderType.translucent());
     }
 
+    /**
+     * Shows what the Selection Wand has marked so far: the full area once both
+     * corners are set, or just the single corner while one is still missing.
+     */
+    private static void renderSelection(RenderLevelStageEvent event, LocalPlayer player) {
+        ItemStack stack = itemInHand(player, SelectionWandItem.class);
+        if (stack == null) {
+            return;
+        }
+        Selection selection = stack.getOrDefault(ModComponents.SELECTION.get(), Selection.EMPTY);
+
+        if (selection.isComplete()) {
+            drawOutline(event, selection.box(), SELECT_R, SELECT_G, SELECT_B, OUTLINE_A);
+        } else {
+            selection.first().or(selection::second).ifPresent(corner ->
+                    drawOutline(event, new BoundingBox(corner), SELECT_R, SELECT_G, SELECT_B, OUTLINE_A));
+        }
+    }
+
     private static ItemStack wandInHand(LocalPlayer player) {
+        return itemInHand(player, BlueprintWandItem.class);
+    }
+
+    /** @return the held stack of that item type, main hand first, or null */
+    private static ItemStack itemInHand(LocalPlayer player, Class<?> type) {
         ItemStack main = player.getMainHandItem();
-        if (main.getItem() instanceof BlueprintWandItem) {
+        if (type.isInstance(main.getItem())) {
             return main;
         }
         ItemStack off = player.getOffhandItem();
-        return off.getItem() instanceof BlueprintWandItem ? off : null;
+        return type.isInstance(off.getItem()) ? off : null;
     }
 
     private static void drawOutline(RenderLevelStageEvent event, BoundingBox box) {
+        drawOutline(event, box, OUTLINE_R, OUTLINE_G, OUTLINE_B, OUTLINE_A);
+    }
+
+    private static void drawOutline(RenderLevelStageEvent event, BoundingBox box,
+                                    float red, float green, float blue, float alpha) {
         Minecraft mc = Minecraft.getInstance();
         PoseStack pose = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
@@ -193,7 +231,7 @@ public final class HologramRenderer {
         AABB area = new AABB(
                 box.minX(), box.minY(), box.minZ(),
                 box.maxX() + 1.0, box.maxY() + 1.0, box.maxZ() + 1.0);
-        LevelRenderer.renderLineBox(pose, lines, area, OUTLINE_R, OUTLINE_G, OUTLINE_B, OUTLINE_A);
+        LevelRenderer.renderLineBox(pose, lines, area, red, green, blue, alpha);
 
         pose.popPose();
         buffers.endBatch(RenderType.lines());

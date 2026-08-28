@@ -2,6 +2,7 @@ package com.boyben.holobuild.registry;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.Selection;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -24,4 +25,10 @@ public final class ModComponents {
             COMPONENTS.registerComponentType("blueprint", builder -> builder
                     .persistent(BlueprintSettings.CODEC)
                     .networkSynchronized(BlueprintSettings.STREAM_CODEC));
+
+    /** The two corners marked with the Selection Wand. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Selection>> SELECTION =
+            COMPONENTS.registerComponentType("selection", builder -> builder
+                    .persistent(Selection.CODEC)
+                    .networkSynchronized(Selection.STREAM_CODEC));
 }

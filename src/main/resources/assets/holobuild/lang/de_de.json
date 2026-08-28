@@ -31,5 +31,16 @@
   "message.holobuild.selected": "Bauplan gewaehlt: %s",
   "message.holobuild.build_started": "Baue %s - %s Bloecke (%s)",
   "message.holobuild.build_finished": "%s fertig - %s Bloecke gesetzt",
-  "message.holobuild.build_cancelled": "Bau abgebrochen."
+  "message.holobuild.build_cancelled": "Bau abgebrochen.",
+  "item.holobuild.selection_wand": "Auswahl-Stab",
+
+  "message.holobuild.corner_one": "Ecke 1 gesetzt: %s %s %s",
+  "message.holobuild.corner_two": "Ecke 2 gesetzt: %s %s %s",
+  "message.holobuild.selection_size": "Auswahl: %s (%s Bloecke) - jetzt /holobuild save <name>",
+  "message.holobuild.no_selection": "Markier erst zwei Ecken mit dem Auswahl-Stab.",
+  "message.holobuild.selection_too_big": "Auswahl zu gross: %s Bloecke, erlaubt sind %s.",
+  "message.holobuild.bad_name": "'%s' geht als Dateiname nicht. Erlaubt: Buchstaben, Zahlen, Leerzeichen, - und _",
+  "message.holobuild.save_failed": "%s konnte nicht gespeichert werden - schau in den Log.",
+  "message.holobuild.saved": "%s gespeichert (%s)",
+  "message.holobuild.list_header": "%s Schematics:"
 }
