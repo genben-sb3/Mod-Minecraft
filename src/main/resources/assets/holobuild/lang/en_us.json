@@ -34,6 +34,9 @@
   "message.holobuild.build_started": "Building %s - %s blocks (%s)",
   "message.holobuild.build_finished": "%s done - %s blocks placed",
   "message.holobuild.build_cancelled": "Build cancelled.",
+  "message.holobuild.too_high": "Does not fit - the build would reach %s blocks above the world ceiling. Build lower.",
+  "message.holobuild.too_low": "Does not fit - the build would reach %s blocks below the world floor. Build higher.",
+  "message.holobuild.selection_outside_world": "The selection sticks out of the world. Mark it between the world floor and ceiling.",
   "item.holobuild.selection_wand": "Selection Wand",
 
   "message.holobuild.corner_one": "Corner 1 set: %s %s %s",

@@ -21,22 +21,19 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | 5b | Auswahl-Stab + `/holobuild save` + `/holobuild list` |
 | 5c | .litematic-Import + JUnit im Build |
 | 5d | Favoriten in der GUI + varint-Dekoder getestet |
-| 6 | **Eingebaute Bau-Bibliothek (5 Bauwerke)** |
+| 6 | Eingebaute Bau-Bibliothek (5 Bauwerke) |
+| 6b | **Weltgrenzen-Absicherung** |
 
-## Etappe 6 — Bau-Bibliothek  ✅ CODE FERTIG
-- [x] Fuenf Bauwerke in `src/main/resources/data/holobuild/structure/`:
-      `cottage` 7x8x7 (169), `watchtower` 5x13x5 (218), `bridge` 5x6x15 (143),
-      `well` 5x6x5 (73), `lighthouse` 7x17x7 (364 Bloecke).
-      Erzeugt per Skript, alle fuenf als gueltiges NBT verifiziert.
-      **Als Startpunkt gedacht — Ben kann sie jederzeit durch eigene ersetzen.**
-- [x] `schematic/BuiltInLibrary.java` — liest aus der Mod-JAR ueber den
-      ClassLoader. Funktioniert client- und serverseitig ohne Datapack-System.
-      `index.txt` listet die Namen, dadurch muss beim Hinzufuegen kein Code geaendert werden.
-- [x] `SchematicLoader.loadByName/allNames/exists/isBuiltIn` — **eigene Dateien
-      gewinnen bei Namensgleichheit**, man kann also ein mitgeliefertes Bauwerk
-      ueberschreiben, indem man eins gleichen Namens speichert.
-- [x] GUI und `/holobuild list` markieren mitgelieferte mit "(mitgeliefert)"
-- [x] Cache versteht beide Quellen (Zeitstempel -1 fuer eingebaute)
+## Etappe 6b — Weltgrenzen  ✅ CODE FERTIG
+Gefundener Fehler: `Level.setBlock` tut ausserhalb der Bauhoehe **stillschweigend
+nichts** (Vanilla-Quelle Level.java Zeile 234). Ein Bauwerk nahe der Weltdecke
+(Y=319) oder am Weltboden (Y=-64) waere also halb verschwunden, ohne Absturz und
+ohne Meldung — der schlimmste Fehlertyp, weil man ewig nach der Ursache sucht.
+
+- [x] `Placement.fitsInWorld/overshootAbove/overshootBelow`
+- [x] Zauberstab prueft **vor** dem Bauen und sagt, um wieviele Bloecke es nicht passt
+- [x] **Hologramm wird rot**, wenn es nicht passen wuerde — man sieht es vor dem Klick
+- [x] `/holobuild save` prueft ebenfalls; sonst haette man ein Bauwerk aus Luft gespeichert
 
 ## Unterstuetzte Dateiformate
 `.nbt` (Struktur-Block) · `.schem` (WorldEdit/Sponge) · `.litematic` (Litematica)
@@ -45,7 +42,7 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | Eingabe | Wirkung |
 |---|---|
 | **G** | Bauplan auswaehlen (Stern = Favorit) |
-| Zielen (Blaupausen-Stab) | Hologramm + cyan Umriss |
+| Zielen (Blaupausen-Stab) | Hologramm, cyan = passt, **rot = passt nicht** |
 | Rechtsklick | bauen |
 | Shift + Rechtsklick | abbrechen und/oder rueckgaengig |
 | R / M | drehen / spiegeln |
@@ -60,6 +57,7 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
   weil `placeInWorld` genau das aufruft. Reihenfolge **erst mirror, dann rotate**.
 - Fremdformate werden sofort ins Vanilla-Structure-Format umgeschrieben. Dadurch
   musste fuer .schem und .litematic **kein** anderer Bereich angefasst werden.
+- Eigene Dateien gewinnen gegen mitgelieferte Bauwerke gleichen Namens.
 - Ab 30.000 Bloecken nur Umriss statt Block-Geister (Bildrate).
 
 ## ⚠️ WERKZEUG-FALLE (zweimal reingetappt!)
@@ -90,8 +88,12 @@ keine Anmeldefenster oeffnen. Ben muss in VS Code auf "Sync Changes" klicken.
 - **D8**: Auswahl-Stab + Befehle.
 - **D9**: .litematic + erste echte Tests, mit Gegenprobe.
 - **D10**: Favoriten + varint-Tests. README erneut mit perl beschaedigt.
-- **D11**: Bau-Bibliothek. Beide Builds gruen im ersten Versuch, keine Werkzeug-Pannen.
+- **D11**: Bau-Bibliothek, alles gruen im ersten Versuch.
+- **D12**: Etappe 7 uebersprungen (braucht Bens Entscheidung), stattdessen den
+  Weltgrenzen-Fehler gefunden und abgesichert. Wieder in den Vanilla-Quellen
+  nachgesehen statt zu vermuten — `setBlock` gibt dort einfach `false` zurueck.
 
-## Naechster Schritt
-Testen im Spiel. Danach Etappe 7 (Online-Bibliothek) — dafuer braucht es aber
-zuerst eine Entscheidung von Ben, weil ein GitHub-Repo dafuer noetig waere.
+## Naechster Schritt — ENTSCHEIDUNG VON BEN NOETIG
+Etappe 7 (Online-Bibliothek) braucht ein GitHub-Repo, das Ben gehoert.
+Solange das nicht geklaert ist, macht es keinen Sinn, den Download-Code zu bauen.
+Ansonsten: **testen im Spiel**.

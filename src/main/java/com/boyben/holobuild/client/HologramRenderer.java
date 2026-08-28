@@ -61,6 +61,11 @@ public final class HologramRenderer {
     private static final float OUTLINE_B = 1.00f;
     private static final float OUTLINE_A = 0.85f;
 
+    /** Shown when the build would not fit between world floor and ceiling. */
+    private static final float BLOCKED_R = 1.00f;
+    private static final float BLOCKED_G = 0.25f;
+    private static final float BLOCKED_B = 0.25f;
+
     /** Selection box is amber, so it never gets confused with the blueprint outline. */
     private static final float SELECT_R = 1.00f;
     private static final float SELECT_G = 0.78f;
@@ -120,8 +125,16 @@ public final class HologramRenderer {
 
         BlockPos origin = Placement.origin(hit.getBlockPos(), hit.getDirection(), settings);
         StructurePlaceSettings placeSettings = Placement.settings(schematic.size(), settings);
+        BoundingBox box = Placement.box(schematic, placeSettings, origin);
 
-        drawOutline(event, Placement.box(schematic, placeSettings, origin));
+        // Red outline when the build would poke through the world ceiling or
+        // floor - those blocks would silently go missing, so warn before the click.
+        boolean fits = Placement.fitsInWorld(box, mc.level);
+        if (fits) {
+            drawOutline(event, box);
+        } else {
+            drawOutline(event, box, BLOCKED_R, BLOCKED_G, BLOCKED_B, OUTLINE_A);
+        }
 
         if (schematic.blockCount() <= MAX_GHOST_BLOCKS) {
             drawGhostBlocks(event, blocksFor(schematic, placeSettings, origin, settings));

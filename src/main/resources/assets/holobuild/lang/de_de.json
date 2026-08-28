@@ -34,6 +34,9 @@
   "message.holobuild.build_started": "Baue %s - %s Bloecke (%s)",
   "message.holobuild.build_finished": "%s fertig - %s Bloecke gesetzt",
   "message.holobuild.build_cancelled": "Bau abgebrochen.",
+  "message.holobuild.too_high": "Passt nicht - das Bauwerk waere %s Bloecke ueber der Weltdecke. Bau tiefer.",
+  "message.holobuild.too_low": "Passt nicht - das Bauwerk waere %s Bloecke unter dem Weltboden. Bau hoeher.",
+  "message.holobuild.selection_outside_world": "Die Auswahl ragt aus der Welt heraus. Markier sie zwischen Weltboden und Weltdecke.",
   "item.holobuild.selection_wand": "Auswahl-Stab",
 
   "message.holobuild.corner_one": "Ecke 1 gesetzt: %s %s %s",

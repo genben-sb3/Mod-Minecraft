@@ -8,6 +8,7 @@ import com.boyben.holobuild.component.BlueprintSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -40,6 +41,27 @@ public final class Placement {
 
     public static BoundingBox box(LoadedSchematic schematic, StructurePlaceSettings settings, BlockPos origin) {
         return schematic.template().getBoundingBox(settings, origin);
+    }
+
+    /**
+     * Whether the whole build fits between the world's floor and ceiling.
+     *
+     * Worth checking up front: Level.setBlock silently does nothing outside the
+     * build height. Without this the player would just get half a building and
+     * no explanation at all.
+     */
+    public static boolean fitsInWorld(BoundingBox box, LevelHeightAccessor level) {
+        return box.minY() >= level.getMinBuildHeight()
+                && box.maxY() < level.getMaxBuildHeight();
+    }
+
+    /** How far the build would stick out, for telling the player what to do. */
+    public static int overshootBelow(BoundingBox box, LevelHeightAccessor level) {
+        return Math.max(0, level.getMinBuildHeight() - box.minY());
+    }
+
+    public static int overshootAbove(BoundingBox box, LevelHeightAccessor level) {
+        return Math.max(0, box.maxY() - (level.getMaxBuildHeight() - 1));
     }
 
     /**

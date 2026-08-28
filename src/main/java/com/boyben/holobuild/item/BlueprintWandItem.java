@@ -123,9 +123,21 @@ public class BlueprintWandItem extends Item {
 
         BlockPos target = Placement.origin(context.getClickedPos(), context.getClickedFace(), settings);
         StructurePlaceSettings placeSettings = Placement.settings(schematic.size(), settings);
+        BoundingBox box = Placement.box(schematic, placeSettings, target);
+
+        // Minecraft drops blocks outside the build height without a word, so a
+        // build near the ceiling or the bedrock would silently come out half
+        // finished. Say so instead, and say by how much.
+        if (!Placement.fitsInWorld(box, level)) {
+            int above = Placement.overshootAbove(box, level);
+            int below = Placement.overshootBelow(box, level);
+            tell(player, Component.translatable(
+                    above > 0 ? "message.holobuild.too_high" : "message.holobuild.too_low",
+                    above > 0 ? above : below), ChatFormatting.RED);
+            return InteractionResult.FAIL;
+        }
 
         // Save the old state first - once the blocks are overwritten it is too late.
-        BoundingBox box = Placement.box(schematic, placeSettings, target);
         boolean undoable = UndoManager.record(player, level, box);
 
         Vec3i size = schematic.size();

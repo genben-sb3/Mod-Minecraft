@@ -9,6 +9,7 @@ import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.Selection;
 import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
 import com.mojang.brigadier.CommandDispatcher;
@@ -83,6 +84,13 @@ public final class HoloBuildCommand {
         }
 
         BoundingBox box = selection.box();
+        // Outside the build height there is nothing to read, so a selection
+        // sticking out would quietly save a slab of empty air.
+        if (!Placement.fitsInWorld(box, level)) {
+            fail(source, Component.translatable("message.holobuild.selection_outside_world"));
+            return 0;
+        }
+
         BlockPos start = new BlockPos(box.minX(), box.minY(), box.minZ());
         Vec3i size = selection.size();
 
