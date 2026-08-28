@@ -1,7 +1,6 @@
 package com.boyben.holobuild.item;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 import com.boyben.holobuild.Config;
@@ -93,16 +92,17 @@ public class BlueprintWandItem extends Item {
         ItemStack stack = context.getItemInHand();
         BlueprintSettings settings = stack.getOrDefault(ModComponents.BLUEPRINT.get(), BlueprintSettings.EMPTY);
 
-        // Nothing chosen yet? Fall back to the first file in the folder, and
-        // remember it so the wand keeps using the same one.
+        // Nothing chosen yet? Fall back to the first thing available - a file of
+        // the player's own, or otherwise a built-in building - and remember it
+        // so the wand keeps using the same one.
         if (!settings.hasSchematic()) {
-            List<Path> files = SchematicLoader.listSchematics();
-            if (files.isEmpty()) {
+            List<String> available = SchematicLoader.allNames();
+            if (available.isEmpty()) {
                 tell(player, Component.translatable("message.holobuild.no_schematics",
                         SchematicLoader.getSchematicFolder().toString()), ChatFormatting.RED);
                 return InteractionResult.FAIL;
             }
-            settings = settings.withSchematic(SchematicLoader.displayName(files.get(0)));
+            settings = settings.withSchematic(available.get(0));
             stack.set(ModComponents.BLUEPRINT.get(), settings);
         }
 

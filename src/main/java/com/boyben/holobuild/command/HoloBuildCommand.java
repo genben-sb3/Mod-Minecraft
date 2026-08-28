@@ -112,20 +112,30 @@ public final class HoloBuildCommand {
     }
 
     private static int list(CommandSourceStack source) {
-        List<Path> files = SchematicLoader.listSchematics();
-        if (files.isEmpty()) {
+        List<String> names = SchematicLoader.allNames();
+        if (names.isEmpty()) {
             source.sendSuccess(() -> Component.translatable("message.holobuild.no_schematics",
                     SchematicLoader.getSchematicFolder().toString())
                     .withStyle(ChatFormatting.YELLOW), false);
             return 0;
         }
-        source.sendSuccess(() -> Component.translatable("message.holobuild.list_header", files.size())
+        source.sendSuccess(() -> Component.translatable("message.holobuild.list_header", names.size())
                 .withStyle(ChatFormatting.AQUA), false);
-        for (Path file : files) {
-            String entry = "  " + SchematicLoader.displayName(file);
-            source.sendSuccess(() -> Component.literal(entry).withStyle(ChatFormatting.GRAY), false);
+        for (String name : names) {
+            // Mark the ones that come from inside the mod, so it is obvious
+            // which files actually sit in the folder.
+            boolean builtIn = SchematicLoader.isBuiltIn(name);
+            Component line = Component.literal("  " + name)
+                    .withStyle(ChatFormatting.GRAY);
+            if (builtIn) {
+                line = line.copy().append(Component.literal("  ")
+                        .append(Component.translatable("screen.holobuild.built_in"))
+                        .withStyle(ChatFormatting.DARK_AQUA));
+            }
+            Component finalLine = line;
+            source.sendSuccess(() -> finalLine, false);
         }
-        return files.size();
+        return names.size();
     }
 
     /** @return the selection on a Selection Wand in either hand, or null */

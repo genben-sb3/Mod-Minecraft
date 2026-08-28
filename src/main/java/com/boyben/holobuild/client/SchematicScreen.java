@@ -39,7 +39,7 @@ public class SchematicScreen extends Screen {
     private static final String STAR_OFF = "☆";    // hollow star
 
     /** One entry: the name shown to the player and how big the file is. */
-    private record Entry(String name, long sizeBytes) {}
+    private record Entry(String name, long sizeBytes, boolean builtIn) {}
 
     private final List<Entry> all = new ArrayList<>();
     private List<Entry> filtered = new ArrayList<>();
@@ -78,14 +78,17 @@ public class SchematicScreen extends Screen {
 
     private void loadEntries() {
         all.clear();
-        for (Path file : SchematicLoader.listSchematics()) {
-            long size;
-            try {
-                size = Files.size(file);
-            } catch (IOException e) {
-                size = 0;
+        for (String name : SchematicLoader.allNames()) {
+            Path file = SchematicLoader.findByName(name);
+            long size = 0;
+            if (file != null) {
+                try {
+                    size = Files.size(file);
+                } catch (IOException e) {
+                    size = 0;
+                }
             }
-            all.add(new Entry(SchematicLoader.displayName(file), size));
+            all.add(new Entry(name, size, file == null));
         }
     }
 
@@ -150,6 +153,13 @@ public class SchematicScreen extends Screen {
     }
 
     private Component nameLabel(Entry entry) {
+        // Built-in buildings have no file, so show where they come from instead
+        // of a size - otherwise every one of them would read "0 B".
+        if (entry.builtIn()) {
+            return Component.literal(entry.name() + "  ")
+                    .append(Component.translatable("screen.holobuild.built_in")
+                            .withStyle(ChatFormatting.DARK_AQUA));
+        }
         String size = entry.sizeBytes() < 1024
                 ? entry.sizeBytes() + " B"
                 : (entry.sizeBytes() / 1024) + " KB";

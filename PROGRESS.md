@@ -5,12 +5,9 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 
 ## Stand des Testens
 - ✅ **16 automatische Tests**, alle gruen (`.\gradlew test`)
-  - `BitArrayTest` (9) — Bit-Packing der .litematic-Dateien
-  - `VarIntStreamTest` (7) — varints der .schem-Dateien
-  - Beide mit von Hand ausgerechneten Werten, nicht nur Round-Trip.
-    Gegenprobe gemacht: mit kaputtem Code schlagen die Tests fehl.
+  `BitArrayTest` (9, .litematic) und `VarIntStreamTest` (7, .schem),
+  beide mit von Hand ausgerechneten Werten und mit Gegenprobe geprueft.
 - ❌ **Im Spiel lief noch nichts.** `latest.log` ist immer noch vom 27.08.
-  Getestet sind die zwei Dateiformat-Dekoder. Alles andere ist nur kompiliert.
 
 ## Fertig (Code)
 | Etappe | Inhalt |
@@ -19,22 +16,27 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | 1 | Zauberstab platziert Strukturen, Kreativ-Check, serverseitig |
 | 2 | Hologramm (Block-Geister + Umriss), R/M/Bild-Tasten, Undo |
 | 3 | Auswahl-GUI (Taste G) mit Suchfeld |
-| 4 | Animiertes Bauen, Config `blocksPerTick`, Sound gedrosselt |
+| 4 | Animiertes Bauen, Config `blocksPerTick` |
 | 5 | .schem-Import (Sponge Version 1-3) |
 | 5b | Auswahl-Stab + `/holobuild save` + `/holobuild list` |
 | 5c | .litematic-Import + JUnit im Build |
-| 5d | **Favoriten in der GUI + varint-Dekoder getestet** |
+| 5d | Favoriten in der GUI + varint-Dekoder getestet |
+| 6 | **Eingebaute Bau-Bibliothek (5 Bauwerke)** |
 
-## Etappe 5d — Favoriten  ✅ CODE FERTIG
-- [x] `client/Favourites.java` — Sternchen pro Schematic, gespeichert als
-      `holobuild/favourites.txt`, ein Name pro Zeile. Von Hand editierbar.
-      Rein clientseitig — der Server hat damit nichts zu tun.
-- [x] `SchematicScreen` — Stern-Knopf links neben jedem Eintrag, markierte
-      Eintraege stehen oben. Anzeige welcher Ausschnitt gerade sichtbar ist.
-- [x] `format/VarIntStream.java` — die varint-Dekodierung aus dem .schem-Reader
-      herausgezogen, **bewusst ohne Minecraft-Klassen**, damit testbar.
-      Gleiche Ueberlegung wie bei `BitArray`: ein falscher Shift stuerzt nicht ab,
-      er liefert einfach ab da nur noch falsche Bloecke.
+## Etappe 6 — Bau-Bibliothek  ✅ CODE FERTIG
+- [x] Fuenf Bauwerke in `src/main/resources/data/holobuild/structure/`:
+      `cottage` 7x8x7 (169), `watchtower` 5x13x5 (218), `bridge` 5x6x15 (143),
+      `well` 5x6x5 (73), `lighthouse` 7x17x7 (364 Bloecke).
+      Erzeugt per Skript, alle fuenf als gueltiges NBT verifiziert.
+      **Als Startpunkt gedacht — Ben kann sie jederzeit durch eigene ersetzen.**
+- [x] `schematic/BuiltInLibrary.java` — liest aus der Mod-JAR ueber den
+      ClassLoader. Funktioniert client- und serverseitig ohne Datapack-System.
+      `index.txt` listet die Namen, dadurch muss beim Hinzufuegen kein Code geaendert werden.
+- [x] `SchematicLoader.loadByName/allNames/exists/isBuiltIn` — **eigene Dateien
+      gewinnen bei Namensgleichheit**, man kann also ein mitgeliefertes Bauwerk
+      ueberschreiben, indem man eins gleichen Namens speichert.
+- [x] GUI und `/holobuild list` markieren mitgelieferte mit "(mitgeliefert)"
+- [x] Cache versteht beide Quellen (Zeitstempel -1 fuer eingebaute)
 
 ## Unterstuetzte Dateiformate
 `.nbt` (Struktur-Block) · `.schem` (WorldEdit/Sponge) · `.litematic` (Litematica)
@@ -62,7 +64,7 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 
 ## ⚠️ WERKZEUG-FALLE (zweimal reingetappt!)
 `perl -0pi -e` mit **mehrzeiligen** Suchmustern haengt den Ersatz an den
-**Dateianfang**, statt zu ersetzen. Hat in D7 und D10 jeweils das README zerschossen.
+**Dateianfang**, statt zu ersetzen. Hat in D7 und D10 das README zerschossen.
 **Regel: mehrzeilige Aenderungen an Textdateien immer per Neuschreiben der Datei.**
 Einzeiliges `sed` ist unproblematisch.
 
@@ -70,6 +72,7 @@ Einzeiliges `sed` ist unproblematisch.
 - GUI liest den Ordner des **Clients** — Singleplayer korrekt, echter Server nicht.
 - Animierter Modus ohne Waterlogging und Structure Processors.
 - `.schem` bringt keine Block-Entities mit (.litematic dagegen schon).
+- Die mitgelieferten Bauwerke sind schlicht (per Skript erzeugt), nicht handgebaut.
 
 ## Git
 Lokal: Branch `main`. Remote `genben-sb3/Mod-Minecraft`.
@@ -78,16 +81,17 @@ keine Anmeldefenster oeffnen. Ben muss in VS Code auf "Sync Changes" klicken.
 
 ## Log
 - **D1**: Etappe 0 + 1. Java per ZIP statt winget (UAC haengt).
-- **D2**: Fehler war EIN verlorener Backslash. Zeit im NBT-Pruefwerkzeug verloren.
+- **D2**: Fehler war EIN verlorener Backslash.
 - **D3**: Etappe 2 halb. Git-Repo, README, Lizenz.
 - **D4**: Block-Geister. Dekompilierte Quellen gelesen statt API zu raten.
 - **D5**: Etappe 3 GUI aus einfachen Buttons.
 - **D6**: Etappe 4. `distSqr` gibt `double` nicht `long`.
 - **D7**: .schem-Import. README mit perl beschaedigt.
-- **D8**: Auswahl-Stab + Befehle, beide Builds gruen im ersten Versuch.
+- **D8**: Auswahl-Stab + Befehle.
 - **D9**: .litematic + erste echte Tests, mit Gegenprobe.
-- **D10**: Favoriten + varint-Tests. README **erneut** mit perl beschaedigt,
-  obwohl die Lehre aus D7 schon hier stand. Jetzt als Werkzeug-Falle oben notiert.
+- **D10**: Favoriten + varint-Tests. README erneut mit perl beschaedigt.
+- **D11**: Bau-Bibliothek. Beide Builds gruen im ersten Versuch, keine Werkzeug-Pannen.
 
 ## Naechster Schritt
-Testen im Spiel. Danach: eingebaute Bau-Bibliothek (Etappe 6).
+Testen im Spiel. Danach Etappe 7 (Online-Bibliothek) — dafuer braucht es aber
+zuerst eine Entscheidung von Ben, weil ein GitHub-Repo dafuer noetig waere.

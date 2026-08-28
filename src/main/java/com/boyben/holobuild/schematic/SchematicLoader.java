@@ -6,7 +6,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import com.boyben.holobuild.HoloBuild;
@@ -246,5 +248,50 @@ public final class SchematicLoader {
             }
         }
         return fileName;
+    }
+
+    /**
+     * Loads a schematic by the name shown to the player.
+     *
+     * A file in the schematics folder is tried first, then the library that
+     * ships inside the mod - so anyone can override a built-in building simply
+     * by saving their own under the same name.
+     *
+     * @return the schematic, or null if nothing goes by that name
+     */
+    public static LoadedSchematic loadByName(String name, LevelReader level) throws IOException {
+        Path file = findByName(name);
+        if (file != null) {
+            return load(file, level);
+        }
+
+        CompoundTag builtIn = BuiltInLibrary.load(name);
+        if (builtIn == null) {
+            return null;
+        }
+        HolderLookup<Block> blockLookup = level.holderLookup(Registries.BLOCK);
+        StructureTemplate template = new StructureTemplate();
+        template.load(blockLookup, builtIn);
+        return new LoadedSchematic(name, template, readBlocks(builtIn, blockLookup));
+    }
+
+    /** Every name a player can choose: their own files plus the built-in library. */
+    public static List<String> allNames() {
+        Set<String> names = new LinkedHashSet<>();
+        for (Path file : listSchematics()) {
+            names.add(displayName(file));
+        }
+        names.addAll(BuiltInLibrary.names());
+        return List.copyOf(names);
+    }
+
+    /** True if that name resolves to either a file or a built-in building. */
+    public static boolean exists(String name) {
+        return findByName(name) != null || BuiltInLibrary.contains(name);
+    }
+
+    /** True if the name only exists inside the mod, with no file of the player's own. */
+    public static boolean isBuiltIn(String name) {
+        return findByName(name) == null && BuiltInLibrary.contains(name);
     }
 }

@@ -16,6 +16,7 @@
   "screen.holobuild.no_match": "Nothing matches - try a different search.",
   "screen.holobuild.count": "%s of %s",
   "screen.holobuild.scroll_hint": "Row %s-%s (scroll to page)",
+  "screen.holobuild.built_in": "(built in)",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt files here: %s",

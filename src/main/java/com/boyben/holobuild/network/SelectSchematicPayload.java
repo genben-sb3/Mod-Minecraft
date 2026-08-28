@@ -45,7 +45,7 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
         }
 
         String name = payload.schematic();
-        if (!SchematicLoader.isSafeName(name) || !existsInFolder(name)) {
+        if (!SchematicLoader.isSafeName(name) || !nameResolves(name)) {
             // Never trust a name off the network: it ends up in a file path.
             HoloBuild.LOGGER.warn("Verdaechtiger Schematic-Name von {} abgelehnt: {}",
                     player.getGameProfile().getName(), name);
@@ -69,11 +69,11 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
     }
 
     /**
-     * Second line of defence: a real file has to exist for that name.
-     * findByName does the path check and knows every supported extension.
+     * Second line of defence: the name has to resolve to something real -
+     * a file of the player's own, or a building shipped inside the mod.
      */
-    private static boolean existsInFolder(String name) {
-        return SchematicLoader.findByName(name) != null;
+    private static boolean nameResolves(String name) {
+        return SchematicLoader.exists(name);
     }
 
     private static ItemStack findWand(Player player) {
