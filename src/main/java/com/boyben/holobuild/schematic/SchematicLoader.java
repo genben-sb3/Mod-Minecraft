@@ -10,9 +10,13 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.schematic.format.RawSchematic;
+import com.boyben.holobuild.schematic.format.SpongeSchematicReader;
+import com.boyben.holobuild.schematic.format.StructureNbt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -29,14 +33,21 @@ import net.neoforged.fml.loading.FMLPaths;
 /**
  * Reads schematic files from disk into Minecraft's own StructureTemplate.
  *
- * Only vanilla .nbt (structure block format) for now - .schem and .litematic
- * support is planned for a later stage.
+ * Understands Minecraft .nbt structures and Sponge .schem files.
+ * .litematic is still to come.
  */
 public final class SchematicLoader {
     private SchematicLoader() {}
 
     private static final String FOLDER_NAME = "holobuild/schematics";
-    private static final String EXTENSION = ".nbt";
+
+    /** Minecraft's own structure format, written by the structure block. */
+    private static final String NBT_EXTENSION = ".nbt";
+
+    /** Sponge Schematic, what WorldEdit and the schematic websites hand out. */
+    private static final String SCHEM_EXTENSION = ".schem";
+
+    private static final List<String> EXTENSIONS = List.of(NBT_EXTENSION, SCHEM_EXTENSION);
 
     /** The folder players drop their schematic files into. */
     public static Path getSchematicFolder() {
@@ -69,18 +80,37 @@ public final class SchematicLoader {
     }
 
     /**
-     * Loads one .nbt file into a StructureTemplate plus our own block list.
+     * Loads a schematic file into a StructureTemplate plus our own block list.
      *
-     * @throws IOException if the file is missing or not a valid structure file
+     * Foreign formats are converted to Minecraft's structure layout first, so
+     * everything downstream only ever deals with one kind of data.
+     *
+     * @throws IOException if the file is missing or cannot be understood
      */
     public static LoadedSchematic load(Path file, LevelReader level) throws IOException {
-        CompoundTag tag = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
+        CompoundTag fileTag = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
+        HolderLookup<Block> blockLookup = level.holderLookup(Registries.BLOCK);
 
-        HolderGetter<Block> blockLookup = level.holderLookup(Registries.BLOCK);
+        CompoundTag structureTag;
+        List<StructureTemplate.StructureBlockInfo> blocks;
+
+        if (fileName(file).endsWith(SCHEM_EXTENSION)) {
+            RawSchematic raw = SpongeSchematicReader.read(fileTag, blockLookup);
+            structureTag = StructureNbt.toCompound(raw);
+            blocks = raw.blocks();
+        } else {
+            structureTag = fileTag;
+            blocks = readBlocks(structureTag, blockLookup);
+        }
+
         StructureTemplate template = new StructureTemplate();
-        template.load(blockLookup, tag);
+        template.load(blockLookup, structureTag);
 
-        return new LoadedSchematic(displayName(file), template, readBlocks(tag, blockLookup));
+        return new LoadedSchematic(displayName(file), template, blocks);
+    }
+
+    private static String fileName(Path file) {
+        return file.getFileName().toString().toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -132,14 +162,39 @@ public final class SchematicLoader {
     }
 
     private static boolean hasSchematicExtension(String fileName) {
-        return fileName.toLowerCase(Locale.ROOT).endsWith(EXTENSION);
+        String lower = fileName.toLowerCase(Locale.ROOT);
+        return EXTENSIONS.stream().anyMatch(lower::endsWith);
     }
 
-    /** File name without the .nbt ending, for showing to the player. */
+    /**
+     * Finds the file behind a display name, trying every supported extension.
+     *
+     * This is the single place that turns a name into a path, and it refuses to
+     * leave the schematics folder. Names arrive over the network, so a name like
+     * "../../secrets" must never resolve to anything.
+     *
+     * @return the file, or null if there is none by that name
+     */
+    public static Path findByName(String name) {
+        Path folder = getSchematicFolder().toAbsolutePath().normalize();
+        for (String extension : EXTENSIONS) {
+            Path candidate = folder.resolve(name + extension).toAbsolutePath().normalize();
+            if (candidate.startsWith(folder) && Files.isRegularFile(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    /** File name without the extension, for showing to the player. */
     public static String displayName(Path file) {
         String fileName = file.getFileName().toString();
-        return hasSchematicExtension(fileName)
-                ? fileName.substring(0, fileName.length() - EXTENSION.length())
-                : fileName;
+        String lower = fileName.toLowerCase(Locale.ROOT);
+        for (String extension : EXTENSIONS) {
+            if (lower.endsWith(extension)) {
+                return fileName.substring(0, fileName.length() - extension.length());
+            }
+        }
+        return fileName;
     }
 }

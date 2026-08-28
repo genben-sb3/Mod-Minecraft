@@ -13,23 +13,42 @@ or watch it rise block by block.
 
 ## What it does
 
-Drop `.nbt` structure files into `holobuild/schematics/` in your instance folder,
-then right-click with the **Blueprint Wand**.
+Drop `.nbt` or `.schem` files into `holobuild/schematics/` in your instance folder,
+press **G** to pick one, and right-click with the **Blueprint Wand**.
 
 | | Feature |
 |---|---|
-| ✅ | Place any vanilla `.nbt` structure with one right-click |
-| ✅ | Rotate and mirror — turning happens around the **centre**, so the build spins in place |
+| ✅ | See the whole build as a see-through hologram before you place it |
+| ✅ | Watch it rise block by block, bottom up and middle outwards |
+| ✅ | Rotate and mirror — turning happens around the **centre**, so it spins in place |
 | ✅ | Undo with shift + right-click, including chest contents and machine data |
+| ✅ | In-game picker with a search box |
+| ✅ | Reads Minecraft `.nbt` structures and Sponge `.schem` files |
 | ✅ | Creative mode only, so survival worlds stay safe |
-| 🔨 | Hologram preview before you place |
-| 🔨 | Keybinds for rotate / mirror / height |
-| 📋 | In-game picker with search and favourites |
-| 📋 | Animated build, block by block |
-| 📋 | Import `.schem` and `.litematic`, save your own selections |
-| 📋 | Built-in building library + online library |
+| 📋 | Read `.litematic` files |
+| 📋 | Save your own selection as a schematic |
+| 📋 | Favourites, built-in building library, online library |
 
-✅ done · 🔨 in progress · 📋 planned
+✅ done · 📋 planned
+
+## Controls
+
+| Input | Does |
+|---|---|
+| **G** | Choose a blueprint |
+| Look at a block | Hologram and outline appear |
+| Right-click | Build |
+| Shift + right-click | Cancel a running build, then undo |
+| **R** / **M** | Rotate / mirror |
+| **Page Up / Down** | Move up / down |
+
+## Settings
+
+`config/holobuild-server.toml`:
+
+- `blocksPerTick` — how fast it builds. Default 40 (about 800 blocks a second).
+  Set to `0` to place everything at once, or `5` to really watch it grow.
+- `placeSound` — block placing sounds while building.
 
 **Works with [Create](https://www.curseforge.com/minecraft/mc-mods/create):**
 Create saves its schematics in the same vanilla `.nbt` format, so HoloBuild reads

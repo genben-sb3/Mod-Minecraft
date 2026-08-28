@@ -23,12 +23,12 @@ public final class SchematicCache {
     private static final Map<Key, LoadedSchematic> CACHE = new ConcurrentHashMap<>();
 
     /**
-     * @param name file name without the .nbt ending
+     * @param name file name without the extension
      * @return the loaded schematic, or null if there is no such file
      */
     public static LoadedSchematic get(String name, LevelReader level) throws IOException {
-        Path file = SchematicLoader.getSchematicFolder().resolve(name + ".nbt");
-        if (!Files.isRegularFile(file)) {
+        Path file = SchematicLoader.findByName(name);
+        if (file == null) {
             return null;
         }
         Key key = new Key(name, Files.getLastModifiedTime(file).toMillis());

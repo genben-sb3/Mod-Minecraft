@@ -1,7 +1,5 @@
 package com.boyben.holobuild.network;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
@@ -94,11 +92,12 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
         return !name.contains("..");
     }
 
-    /** Second line of defence: the file has to really sit in the folder. */
+    /**
+     * Second line of defence: a real file has to exist for that name.
+     * findByName does the path check and knows every supported extension.
+     */
     private static boolean existsInFolder(String name) {
-        Path folder = SchematicLoader.getSchematicFolder().toAbsolutePath().normalize();
-        Path file = folder.resolve(name + ".nbt").toAbsolutePath().normalize();
-        return file.startsWith(folder) && Files.isRegularFile(file);
+        return SchematicLoader.findByName(name) != null;
     }
 
     private static ItemStack findWand(Player player) {
