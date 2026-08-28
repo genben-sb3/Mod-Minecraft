@@ -1,0 +1,15 @@
+{
+  "itemGroup.holobuild": "HoloBuild",
+
+  "item.holobuild.blueprint_wand": "Blueprint Wand",
+
+  "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
+  "message.holobuild.no_schematics": "No schematics found. Put .nbt files here: %s",
+  "message.holobuild.load_failed": "Could not read '%s' - is it a valid structure file?",
+  "message.holobuild.missing_file": "'%s' is gone from the schematics folder.",
+  "message.holobuild.place_failed": "Could not build here.",
+  "message.holobuild.built": "Built %s - %s blocks (%s)",
+  "message.holobuild.undone": "Undone - %s blocks restored",
+  "message.holobuild.nothing_to_undo": "Nothing to undo here.",
+  "message.holobuild.too_big_to_undo": "Too big to undo (over %s blocks) - built anyway."
+}

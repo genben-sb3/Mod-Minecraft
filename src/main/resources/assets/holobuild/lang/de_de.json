@@ -1,0 +1,15 @@
+{
+  "itemGroup.holobuild": "HoloBuild",
+
+  "item.holobuild.blueprint_wand": "Blaupausen-Zauberstab",
+
+  "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
+  "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt-Dateien hier ab: %s",
+  "message.holobuild.load_failed": "'%s' konnte nicht gelesen werden - ist das eine echte Struktur-Datei?",
+  "message.holobuild.missing_file": "'%s' liegt nicht mehr im Schematics-Ordner.",
+  "message.holobuild.place_failed": "Hier kann nicht gebaut werden.",
+  "message.holobuild.built": "%s gebaut - %s Bloecke (%s)",
+  "message.holobuild.undone": "Rueckgaengig gemacht - %s Bloecke zurueckgesetzt",
+  "message.holobuild.nothing_to_undo": "Hier gibt es nichts rueckgaengig zu machen.",
+  "message.holobuild.too_big_to_undo": "Zu gross fuer Rueckgaengig (ueber %s Bloecke) - trotzdem gebaut."
+}
