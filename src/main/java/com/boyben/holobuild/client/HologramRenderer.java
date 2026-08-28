@@ -1,0 +1,130 @@
+package com.boyben.holobuild.client;
+
+import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.item.BlueprintWandItem;
+import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.schematic.LoadedSchematic;
+import com.boyben.holobuild.schematic.Placement;
+import com.boyben.holobuild.schematic.SchematicCache;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+
+/**
+ * Draws where the selected schematic would land, before anything is placed.
+ *
+ * Client only. Position and orientation come from {@link Placement}, the exact
+ * same code the server uses to place blocks, so what you see is what you get.
+ */
+@EventBusSubscriber(modid = HoloBuild.MODID, value = Dist.CLIENT)
+public final class HologramRenderer {
+    private HologramRenderer() {}
+
+    private static final float R = 0.30f;
+    private static final float G = 0.85f;
+    private static final float B = 1.00f;
+    private static final float A = 0.85f;
+
+    /** Logged once instead of every frame - a broken hologram must not spam the log. */
+    private static boolean warned = false;
+
+    @SubscribeEvent
+    public static void onRenderLevel(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+            return;
+        }
+        try {
+            render(event);
+        } catch (Exception e) {
+            // Never let a rendering slip take the whole game down.
+            if (!warned) {
+                warned = true;
+                HoloBuild.LOGGER.error("Hologramm konnte nicht gezeichnet werden", e);
+            }
+        }
+    }
+
+    private static void render(RenderLevelStageEvent event) throws Exception {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || mc.level == null || !player.isCreative()) {
+            return;
+        }
+
+        ItemStack stack = wandInHand(player);
+        if (stack == null) {
+            return;
+        }
+        BlueprintSettings settings = stack.getOrDefault(ModComponents.BLUEPRINT.get(), BlueprintSettings.EMPTY);
+        if (!settings.hasSchematic()) {
+            return;
+        }
+
+        if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
+            return;
+        }
+
+        LoadedSchematic schematic = SchematicCache.get(settings.schematic(), mc.level);
+        if (schematic == null) {
+            return;
+        }
+
+        BlockPos origin = Placement.origin(hit.getBlockPos(), hit.getDirection(), settings);
+        StructurePlaceSettings placeSettings = Placement.settings(schematic.size(), settings);
+        BoundingBox box = Placement.box(schematic, placeSettings, origin);
+
+        drawOutline(event, box);
+    }
+
+    private static ItemStack wandInHand(LocalPlayer player) {
+        ItemStack main = player.getMainHandItem();
+        if (main.getItem() instanceof BlueprintWandItem) {
+            return main;
+        }
+        ItemStack off = player.getOffhandItem();
+        return off.getItem() instanceof BlueprintWandItem ? off : null;
+    }
+
+    private static void drawOutline(RenderLevelStageEvent event, BoundingBox box) {
+        Minecraft mc = Minecraft.getInstance();
+        PoseStack pose = event.getPoseStack();
+        Vec3 camera = event.getCamera().getPosition();
+
+        MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
+        VertexConsumer lines = buffers.getBuffer(RenderType.lines());
+
+        pose.pushPose();
+        // The level renders relative to the camera, so shift the whole box back
+        // by the camera position to land on real world coordinates.
+        pose.translate(-camera.x, -camera.y, -camera.z);
+
+        // BoundingBox max values are inclusive block positions; the box we want
+        // to draw ends one block further along on each axis.
+        AABB area = new AABB(
+                box.minX(), box.minY(), box.minZ(),
+                box.maxX() + 1.0, box.maxY() + 1.0, box.maxZ() + 1.0);
+        LevelRenderer.renderLineBox(pose, lines, area, R, G, B, A);
+
+        pose.popPose();
+        buffers.endBatch(RenderType.lines());
+    }
+}

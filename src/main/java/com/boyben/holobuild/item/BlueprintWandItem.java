@@ -8,6 +8,7 @@ import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
+import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.undo.UndoManager;
@@ -112,11 +113,11 @@ public class BlueprintWandItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        BlockPos target = placementOrigin(context, settings);
-        StructurePlaceSettings placeSettings = placeSettingsFor(schematic, settings);
+        BlockPos target = Placement.origin(context.getClickedPos(), context.getClickedFace(), settings);
+        StructurePlaceSettings placeSettings = Placement.settings(schematic.size(), settings);
 
         // Save the old state first - once the blocks are overwritten it is too late.
-        BoundingBox box = schematic.template().getBoundingBox(placeSettings, target);
+        BoundingBox box = Placement.box(schematic, placeSettings, target);
         boolean undoable = UndoManager.record(player, level, box);
 
         boolean placed = schematic.template().placeInWorld(
@@ -135,24 +136,6 @@ public class BlueprintWandItem extends Item {
                     ChatFormatting.YELLOW);
         }
         return InteractionResult.CONSUME;
-    }
-
-    /** Where the structure's corner goes: on the clicked face, shifted by the chosen offset. */
-    private static BlockPos placementOrigin(UseOnContext context, BlueprintSettings settings) {
-        return context.getClickedPos()
-                .relative(context.getClickedFace())
-                .above(settings.yOffset());
-    }
-
-    private static StructurePlaceSettings placeSettingsFor(LoadedSchematic schematic, BlueprintSettings settings) {
-        Vec3i size = schematic.size();
-        return new StructurePlaceSettings()
-                .setRotation(settings.toRotation())
-                .setMirror(settings.toMirror())
-                // Turn around the middle, otherwise rotating swings the whole
-                // building off to the side instead of spinning it in place.
-                .setRotationPivot(new BlockPos(size.getX() / 2, 0, size.getZ() / 2))
-                .setIgnoreEntities(false);
     }
 
     private static void tell(Player player, Component message, ChatFormatting colour) {

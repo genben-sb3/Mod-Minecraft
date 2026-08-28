@@ -3,6 +3,12 @@
 
   "item.holobuild.blueprint_wand": "Blaupausen-Zauberstab",
 
+  "key.categories.holobuild": "HoloBuild",
+  "key.holobuild.rotate": "Bauplan drehen",
+  "key.holobuild.mirror": "Bauplan spiegeln",
+  "key.holobuild.up": "Bauplan nach oben",
+  "key.holobuild.down": "Bauplan nach unten",
+
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt-Dateien hier ab: %s",
   "message.holobuild.load_failed": "'%s' konnte nicht gelesen werden - ist das eine echte Struktur-Datei?",
@@ -11,5 +17,8 @@
   "message.holobuild.built": "%s gebaut - %s Bloecke (%s)",
   "message.holobuild.undone": "Rueckgaengig gemacht - %s Bloecke zurueckgesetzt",
   "message.holobuild.nothing_to_undo": "Hier gibt es nichts rueckgaengig zu machen.",
-  "message.holobuild.too_big_to_undo": "Zu gross fuer Rueckgaengig (ueber %s Bloecke) - trotzdem gebaut."
+  "message.holobuild.too_big_to_undo": "Zu gross fuer Rueckgaengig (ueber %s Bloecke) - trotzdem gebaut.",
+  "message.holobuild.adjusted": "%s° gedreht, %s, Hoehe %s",
+  "message.holobuild.mirror_on": "gespiegelt",
+  "message.holobuild.mirror_off": "nicht gespiegelt"
 }
