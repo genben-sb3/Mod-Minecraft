@@ -1,25 +1,53 @@
+# HoloBuild
 
-Installation information
-=======
+Preview any schematic as a hologram, then build it instantly in creative mode —
+or watch it rise block by block.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+**Minecraft 1.21.1 · NeoForge 21.1.248 · Java 21**
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+> Inspired by [Schematica](https://www.curseforge.com/minecraft/mc-mods/schematica)
+> and [Litematica](https://www.curseforge.com/minecraft/mc-mods/litematica).
+> HoloBuild shares their idea, not their code — everything here is written from scratch.
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+---
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+## What it does
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+Drop `.nbt` structure files into `holobuild/schematics/` in your instance folder,
+then right-click with the **Blueprint Wand**.
+
+| | Feature |
+|---|---|
+| ✅ | Place any vanilla `.nbt` structure with one right-click |
+| ✅ | Rotate and mirror — turning happens around the **centre**, so the build spins in place |
+| ✅ | Undo with shift + right-click, including chest contents and machine data |
+| ✅ | Creative mode only, so survival worlds stay safe |
+| 🔨 | Hologram preview before you place |
+| 🔨 | Keybinds for rotate / mirror / height |
+| 📋 | In-game picker with search and favourites |
+| 📋 | Animated build, block by block |
+| 📋 | Import `.schem` and `.litematic`, save your own selections |
+| 📋 | Built-in building library + online library |
+
+✅ done · 🔨 in progress · 📋 planned
+
+**Works with [Create](https://www.curseforge.com/minecraft/mc-mods/create):**
+Create saves its schematics in the same vanilla `.nbt` format, so HoloBuild reads
+them directly.
+
+## Building it yourself
+
+```bash
+./gradlew build          # produces build/libs/holobuild-<version>.jar
+./gradlew runClient      # launches Minecraft with the mod loaded
+```
+
+You need **JDK 21** — Minecraft 1.21.1 will not run on anything else.
+
+## Licence
+
+[MIT](LICENSE) — use it, learn from it, build on it.
+
+---
+
+Made by **Ben** (genben-sb3), age 12, with a lot of curiosity.
