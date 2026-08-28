@@ -15,6 +15,7 @@
   "screen.holobuild.empty": "No schematics yet. Drop .nbt files here:",
   "screen.holobuild.no_match": "Nothing matches - try a different search.",
   "screen.holobuild.count": "%s of %s",
+  "screen.holobuild.scroll_hint": "Row %s-%s (scroll to page)",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt files here: %s",

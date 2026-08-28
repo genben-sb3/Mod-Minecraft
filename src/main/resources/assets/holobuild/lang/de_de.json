@@ -15,6 +15,7 @@
   "screen.holobuild.empty": "Noch keine Schematics gefunden. Leg .nbt-Dateien hier ab:",
   "screen.holobuild.no_match": "Nichts gefunden - such mal anders.",
   "screen.holobuild.count": "%s von %s",
+  "screen.holobuild.scroll_hint": "Zeile %s-%s (Mausrad zum Blaettern)",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt-Dateien hier ab: %s",

@@ -117,27 +117,12 @@ public final class SpongeSchematicReader {
             byte[] data, BlockState[] palette, int width, int height, int length) throws IOException {
 
         List<StructureTemplate.StructureBlockInfo> blocks = new ArrayList<>();
-        int cursor = 0;
+        VarIntStream stream = new VarIntStream(data);
         int position = 0;
         int total = width * height * length;
 
-        while (cursor < data.length && position < total) {
-            int value = 0;
-            int shift = 0;
-            while (true) {
-                if (cursor >= data.length) {
-                    throw new IOException("Schematic bricht mitten in einer Zahl ab");
-                }
-                byte b = data[cursor++];
-                value |= (b & 0x7F) << shift;
-                if ((b & 0x80) == 0) {
-                    break;
-                }
-                shift += 7;
-                if (shift > 35) {
-                    throw new IOException("Ungueltige Zahl in den Blockdaten");
-                }
-            }
+        while (stream.hasNext() && position < total) {
+            int value = stream.next();
 
             if (value >= 0 && value < palette.length) {
                 BlockState state = palette[value];

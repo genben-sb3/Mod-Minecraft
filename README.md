@@ -13,8 +13,8 @@ or watch it rise block by block.
 
 ## What it does
 
-Drop `.nbt` or `.schem` files into `holobuild/schematics/` in your instance folder,
-press **G** to pick one, and right-click with the **Blueprint Wand**.
+Drop `.nbt`, `.schem` or `.litematic` files into `holobuild/schematics/` in your
+instance folder, press **G** to pick one, and right-click with the **Blueprint Wand**.
 
 | | Feature |
 |---|---|
@@ -22,12 +22,11 @@ press **G** to pick one, and right-click with the **Blueprint Wand**.
 | ✅ | Watch it rise block by block, bottom up and middle outwards |
 | ✅ | Rotate and mirror — turning happens around the **centre**, so it spins in place |
 | ✅ | Undo with shift + right-click, including chest contents and machine data |
-| ✅ | In-game picker with a search box |
-| ✅ | Reads Minecraft `.nbt` structures and Sponge `.schem` files |
+| ✅ | In-game picker with a search box and favourites |
+| ✅ | Reads `.nbt`, `.schem` and `.litematic` files |
+| ✅ | Save your own builds with the Selection Wand |
 | ✅ | Creative mode only, so survival worlds stay safe |
-| 📋 | Read `.litematic` files |
-| 📋 | Save your own selection as a schematic |
-| 📋 | Favourites, built-in building library, online library |
+| 📋 | Built-in building library, online library |
 
 ✅ done · 📋 planned
 
@@ -41,6 +40,13 @@ press **G** to pick one, and right-click with the **Blueprint Wand**.
 | Shift + right-click | Cancel a running build, then undo |
 | **R** / **M** | Rotate / mirror |
 | **Page Up / Down** | Move up / down |
+| Right-click *(Selection Wand)* | Set corner 1 |
+| Shift + right-click *(Selection Wand)* | Set corner 2 |
+| `/holobuild save <name>` | Save the marked area as a schematic |
+| `/holobuild list` | List every schematic |
+
+Starred schematics stay at the top of the picker. The list lives in
+`holobuild/favourites.txt`, one name per line, so you can edit it by hand.
 
 ## Settings
 
@@ -58,10 +64,20 @@ them directly.
 
 ```bash
 ./gradlew build          # produces build/libs/holobuild-<version>.jar
+./gradlew test           # runs the unit tests
 ./gradlew runClient      # launches Minecraft with the mod loaded
 ```
 
 You need **JDK 21** — Minecraft 1.21.1 will not run on anything else.
+
+### Tests
+
+The two file-format decoders are the easiest places to introduce a bug that
+never crashes and simply produces the wrong blocks, so both are covered by
+plain unit tests that run without Minecraft:
+
+- `BitArrayTest` — the bit packing behind `.litematic`
+- `VarIntStreamTest` — the variable-length numbers behind `.schem`
 
 ## Licence
 

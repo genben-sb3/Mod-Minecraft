@@ -4,11 +4,13 @@ Mod fuer Minecraft 1.21.1 + NeoForge 21.1.248 | Java 21 | Package `com.boyben.ho
 Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 
 ## Stand des Testens
-- ✅ **9 automatische Tests** fuer die Bit-Arithmetik der .litematic-Dateien, alle gruen.
-      Gegenprobe gemacht: mit absichtlich kaputtem Code schlagen 3 davon fehl,
-      die Tests pruefen also wirklich etwas.
-- ❌ **Alles andere lief nie in Minecraft.** `latest.log` ist immer noch vom 27.08.
-      Sieben Etappen Code, davon getestet: die Bit-Arithmetik. Sonst nichts.
+- ✅ **16 automatische Tests**, alle gruen (`.\gradlew test`)
+  - `BitArrayTest` (9) — Bit-Packing der .litematic-Dateien
+  - `VarIntStreamTest` (7) — varints der .schem-Dateien
+  - Beide mit von Hand ausgerechneten Werten, nicht nur Round-Trip.
+    Gegenprobe gemacht: mit kaputtem Code schlagen die Tests fehl.
+- ❌ **Im Spiel lief noch nichts.** `latest.log` ist immer noch vom 27.08.
+  Getestet sind die zwei Dateiformat-Dekoder. Alles andere ist nur kompiliert.
 
 ## Fertig (Code)
 | Etappe | Inhalt |
@@ -20,27 +22,27 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | 4 | Animiertes Bauen, Config `blocksPerTick`, Sound gedrosselt |
 | 5 | .schem-Import (Sponge Version 1-3) |
 | 5b | Auswahl-Stab + `/holobuild save` + `/holobuild list` |
-| 5c | **.litematic-Import + Unit-Tests + JUnit im Build** |
+| 5c | .litematic-Import + JUnit im Build |
+| 5d | **Favoriten in der GUI + varint-Dekoder getestet** |
 
-## Etappe 5c — .litematic  ✅ CODE FERTIG
-- [x] `format/BitArray.java` — die Bit-Arithmetik, **bewusst ohne jede
-      Minecraft-Klasse**, damit sie ohne Spiel testbar ist.
-      Litematica packt Bits durchgehend; ein Eintrag kann in einem long anfangen
-      und im naechsten enden. Minecraft selbst polstert seit 1.16 jeden long —
-      wer das verwechselt, kriegt statt eines Gebaeudes Konfetti.
-- [x] `format/LitematicaReader.java` — mehrere Regionen, eigene Palette je Region,
-      **negative Groessen** (dann ist die angegebene Position die ferne Ecke),
-      TileEntities (Kisteninhalte) werden zugeordnet.
-      Alle Regionen werden am Ende auf 0,0,0 normalisiert.
-- [x] `src/test/java/.../BitArrayTest.java` — 9 Tests, darunter drei mit **von Hand
-      ausgerechneten** Bitmustern. Wichtig: reine Round-Trip-Tests (pack gegen get)
-      waeren gruen geblieben, wenn beide denselben Denkfehler haetten.
-- [x] JUnit 5 im `build.gradle`, `./gradlew test` laeuft
+## Etappe 5d — Favoriten  ✅ CODE FERTIG
+- [x] `client/Favourites.java` — Sternchen pro Schematic, gespeichert als
+      `holobuild/favourites.txt`, ein Name pro Zeile. Von Hand editierbar.
+      Rein clientseitig — der Server hat damit nichts zu tun.
+- [x] `SchematicScreen` — Stern-Knopf links neben jedem Eintrag, markierte
+      Eintraege stehen oben. Anzeige welcher Ausschnitt gerade sichtbar ist.
+- [x] `format/VarIntStream.java` — die varint-Dekodierung aus dem .schem-Reader
+      herausgezogen, **bewusst ohne Minecraft-Klassen**, damit testbar.
+      Gleiche Ueberlegung wie bei `BitArray`: ein falscher Shift stuerzt nicht ab,
+      er liefert einfach ab da nur noch falsche Bloecke.
+
+## Unterstuetzte Dateiformate
+`.nbt` (Struktur-Block) · `.schem` (WorldEdit/Sponge) · `.litematic` (Litematica)
 
 ## Steuerung
 | Eingabe | Wirkung |
 |---|---|
-| **G** | Bauplan auswaehlen |
+| **G** | Bauplan auswaehlen (Stern = Favorit) |
 | Zielen (Blaupausen-Stab) | Hologramm + cyan Umriss |
 | Rechtsklick | bauen |
 | Shift + Rechtsklick | abbrechen und/oder rueckgaengig |
@@ -51,15 +53,18 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | `/holobuild save <name>` | Auswahl speichern |
 | `/holobuild list` | alle Schematics auflisten |
 
-## Unterstuetzte Dateiformate
-`.nbt` (Struktur-Block) · `.schem` (WorldEdit/Sponge) · `.litematic` (Litematica)
-
 ## Wichtige Entscheidungen (nicht "aufraeumen"!)
 - `Placement.transformed()` nutzt bewusst das **deprecated** `BlockState.rotate(Rotation)`,
   weil `placeInWorld` genau das aufruft. Reihenfolge **erst mirror, dann rotate**.
 - Fremdformate werden sofort ins Vanilla-Structure-Format umgeschrieben. Dadurch
   musste fuer .schem und .litematic **kein** anderer Bereich angefasst werden.
 - Ab 30.000 Bloecken nur Umriss statt Block-Geister (Bildrate).
+
+## ⚠️ WERKZEUG-FALLE (zweimal reingetappt!)
+`perl -0pi -e` mit **mehrzeiligen** Suchmustern haengt den Ersatz an den
+**Dateianfang**, statt zu ersetzen. Hat in D7 und D10 jeweils das README zerschossen.
+**Regel: mehrzeilige Aenderungen an Textdateien immer per Neuschreiben der Datei.**
+Einzeiliges `sed` ist unproblematisch.
 
 ## Bekannte Einschraenkungen
 - GUI liest den Ordner des **Clients** — Singleplayer korrekt, echter Server nicht.
@@ -78,11 +83,11 @@ keine Anmeldefenster oeffnen. Ben muss in VS Code auf "Sync Changes" klicken.
 - **D4**: Block-Geister. Dekompilierte Quellen gelesen statt API zu raten.
 - **D5**: Etappe 3 GUI aus einfachen Buttons.
 - **D6**: Etappe 4. `distSqr` gibt `double` nicht `long`.
-- **D7**: .schem-Import. README mit perl-Befehl beschaedigt, neu geschrieben.
+- **D7**: .schem-Import. README mit perl beschaedigt.
 - **D8**: Auswahl-Stab + Befehle, beide Builds gruen im ersten Versuch.
-- **D9**: .litematic + erste echte Tests. Bit-Arithmetik in eine Minecraft-freie
-  Klasse gezogen, damit sie ueberhaupt testbar ist. Gegenprobe mit absichtlich
-  kaputtem Code bestaetigt, dass die Tests greifen.
+- **D9**: .litematic + erste echte Tests, mit Gegenprobe.
+- **D10**: Favoriten + varint-Tests. README **erneut** mit perl beschaedigt,
+  obwohl die Lehre aus D7 schon hier stand. Jetzt als Werkzeug-Falle oben notiert.
 
 ## Naechster Schritt
-Testen im Spiel. Danach: Favoriten in der GUI, eingebaute Bau-Bibliothek.
+Testen im Spiel. Danach: eingebaute Bau-Bibliothek (Etappe 6).
