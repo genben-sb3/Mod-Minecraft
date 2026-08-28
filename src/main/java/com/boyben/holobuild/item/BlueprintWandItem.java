@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
+import com.boyben.holobuild.Config;
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.build.BuildAnimator;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
@@ -72,6 +74,12 @@ public class BlueprintWandItem extends Item {
     }
 
     private InteractionResult undo(ServerPlayer player, ServerLevel level) {
+        // A build still running is stopped first - undoing underneath a build
+        // that keeps placing blocks would just fight itself.
+        if (BuildAnimator.cancel(player.getUUID())) {
+            tell(player, Component.translatable("message.holobuild.build_cancelled"), ChatFormatting.YELLOW);
+        }
+
         int restored = UndoManager.undo(player, level);
         if (restored < 0) {
             tell(player, Component.translatable("message.holobuild.nothing_to_undo"), ChatFormatting.YELLOW);
@@ -120,17 +128,28 @@ public class BlueprintWandItem extends Item {
         BoundingBox box = Placement.box(schematic, placeSettings, target);
         boolean undoable = UndoManager.record(player, level, box);
 
-        boolean placed = schematic.template().placeInWorld(
-                level, target, target, placeSettings, level.getRandom(), Block.UPDATE_CLIENTS);
-        if (!placed) {
-            tell(player, Component.translatable("message.holobuild.place_failed"), ChatFormatting.RED);
-            return InteractionResult.FAIL;
+        Vec3i size = schematic.size();
+        String dimensions = size.getX() + "x" + size.getY() + "x" + size.getZ();
+
+        if (Config.blocksPerTick() <= 0) {
+            // Instant mode: let vanilla do it, that also handles waterlogging
+            // and any structure processors.
+            boolean placed = schematic.template().placeInWorld(
+                    level, target, target, placeSettings, level.getRandom(), Block.UPDATE_CLIENTS);
+            if (!placed) {
+                tell(player, Component.translatable("message.holobuild.place_failed"), ChatFormatting.RED);
+                return InteractionResult.FAIL;
+            }
+            tell(player, Component.translatable("message.holobuild.built",
+                    schematic.name(), schematic.blockCount(), dimensions), ChatFormatting.GREEN);
+        } else {
+            // Animated mode: our own block list, placed a few per tick.
+            BuildAnimator.start(player, level, schematic.name(),
+                    Placement.transformed(schematic, placeSettings, target));
+            tell(player, Component.translatable("message.holobuild.build_started",
+                    schematic.name(), schematic.blockCount(), dimensions), ChatFormatting.AQUA);
         }
 
-        Vec3i size = schematic.size();
-        tell(player, Component.translatable("message.holobuild.built",
-                schematic.name(), schematic.blockCount(),
-                size.getX() + "x" + size.getY() + "x" + size.getZ()), ChatFormatting.GREEN);
         if (!undoable) {
             tell(player, Component.translatable("message.holobuild.too_big_to_undo", UndoManager.MAX_BLOCKS),
                     ChatFormatting.YELLOW);

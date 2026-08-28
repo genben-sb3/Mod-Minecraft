@@ -28,5 +28,8 @@
   "message.holobuild.adjusted": "%s° gedreht, %s, Hoehe %s",
   "message.holobuild.mirror_on": "gespiegelt",
   "message.holobuild.mirror_off": "nicht gespiegelt",
-  "message.holobuild.selected": "Bauplan gewaehlt: %s"
+  "message.holobuild.selected": "Bauplan gewaehlt: %s",
+  "message.holobuild.build_started": "Baue %s - %s Bloecke (%s)",
+  "message.holobuild.build_finished": "%s fertig - %s Bloecke gesetzt",
+  "message.holobuild.build_cancelled": "Bau abgebrochen."
 }

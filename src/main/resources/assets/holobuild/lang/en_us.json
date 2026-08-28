@@ -28,5 +28,8 @@
   "message.holobuild.adjusted": "Turned %s° %s, height %s",
   "message.holobuild.mirror_on": "mirrored",
   "message.holobuild.mirror_off": "not mirrored",
-  "message.holobuild.selected": "Blueprint chosen: %s"
+  "message.holobuild.selected": "Blueprint chosen: %s",
+  "message.holobuild.build_started": "Building %s - %s blocks (%s)",
+  "message.holobuild.build_finished": "%s done - %s blocks placed",
+  "message.holobuild.build_cancelled": "Build cancelled."
 }
