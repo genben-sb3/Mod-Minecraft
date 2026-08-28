@@ -1,5 +1,7 @@
 package com.boyben.holobuild.client;
 
+import java.util.List;
+
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.item.BlueprintWandItem;
@@ -14,23 +16,30 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
- * Draws where the selected schematic would land, before anything is placed.
+ * Draws the selected schematic as a see-through ghost before anything is placed.
  *
  * Client only. Position and orientation come from {@link Placement}, the exact
  * same code the server uses to place blocks, so what you see is what you get.
@@ -39,13 +48,26 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 public final class HologramRenderer {
     private HologramRenderer() {}
 
-    private static final float R = 0.30f;
-    private static final float G = 0.85f;
-    private static final float B = 1.00f;
-    private static final float A = 0.85f;
+    /** Above this many blocks only the outline is drawn, to keep the framerate sane. */
+    private static final int MAX_GHOST_BLOCKS = 30_000;
+
+    /** Out of 255 - how solid the ghost blocks look. */
+    private static final int GHOST_ALPHA = 115;
+
+    private static final float OUTLINE_R = 0.30f;
+    private static final float OUTLINE_G = 0.85f;
+    private static final float OUTLINE_B = 1.00f;
+    private static final float OUTLINE_A = 0.85f;
 
     /** Logged once instead of every frame - a broken hologram must not spam the log. */
     private static boolean warned = false;
+
+    // Transforming every block each frame would be wasteful, so the result is
+    // kept until something about the placement actually changes.
+    private record CacheKey(String schematic, int rotation, boolean mirrored, BlockPos origin) {}
+
+    private static CacheKey cachedKey;
+    private static List<StructureTemplate.StructureBlockInfo> cachedBlocks;
 
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
@@ -78,7 +100,6 @@ public final class HologramRenderer {
         if (!settings.hasSchematic()) {
             return;
         }
-
         if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
             return;
         }
@@ -90,9 +111,59 @@ public final class HologramRenderer {
 
         BlockPos origin = Placement.origin(hit.getBlockPos(), hit.getDirection(), settings);
         StructurePlaceSettings placeSettings = Placement.settings(schematic.size(), settings);
-        BoundingBox box = Placement.box(schematic, placeSettings, origin);
 
-        drawOutline(event, box);
+        drawOutline(event, Placement.box(schematic, placeSettings, origin));
+
+        if (schematic.blockCount() <= MAX_GHOST_BLOCKS) {
+            drawGhostBlocks(event, blocksFor(schematic, placeSettings, origin, settings));
+        }
+    }
+
+    /** Reuses the transformed block list until the placement actually changes. */
+    private static List<StructureTemplate.StructureBlockInfo> blocksFor(
+            LoadedSchematic schematic, StructurePlaceSettings placeSettings,
+            BlockPos origin, BlueprintSettings settings) {
+
+        CacheKey key = new CacheKey(settings.schematic(), settings.rotation(), settings.mirrored(), origin);
+        if (!key.equals(cachedKey)) {
+            cachedKey = key;
+            cachedBlocks = Placement.transformed(schematic, placeSettings, origin);
+        }
+        return cachedBlocks;
+    }
+
+    private static void drawGhostBlocks(RenderLevelStageEvent event,
+                                        List<StructureTemplate.StructureBlockInfo> blocks) {
+        Minecraft mc = Minecraft.getInstance();
+        PoseStack pose = event.getPoseStack();
+        Vec3 camera = event.getCamera().getPosition();
+
+        BlockRenderDispatcher dispatcher = mc.getBlockRenderer();
+        MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
+        VertexConsumer ghost = new GhostVertexConsumer(buffers.getBuffer(RenderType.translucent()), GHOST_ALPHA);
+
+        for (StructureTemplate.StructureBlockInfo info : blocks) {
+            BlockState state = info.state();
+            if (state.isAir()) {
+                continue;
+            }
+            BlockPos pos = info.pos();
+
+            pose.pushPose();
+            pose.translate(pos.getX() - camera.x, pos.getY() - camera.y, pos.getZ() - camera.z);
+
+            BakedModel model = dispatcher.getBlockModel(state);
+            // Full brightness so the preview reads clearly even in a dark cave.
+            dispatcher.getModelRenderer().renderModel(
+                    pose.last(), ghost, state, model,
+                    1.0f, 1.0f, 1.0f,
+                    LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY,
+                    ModelData.EMPTY, null);
+
+            pose.popPose();
+        }
+
+        buffers.endBatch(RenderType.translucent());
     }
 
     private static ItemStack wandInHand(LocalPlayer player) {
@@ -122,7 +193,7 @@ public final class HologramRenderer {
         AABB area = new AABB(
                 box.minX(), box.minY(), box.minZ(),
                 box.maxX() + 1.0, box.maxY() + 1.0, box.maxZ() + 1.0);
-        LevelRenderer.renderLineBox(pose, lines, area, R, G, B, A);
+        LevelRenderer.renderLineBox(pose, lines, area, OUTLINE_R, OUTLINE_G, OUTLINE_B, OUTLINE_A);
 
         pose.popPose();
         buffers.endBatch(RenderType.lines());
