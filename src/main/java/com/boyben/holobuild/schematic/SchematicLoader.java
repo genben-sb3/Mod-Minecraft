@@ -268,12 +268,6 @@ public final class SchematicLoader {
         return relative;
     }
 
-    /** The folder part of a name, or empty for one sitting directly in the root. */
-    public static String folderOf(String name) {
-        int slash = name.lastIndexOf('/');
-        return slash < 0 ? "" : name.substring(0, slash);
-    }
-
     /**
      * Loads a schematic by the name shown to the player.
      *

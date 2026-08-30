@@ -44,7 +44,7 @@ public final class InventoryDrain {
         return left == 0;
     }
 
-    public static int countOf(Player player, Item item) {
+    private static int countOf(Player player, Item item) {
         int found = 0;
         for (ItemStack stack : player.getInventory().items) {
             if (stack.is(item)) {

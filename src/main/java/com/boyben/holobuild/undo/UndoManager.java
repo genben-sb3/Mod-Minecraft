@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.boyben.holobuild.HoloBuild;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +19,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * Remembers what the world looked like before a build, so it can be put back.
@@ -24,6 +29,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
  * Server side only. History lives in memory and is gone when the server stops -
  * undo is meant for "oops, wrong spot", not as a save system.
  */
+@EventBusSubscriber(modid = HoloBuild.MODID)
 public final class UndoManager {
     private UndoManager() {}
 
@@ -99,13 +105,15 @@ public final class UndoManager {
         return snapshot.before().size();
     }
 
-    public static boolean hasUndo(ServerPlayer player) {
-        Deque<Snapshot> stack = HISTORY.get(player.getUUID());
-        return stack != null && !stack.isEmpty();
-    }
-
-    /** Drop a player's history when they leave, so it does not linger. */
-    public static void forget(UUID playerId) {
-        HISTORY.remove(playerId);
+    /**
+     * Drops a player's history when they leave.
+     *
+     * Without this the snapshots would sit in memory for the rest of the
+     * server's life - up to five of them per player, each holding the previous
+     * state of as many as {@link #MAX_BLOCKS} positions.
+     */
+    @SubscribeEvent
+    public static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+        HISTORY.remove(event.getEntity().getUUID());
     }
 }

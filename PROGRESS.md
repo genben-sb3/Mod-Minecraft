@@ -125,6 +125,17 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 6. [x] Survival: Bauen aus dem Inventar (umschaltbar)
 7. [x] 3D-Vorschau im Menue — **Bens Wunschliste komplett**
 
+## Aufgeraeumt (D18)
+- **Speicherleck behoben**: `UndoManager.forget()` gab es, wurde aber nie
+  aufgerufen. Undo-Daten blieben nach dem Verlassen der Welt fuer immer liegen -
+  bis zu 5 Schnappschuesse je Spieler mit je bis zu 250.000 Positionen.
+  Jetzt haengt der UndoManager am Event-Bus und raeumt beim Logout auf,
+  genau wie der BuildAnimator es schon tat.
+- Toten Code entfernt: `isBuilding()`, `folderOf()` (nie aufgerufen),
+  `countOf()` auf private gesetzt.
+- Mod-Logo (128x128, isometrisches Hologramm-Haus) und Credits an
+  Schematica/Litematica in der `mods.toml`.
+
 ## Naechster Schritt
 Ben soll die Funktionen im Spiel durchprobieren, besonders
 `/holobuild random tower meinturm`.
