@@ -35,7 +35,7 @@ instance folder, press **G** to pick one, and right-click with the **Blueprint W
 | Input | Does |
 |---|---|
 | **G** | Choose a blueprint |
-| Look at a block | Hologram and outline appear |
+| Look at a block | Hologram and outline appear (reach is raised to 32 blocks while holding a wand) |
 | Right-click | Build |
 | Shift + right-click | Cancel a running build, then undo |
 | **R** / **M** | Rotate / mirror |

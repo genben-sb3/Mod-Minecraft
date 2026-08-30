@@ -7,7 +7,11 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 - ✅ **16 automatische Tests**, alle gruen (`.\gradlew test`)
   `BitArrayTest` (9, .litematic) und `VarIntStreamTest` (7, .schem),
   beide mit von Hand ausgerechneten Werten und mit Gegenprobe geprueft.
-- ❌ **Im Spiel lief noch nichts.** `latest.log` ist immer noch vom 27.08.
+- ✅ **30.08.2026: Der Mod laeuft im Spiel!** Log zeigt "HoloBuild 0.1.0 (holobuild)"
+  in der Mod-Liste und die eigene Startmeldung. **Keine einzige HoloBuild-Fehlerzeile.**
+  (Die roten Fehler im Log sind Create: `create:analog_lever` an Positionen, wo
+  inzwischen Luft ist - Folge des Aeronautics-Updates 1.3.1 -> 1.3.2, nicht unser Problem.)
+- ⏳ Die einzelnen Funktionen (Hologramm, Tasten, Bauen, Undo) hat Ben noch nicht durchprobiert.
 
 ## Fertig (Code)
 | Etappe | Inhalt |
@@ -42,7 +46,7 @@ ohne Meldung — der schlimmste Fehlertyp, weil man ewig nach der Ursache sucht.
 | Eingabe | Wirkung |
 |---|---|
 | **G** | Bauplan auswaehlen (Stern = Favorit) |
-| Zielen (Blaupausen-Stab) | Hologramm, cyan = passt, **rot = passt nicht** |
+| Zielen (Blaupausen-Stab) | Hologramm, cyan = passt, **rot = passt nicht**. Reichweite **32 Bloecke** statt 5 |
 | Rechtsklick | bauen |
 | Shift + Rechtsklick | abbrechen und/oder rueckgaengig |
 | R / M | drehen / spiegeln |
