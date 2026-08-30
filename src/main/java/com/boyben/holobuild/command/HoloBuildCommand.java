@@ -5,12 +5,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.build.BuildOutcome;
+import com.boyben.holobuild.build.Builder;
+import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.component.Selection;
 import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
 import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
@@ -24,6 +30,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -38,7 +45,11 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
- * /holobuild save &lt;name&gt; and /holobuild list.
+ * The /holobuild commands: build, save, list and random.
+ *
+ * All of them need operator rights, the same bar vanilla sets for /setblock and
+ * /fill. That is deliberately the only gate - no creative-mode check, so they
+ * work in survival too, which is what the wand does not do.
  *
  * Saving reads the marked area straight out of the world using Minecraft's own
  * structure code, so the file it writes is a completely normal .nbt structure -
@@ -52,6 +63,28 @@ public final class HoloBuildCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("holobuild")
+                // Same bar vanilla sets for /setblock and /fill: anything that
+                // rewrites the world needs operator rights. That is also why
+                // the commands do not ask for creative mode - whoever may run
+                // them may build, in survival just as much.
+                .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("build")
+                        .then(Commands.argument("name", StringArgumentType.string())
+                                .executes(context -> build(
+                                        context.getSource(),
+                                        StringArgumentType.getString(context, "name"),
+                                        null, 0))
+                                .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                        .executes(context -> build(
+                                                context.getSource(),
+                                                StringArgumentType.getString(context, "name"),
+                                                BlockPosArgument.getLoadedBlockPos(context, "pos"), 0))
+                                        .then(Commands.argument("rotation", IntegerArgumentType.integer(0, 3))
+                                                .executes(context -> build(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "name"),
+                                                        BlockPosArgument.getLoadedBlockPos(context, "pos"),
+                                                        IntegerArgumentType.getInteger(context, "rotation")))))))
                 .then(Commands.literal("save")
                         .then(Commands.argument("name", StringArgumentType.string())
                                 .executes(context -> save(
@@ -80,6 +113,57 @@ public final class HoloBuildCommand {
     private static final int RANDOM_FLOORS = -1;
 
     /**
+     * Builds a schematic straight from the chat, no wand needed.
+     *
+     * Works with every schematic there is - the player's own files, the built-in
+     * library, and anything the module generator rolled.
+     *
+     * @param at       where the corner goes, or null for the player's feet
+     * @param rotation quarter turns clockwise, 0 to 3
+     */
+    private static int build(CommandSourceStack source, String name,
+                             @Nullable BlockPos at, int rotation) throws CommandSyntaxException {
+
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel level = source.getLevel();
+
+        if (!SchematicLoader.isSafeName(name)) {
+            fail(source, Component.translatable("message.holobuild.bad_name", name));
+            return 0;
+        }
+
+        LoadedSchematic schematic;
+        try {
+            schematic = SchematicCache.get(name, level);
+        } catch (IOException | RuntimeException e) {
+            HoloBuild.LOGGER.error("Schematic konnte nicht geladen werden: {}", name, e);
+            fail(source, Component.translatable("message.holobuild.load_failed", name));
+            return 0;
+        }
+        if (schematic == null) {
+            fail(source, Component.translatable("message.holobuild.missing_file", name));
+            return 0;
+        }
+
+        BlockPos origin = at != null ? at : player.blockPosition();
+        BlueprintSettings settings = new BlueprintSettings(name, rotation, false, 0);
+
+        BuildOutcome outcome = Builder.build(player, level, schematic, origin, settings);
+        if (!outcome.ok()) {
+            source.sendFailure(outcome.message());
+            return 0;
+        }
+
+        source.sendSuccess(outcome::message, false);
+        Component warning = outcome.warning();
+        if (warning != null) {
+            Component finalWarning = warning;
+            source.sendSuccess(() -> finalWarning, false);
+        }
+        return 1;
+    }
+
+    /**
      * Assembles a new building out of a set of modules and saves it.
      *
      * The result is an ordinary schematic file, so it can be previewed, rotated
@@ -90,11 +174,6 @@ public final class HoloBuildCommand {
 
         ServerPlayer player = source.getPlayerOrException();
         ServerLevel level = source.getLevel();
-
-        if (!player.isCreative()) {
-            fail(source, Component.translatable("message.holobuild.creative_only"));
-            return 0;
-        }
 
         Path target = SchematicLoader.pathForNewFile(name);
         if (target == null) {
@@ -139,11 +218,6 @@ public final class HoloBuildCommand {
     private static int save(CommandSourceStack source, String name) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         ServerLevel level = source.getLevel();
-
-        if (!player.isCreative()) {
-            fail(source, Component.translatable("message.holobuild.creative_only"));
-            return 0;
-        }
 
         Path target = SchematicLoader.pathForNewFile(name);
         if (target == null) {
