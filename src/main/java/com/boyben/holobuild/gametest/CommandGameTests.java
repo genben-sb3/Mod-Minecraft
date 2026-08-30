@@ -1,0 +1,162 @@
+package com.boyben.holobuild.gametest;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.schematic.SchematicCache;
+import com.boyben.holobuild.schematic.SchematicLoader;
+
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestAssertException;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+/**
+ * Tests for the /holobuild commands.
+ *
+ * The pieces behind them are covered elsewhere; what these check is the wiring
+ * - that the arguments arrive where they should, and that a command with a
+ * hostile name does nothing rather than something.
+ */
+@GameTestHolder(HoloBuild.MODID)
+@PrefixGameTestTemplate(false)
+public class CommandGameTests {
+
+    private static final String ROOM = "test_platform";
+
+    /** Operator rights, and no chat spam in the test log. */
+    private static CommandSourceStack sourceFor(ServerPlayer player) {
+        return player.createCommandSourceStack().withPermission(2).withSuppressedOutput();
+    }
+
+    private static void run(ServerLevel level, ServerPlayer player, String command) {
+        level.getServer().getCommands().performPrefixedCommand(sourceFor(player), command);
+    }
+
+    /**
+     * /holobuild build has to put the building where the coordinates say.
+     *
+     * The command goes through the same Builder the wand uses, so this mostly
+     * proves that name and position survive the trip through the parser.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 400)
+    public static void buildCommandPlacesAtGivenPosition(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        BlockPos target = helper.absolutePos(new BlockPos(1, 1, 1));
+
+        run(level, player, "holobuild build cottage "
+                + target.getX() + " " + target.getY() + " " + target.getZ());
+
+        // The cottage has a cobblestone floor, so its corner must fill up.
+        helper.succeedWhen(() -> {
+            if (level.getBlockState(target).isAir()) {
+                throw new GameTestAssertException("Am angegebenen Punkt " + target
+                        + " steht immer noch nichts");
+            }
+        });
+    }
+
+    /**
+     * A name pointing outside the folder must not reach the file it points at.
+     *
+     * A real schematic is placed one level above the schematics folder first.
+     * Without that the test would prove nothing: asking for "../secrets" when
+     * no such file exists fails for the boring reason, and would stay green
+     * even with the name check removed. With the file really sitting there,
+     * only the check stands between the command and reading it.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 200)
+    public static void buildCommandCannotReachOutsideTheFolder(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        BlockPos target = helper.absolutePos(new BlockPos(1, 2, 1));
+
+        Path folder = SchematicLoader.getSchematicFolder();
+        Path outside = folder.getParent().resolve("gametest_outside.nbt");
+
+        // Bait: a genuine, loadable structure just outside the folder. If the
+        // guard failed, this is what would get built - and then the test sees it.
+        Files.createDirectories(outside.getParent());
+        StructureTemplate bait = new StructureTemplate();
+        bait.fillFromWorld(level, helper.absolutePos(new BlockPos(0, 0, 0)),
+                new Vec3i(2, 2, 2), false, null);
+        NbtIo.writeCompressed(bait.save(new CompoundTag()), outside);
+
+        SchematicCache.clear();
+        run(level, player, "holobuild build \"../gametest_outside\" "
+                + target.getX() + " " + target.getY() + " " + target.getZ());
+
+        // Checking straight away would prove nothing: building is spread over
+        // ticks, so even a successful build has not placed anything yet. Wait
+        // long enough that a build would have finished, then look.
+        helper.runAfterDelay(TICKS_FOR_A_SMALL_BUILD, () -> {
+            try {
+                if (!level.getBlockState(target).isAir()) {
+                    helper.fail("Der Befehl hat eine Datei ausserhalb des Ordners gebaut - "
+                            + "die Namenspruefung greift nicht");
+                    return;
+                }
+                helper.succeed();
+            } finally {
+                try {
+                    Files.deleteIfExists(outside);
+                } catch (Exception ignored) {
+                    // Leftover bait in the run folder is untidy, not harmful.
+                }
+                SchematicCache.clear();
+            }
+        });
+    }
+
+    /**
+     * Long enough for an eight-block build to be finished and settled.
+     *
+     * Used by the tests that check nothing happened - they have to wait out the
+     * time in which something could have happened.
+     */
+    private static final int TICKS_FOR_A_SMALL_BUILD = 40;
+
+    /**
+     * /holobuild random has to leave a usable file behind.
+     *
+     * The generator itself is tested elsewhere; this checks that the command
+     * writes the result where the picker will find it.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 300)
+    public static void randomCommandWritesAFile(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+
+        String name = "gametest_rolled";
+        Path file = SchematicLoader.getSchematicFolder().resolve(name + ".nbt");
+        try {
+            run(level, player, "holobuild random tower " + name + " 2");
+
+            if (!Files.isRegularFile(file)) {
+                helper.fail("Der Befehl hat keine Datei angelegt: " + file);
+                return;
+            }
+            SchematicCache.clear();
+            if (SchematicLoader.loadByName(name, level) == null) {
+                helper.fail("Die erzeugte Datei laesst sich nicht laden");
+                return;
+            }
+            helper.succeed();
+
+        } finally {
+            Files.deleteIfExists(file);
+            SchematicCache.clear();
+        }
+    }
+}
