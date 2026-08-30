@@ -23,7 +23,19 @@ public final class Config {
             .comment("Play the normal block placing sound while building.")
             .define("placeSound", true);
 
+    public static final ModConfigSpec.BooleanValue SURVIVAL_BUILDING = BUILDER
+            .comment("Let the Blueprint Wand build in survival mode.",
+                    "Blocks are taken from your inventory, and anything you are short of",
+                    "is simply left out - the wand never conjures blocks in survival.",
+                    "Off by default: putting up a whole building at once changes how a",
+                    "survival world plays, so it should be a deliberate choice.")
+            .define("survivalBuilding", false);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
+
+    public static boolean survivalBuilding() {
+        return SURVIVAL_BUILDING.get();
+    }
 
     public static int blocksPerTick() {
         return BLOCKS_PER_TICK.get();

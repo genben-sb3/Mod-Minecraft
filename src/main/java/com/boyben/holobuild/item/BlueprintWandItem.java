@@ -3,6 +3,7 @@ package com.boyben.holobuild.item;
 import java.io.IOException;
 import java.util.List;
 
+import com.boyben.holobuild.Config;
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.build.BuildAnimator;
 import com.boyben.holobuild.build.BuildOutcome;
@@ -31,8 +32,12 @@ import net.minecraft.world.level.Level;
  * Right-click a block to place the selected schematic against the face you clicked.
  * Shift + right-click undoes the last build.
  *
- * Creative mode only. Which schematic is selected, and how it is turned, lives
- * in a {@link BlueprintSettings} data component on the stack itself.
+ * Previewing and turning work in any mode. Building is creative-only unless
+ * survivalBuilding is switched on, and then every block is paid for out of
+ * the inventory - the wand never conjures blocks in survival.
+ *
+ * Which schematic is selected, and how it is turned, lives in a
+ * {@link BlueprintSettings} data component on the stack itself.
  */
 public class BlueprintWandItem extends Item {
 
@@ -48,10 +53,10 @@ public class BlueprintWandItem extends Item {
             return InteractionResult.PASS;
         }
 
-        // In survival the wand still previews and still turns - only placing
-        // blocks out of nothing is off the table. Say where the shopping list
-        // is instead of just refusing.
-        if (!player.isCreative()) {
+        // In survival the wand always previews and turns. Whether it may also
+        // build - paying with real blocks - is a setting, off by default:
+        // putting up a whole building at once changes how a world plays.
+        if (!player.isCreative() && !Config.survivalBuilding()) {
             if (!level.isClientSide) {
                 tell(player, Component.translatable("message.holobuild.survival_hint"), ChatFormatting.YELLOW);
             }

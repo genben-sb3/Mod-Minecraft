@@ -12,25 +12,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BedPart;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
  * What it takes to build a schematic by hand.
  *
- * Counting blocks is not the same as counting items, and the difference is
- * where a shopping list becomes useful or misleading:
- * <ul>
- *   <li>A door is two blocks but one item, so the upper half is not counted.
- *       Same for beds and tall flowers.</li>
- *   <li>A double slab is one block but two items.</li>
- *   <li>Water, lava and air need no item at all.</li>
- * </ul>
+ * What each block costs is decided by {@link BlockCost}, the same rule the
+ * survival build uses when it takes items out of the inventory. A list that
+ * said two doors while the build took one would be worse than no list at all.
  */
 public record MaterialList(List<Entry> entries, int totalItems) {
 
@@ -55,11 +45,11 @@ public record MaterialList(List<Entry> entries, int totalItems) {
 
         for (StructureTemplate.StructureBlockInfo info : schematic.blocks()) {
             BlockState state = info.state();
-            int count = itemsFor(state);
+            int count = BlockCost.itemsFor(state);
             if (count == 0) {
                 continue;
             }
-            Item item = state.getBlock().asItem();
+            Item item = BlockCost.itemFor(state);
             if (item == Items.AIR) {
                 continue;      // water, lava, structure void: nothing to carry
             }
@@ -81,33 +71,6 @@ public record MaterialList(List<Entry> entries, int totalItems) {
                 .thenComparing(Comparator.comparingInt(Entry::needed).reversed()));
 
         return new MaterialList(List.copyOf(entries), total);
-    }
-
-    /** @return how many items this one block costs, 0 if it costs none */
-    private static int itemsFor(BlockState state) {
-        if (state.isAir()) {
-            return 0;
-        }
-
-        // The top half of a door, a bed or a tall flower comes along with the
-        // bottom one - counting both would ask for twice as many.
-        if (state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
-                && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
-            return 0;
-        }
-        if (state.hasProperty(BlockStateProperties.BED_PART)
-                && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD) {
-            return 0;
-        }
-
-        // A full block made of two slabs costs two slabs.
-        if (state.getBlock() instanceof SlabBlock
-                && state.hasProperty(BlockStateProperties.SLAB_TYPE)
-                && state.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.DOUBLE) {
-            return 2;
-        }
-
-        return 1;
     }
 
     private static int countInInventory(Player player, Item item) {

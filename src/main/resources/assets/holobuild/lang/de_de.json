@@ -39,7 +39,8 @@
   "screen.holobuild.materials_summary": "%s Bloecke insgesamt, %s fehlen dir noch",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
-  "message.holobuild.survival_hint": "Im Ueberlebensmodus zeigt der Stab nur die Vorschau. Druck G und dann Material, um zu sehen was du brauchst.",
+  "message.holobuild.survival_hint": "Im Ueberlebensmodus zeigt der Stab nur die Vorschau. Druck G und dann Material, um zu sehen was du brauchst. (In der Config laesst sich survivalBuilding einschalten.)",
+  "message.holobuild.build_incomplete": "%s Bloecke fehlten dir - die Stellen sind leer geblieben.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab: %s",
   "message.holobuild.load_failed": "'%s' konnte nicht gelesen werden - ist das eine echte Struktur-Datei?",
   "message.holobuild.missing_file": "'%s' liegt nicht mehr im Schematics-Ordner.",

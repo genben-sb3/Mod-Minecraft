@@ -39,7 +39,8 @@
   "screen.holobuild.materials_summary": "%s blocks in total, %s still missing",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
-  "message.holobuild.survival_hint": "In survival the wand only previews. Press G and then Materials to see what you need.",
+  "message.holobuild.survival_hint": "In survival the wand only previews. Press G and then Materials to see what you need. (Turn on survivalBuilding in the config to build.)",
+  "message.holobuild.build_incomplete": "You were %s blocks short - those spots were left empty.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt, .schem or .litematic here: %s",
   "message.holobuild.load_failed": "Could not read '%s' - is it a valid structure file?",
   "message.holobuild.missing_file": "'%s' is gone from the schematics folder.",

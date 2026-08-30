@@ -122,7 +122,7 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 3. [x] Drehen/Spiegeln/Hoehe direkt im Menue
 4. [x] Ordner und Sortierung
 5. [x] Survival: Materialliste + Hologramm
-6. [ ] Survival: Bauen aus dem Inventar (umschaltbar)
+6. [x] Survival: Bauen aus dem Inventar (umschaltbar)
 7. [ ] 3D-Vorschau im Menue (aufwendigster Punkt, deshalb zuletzt)
 
 ## Naechster Schritt
