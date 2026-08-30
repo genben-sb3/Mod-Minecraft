@@ -28,7 +28,8 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | 6 | Eingebaute Bau-Bibliothek (5 Bauwerke) |
 | 6b | Weltgrenzen-Absicherung (Hologramm wird rot) |
 | 6c | Reichweite der Staebe 5 -> 32 Bloecke |
-| 8 | **Baukasten: Bauwerke automatisch zusammenwuerfeln** |
+| 8 | Baukasten: Bauwerke automatisch zusammenwuerfeln |
+| 8b | **Platzier-Reihenfolge + Nachbar-Update: Tueren, Bloementoepfe, Redstone** |
 
 ## Etappe 8 — Baukasten  ✅ CODE FERTIG
 Bens ehrgeizigster Wunsch, umgesetzt nach demselben Prinzip wie Minecrafts
