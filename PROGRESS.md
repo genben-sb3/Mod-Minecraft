@@ -6,12 +6,12 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 ## Stand des Testens
 - ✅ **16 automatische Tests**, alle gruen (`.\gradlew test`)
   `BitArrayTest` (9, .litematic) und `VarIntStreamTest` (7, .schem),
-  beide mit von Hand ausgerechneten Werten und mit Gegenprobe geprueft.
-- ✅ **30.08.2026: Der Mod laeuft im Spiel!** Log zeigt "HoloBuild 0.1.0 (holobuild)"
-  in der Mod-Liste und die eigene Startmeldung. **Keine einzige HoloBuild-Fehlerzeile.**
-  (Die roten Fehler im Log sind Create: `create:analog_lever` an Positionen, wo
-  inzwischen Luft ist - Folge des Aeronautics-Updates 1.3.1 -> 1.3.2, nicht unser Problem.)
-- ⏳ Die einzelnen Funktionen (Hologramm, Tasten, Bauen, Undo) hat Ben noch nicht durchprobiert.
+  mit von Hand gerechneten Werten und mit Gegenprobe geprueft.
+- ✅ **30.08.2026: Der Mod laeuft im Spiel.** Log zeigt "HoloBuild 0.1.0 (holobuild)"
+  und die eigene Startmeldung. **Keine einzige HoloBuild-Fehlerzeile.**
+  (Die roten Fehler im Log sind Create: `create:analog_lever` an Positionen mit Luft -
+  Folge des Aeronautics-Updates 1.3.1 -> 1.3.2, nicht unser Problem.)
+- ⏳ Die einzelnen Funktionen (Hologramm, Tasten, Bauen, Undo) noch nicht durchprobiert.
 
 ## Fertig (Code)
 | Etappe | Inhalt |
@@ -26,18 +26,31 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 | 5c | .litematic-Import + JUnit im Build |
 | 5d | Favoriten in der GUI + varint-Dekoder getestet |
 | 6 | Eingebaute Bau-Bibliothek (5 Bauwerke) |
-| 6b | **Weltgrenzen-Absicherung** |
+| 6b | Weltgrenzen-Absicherung (Hologramm wird rot) |
+| 6c | Reichweite der Staebe 5 -> 32 Bloecke |
+| 8 | **Baukasten: Bauwerke automatisch zusammenwuerfeln** |
 
-## Etappe 6b — Weltgrenzen  ✅ CODE FERTIG
-Gefundener Fehler: `Level.setBlock` tut ausserhalb der Bauhoehe **stillschweigend
-nichts** (Vanilla-Quelle Level.java Zeile 234). Ein Bauwerk nahe der Weltdecke
-(Y=319) oder am Weltboden (Y=-64) waere also halb verschwunden, ohne Absturz und
-ohne Meldung — der schlimmste Fehlertyp, weil man ewig nach der Ursache sucht.
+## Etappe 8 — Baukasten  ✅ CODE FERTIG
+Bens ehrgeizigster Wunsch, umgesetzt nach demselben Prinzip wie Minecrafts
+eigener Dorf-Generator: austauschbare Teile, die zu etwas zusammengesetzt werden,
+das aussieht als waere es entworfen worden.
 
-- [x] `Placement.fitsInWorld/overshootAbove/overshootBelow`
-- [x] Zauberstab prueft **vor** dem Bauen und sagt, um wieviele Bloecke es nicht passt
-- [x] **Hologramm wird rot**, wenn es nicht passen wuerde — man sieht es vor dem Klick
-- [x] `/holobuild save` prueft ebenfalls; sonst haette man ein Bauwerk aus Luft gespeichert
+- [x] `generator/ModulePack.java` — findet die Teile **allein am Namen**:
+      `<set>_base`, `<set>_mid_*` (beliebig viele), `<set>_top`.
+      Ein neues Stockwerk hinzufuegen heisst also: Schematic unter passendem
+      Namen speichern. Kein Code, keine Konfigurationsdatei.
+      Prueft, dass alle Teile dieselbe Grundflaeche haben - sonst klare Fehlermeldung.
+- [x] `generator/StackGenerator.java` — Sockel, dann pro Etage ein **neu
+      gewuerfeltes** Mittelteil, dann Dach. 1 bis 12 Etagen.
+- [x] `/holobuild random <set> <name> [etagen]` — ohne Etagenzahl 2-6 zufaellig
+- [x] Fuenf Turm-Module mitgeliefert: `tower_base`, `tower_mid_1` (Fenster),
+      `tower_mid_2` (Sims), `tower_mid_3` (Fachwerk), `tower_top` (Zinnen)
+- [x] Ergebnis ist eine **ganz normale Schematic-Datei** — vorschaubar, drehbar,
+      baubar, und von Hand nachbesserbar wenn eine Etage komisch geraten ist
+
+Hinweis: Die Module tauchen auch einzeln im Auswahl-Menue auf. Das ist Absicht -
+man kann sie anschauen und einzeln bauen. Wer sie nicht sehen will, sucht nach
+dem Namen des fertigen Bauwerks.
 
 ## Unterstuetzte Dateiformate
 `.nbt` (Struktur-Block) · `.schem` (WorldEdit/Sponge) · `.litematic` (Litematica)
@@ -46,7 +59,7 @@ ohne Meldung — der schlimmste Fehlertyp, weil man ewig nach der Ursache sucht.
 | Eingabe | Wirkung |
 |---|---|
 | **G** | Bauplan auswaehlen (Stern = Favorit) |
-| Zielen (Blaupausen-Stab) | Hologramm, cyan = passt, **rot = passt nicht**. Reichweite **32 Bloecke** statt 5 |
+| Zielen (Blaupausen-Stab) | Hologramm, cyan = passt, **rot = passt nicht**. Reichweite **32 Bloecke** |
 | Rechtsklick | bauen |
 | Shift + Rechtsklick | abbrechen und/oder rueckgaengig |
 | R / M | drehen / spiegeln |
@@ -55,49 +68,48 @@ ohne Meldung — der schlimmste Fehlertyp, weil man ewig nach der Ursache sucht.
 | Shift + Rechtsklick (Auswahl-Stab) | Ecke 2 |
 | `/holobuild save <name>` | Auswahl speichern |
 | `/holobuild list` | alle Schematics auflisten |
+| `/holobuild random tower <name>` | **neuen Turm wuerfeln** |
 
 ## Wichtige Entscheidungen (nicht "aufraeumen"!)
 - `Placement.transformed()` nutzt bewusst das **deprecated** `BlockState.rotate(Rotation)`,
   weil `placeInWorld` genau das aufruft. Reihenfolge **erst mirror, dann rotate**.
-- Fremdformate werden sofort ins Vanilla-Structure-Format umgeschrieben. Dadurch
-  musste fuer .schem und .litematic **kein** anderer Bereich angefasst werden.
+- Fremdformate werden sofort ins Vanilla-Structure-Format umgeschrieben.
+- Reichweite als **Item-Attribut**, nicht als Eingriff am Spieler: gilt nur mit
+  Stab in der Hand, verschwindet beim Weglegen.
 - Eigene Dateien gewinnen gegen mitgelieferte Bauwerke gleichen Namens.
-- Ab 30.000 Bloecken nur Umriss statt Block-Geister (Bildrate).
 
 ## ⚠️ WERKZEUG-FALLE (zweimal reingetappt!)
 `perl -0pi -e` mit **mehrzeiligen** Suchmustern haengt den Ersatz an den
 **Dateianfang**, statt zu ersetzen. Hat in D7 und D10 das README zerschossen.
 **Regel: mehrzeilige Aenderungen an Textdateien immer per Neuschreiben der Datei.**
-Einzeiliges `sed` ist unproblematisch.
 
 ## Bekannte Einschraenkungen
 - GUI liest den Ordner des **Clients** — Singleplayer korrekt, echter Server nicht.
 - Animierter Modus ohne Waterlogging und Structure Processors.
 - `.schem` bringt keine Block-Entities mit (.litematic dagegen schon).
-- Die mitgelieferten Bauwerke sind schlicht (per Skript erzeugt), nicht handgebaut.
+- Mitgelieferte Bauwerke sind per Skript erzeugt, nicht handgebaut.
 
 ## Git
-Lokal: Branch `main`. Remote `genben-sb3/Mod-Minecraft`.
+Lokal: Branch `main`. Remote `genben-sb3/Mod-Minecraft` (**privat**).
 **Push geht von hier aus NICHT** — GitHub verlangt Anmeldung, diese Umgebung kann
 keine Anmeldefenster oeffnen. Ben muss in VS Code auf "Sync Changes" klicken.
 
+## Etappe 7 — braucht noch eine Entscheidung
+Die Online-Bibliothek wuerde ein **oeffentliches** Repo brauchen; ein privates
+kann der Mod nicht lesen, ohne ein Passwort mitzuliefern. Sauberer Weg waere:
+Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
+
 ## Log
-- **D1**: Etappe 0 + 1. Java per ZIP statt winget (UAC haengt).
-- **D2**: Fehler war EIN verlorener Backslash.
-- **D3**: Etappe 2 halb. Git-Repo, README, Lizenz.
-- **D4**: Block-Geister. Dekompilierte Quellen gelesen statt API zu raten.
-- **D5**: Etappe 3 GUI aus einfachen Buttons.
-- **D6**: Etappe 4. `distSqr` gibt `double` nicht `long`.
+- **D1-D6**: Etappen 0 bis 4. Java per ZIP statt winget (UAC).
 - **D7**: .schem-Import. README mit perl beschaedigt.
 - **D8**: Auswahl-Stab + Befehle.
 - **D9**: .litematic + erste echte Tests, mit Gegenprobe.
 - **D10**: Favoriten + varint-Tests. README erneut mit perl beschaedigt.
-- **D11**: Bau-Bibliothek, alles gruen im ersten Versuch.
-- **D12**: Etappe 7 uebersprungen (braucht Bens Entscheidung), stattdessen den
-  Weltgrenzen-Fehler gefunden und abgesichert. Wieder in den Vanilla-Quellen
-  nachgesehen statt zu vermuten — `setBlock` gibt dort einfach `false` zurueck.
+- **D11**: Bau-Bibliothek.
+- **D12**: Weltgrenzen-Fehler gefunden und abgesichert.
+- **D13**: Ben hat gestartet - **der Mod laeuft**. Reichweite auf 32 erhoeht.
+- **D14**: Baukasten. Alle Builds gruen im ersten Versuch.
 
-## Naechster Schritt — ENTSCHEIDUNG VON BEN NOETIG
-Etappe 7 (Online-Bibliothek) braucht ein GitHub-Repo, das Ben gehoert.
-Solange das nicht geklaert ist, macht es keinen Sinn, den Download-Code zu bauen.
-Ansonsten: **testen im Spiel**.
+## Naechster Schritt
+Ben soll die Funktionen im Spiel durchprobieren, besonders
+`/holobuild random tower meinturm`.

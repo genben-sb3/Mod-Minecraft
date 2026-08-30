@@ -1,5 +1,10 @@
 bridge
 cottage
 lighthouse
+tower_base
+tower_mid_1
+tower_mid_2
+tower_mid_3
+tower_top
 watchtower
 well

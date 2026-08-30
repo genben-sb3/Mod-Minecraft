@@ -47,5 +47,7 @@
   "message.holobuild.bad_name": "'%s' geht als Dateiname nicht. Erlaubt: Buchstaben, Zahlen, Leerzeichen, - und _",
   "message.holobuild.save_failed": "%s konnte nicht gespeichert werden - schau in den Log.",
   "message.holobuild.saved": "%s gespeichert (%s)",
-  "message.holobuild.list_header": "%s Schematics:"
+  "message.holobuild.list_header": "%s Schematics:",
+  "message.holobuild.generated": "%s gewuerfelt - %s Etagen (%s)",
+  "message.holobuild.missing_module": "Baukasten '%s' unvollstaendig. Fehlt oder passt nicht: %s"
 }

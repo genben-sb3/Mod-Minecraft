@@ -7,12 +7,17 @@ import java.util.List;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.Selection;
+import com.boyben.holobuild.generator.ModulePack;
+import com.boyben.holobuild.generator.StackGenerator;
 import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
+import com.boyben.holobuild.schematic.format.RawSchematic;
+import com.boyben.holobuild.schematic.format.StructureNbt;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -26,6 +31,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -52,7 +58,82 @@ public final class HoloBuildCommand {
                                         context.getSource(),
                                         StringArgumentType.getString(context, "name")))))
                 .then(Commands.literal("list")
-                        .executes(context -> list(context.getSource()))));
+                        .executes(context -> list(context.getSource())))
+                .then(Commands.literal("random")
+                        .then(Commands.argument("set", StringArgumentType.string())
+                                .then(Commands.argument("name", StringArgumentType.string())
+                                        .executes(context -> random(
+                                                context.getSource(),
+                                                StringArgumentType.getString(context, "set"),
+                                                StringArgumentType.getString(context, "name"),
+                                                RANDOM_FLOORS))
+                                        .then(Commands.argument("floors", IntegerArgumentType.integer(
+                                                        StackGenerator.MIN_FLOORS, StackGenerator.MAX_FLOORS))
+                                                .executes(context -> random(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "set"),
+                                                        StringArgumentType.getString(context, "name"),
+                                                        IntegerArgumentType.getInteger(context, "floors"))))))));
+    }
+
+    /** Passed as the floor count when the player did not name one. */
+    private static final int RANDOM_FLOORS = -1;
+
+    /**
+     * Assembles a new building out of a set of modules and saves it.
+     *
+     * The result is an ordinary schematic file, so it can be previewed, rotated
+     * and built like any other - and edited afterwards if a floor came out odd.
+     */
+    private static int random(CommandSourceStack source, String set, String name, int floors)
+            throws CommandSyntaxException {
+
+        ServerPlayer player = source.getPlayerOrException();
+        ServerLevel level = source.getLevel();
+
+        if (!player.isCreative()) {
+            fail(source, Component.translatable("message.holobuild.creative_only"));
+            return 0;
+        }
+
+        Path target = SchematicLoader.pathForNewFile(name);
+        if (target == null) {
+            fail(source, Component.translatable("message.holobuild.bad_name", name));
+            return 0;
+        }
+
+        ModulePack pack;
+        try {
+            pack = ModulePack.find(set, level);
+        } catch (ModulePack.MissingPieceException e) {
+            fail(source, Component.translatable("message.holobuild.missing_module", set, e.getMessage()));
+            return 0;
+        } catch (IOException | RuntimeException e) {
+            HoloBuild.LOGGER.error("Baukasten '{}' konnte nicht gelesen werden", set, e);
+            fail(source, Component.translatable("message.holobuild.load_failed", set));
+            return 0;
+        }
+
+        RandomSource random = level.getRandom();
+        int chosen = floors == RANDOM_FLOORS ? 2 + random.nextInt(5) : floors;
+        RawSchematic built = StackGenerator.stack(pack, chosen, random);
+
+        try {
+            SchematicLoader.ensureFolderExists();
+            NbtIo.writeCompressed(StructureNbt.toCompound(built), target);
+        } catch (IOException e) {
+            HoloBuild.LOGGER.error("Erzeugtes Bauwerk konnte nicht gespeichert werden: {}", target, e);
+            fail(source, Component.translatable("message.holobuild.save_failed", name));
+            return 0;
+        }
+        SchematicCache.clear();
+
+        Vec3i size = built.size();
+        int floorCount = chosen;
+        source.sendSuccess(() -> Component.translatable("message.holobuild.generated",
+                name, floorCount, size.getX() + "x" + size.getY() + "x" + size.getZ())
+                .withStyle(ChatFormatting.GREEN), false);
+        return 1;
     }
 
     private static int save(CommandSourceStack source, String name) throws CommandSyntaxException {

@@ -47,5 +47,7 @@
   "message.holobuild.bad_name": "'%s' will not work as a file name. Allowed: letters, digits, spaces, - and _",
   "message.holobuild.save_failed": "Could not save %s - check the log.",
   "message.holobuild.saved": "Saved %s (%s)",
-  "message.holobuild.list_header": "%s schematics:"
+  "message.holobuild.list_header": "%s schematics:",
+  "message.holobuild.generated": "Rolled %s - %s floors (%s)",
+  "message.holobuild.missing_module": "Module set '%s' is incomplete. Missing or mismatched: %s"
 }
