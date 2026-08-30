@@ -15,6 +15,7 @@ import com.boyben.holobuild.network.AdjustBlueprintPayload;
 import com.boyben.holobuild.network.SelectSchematicPayload;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
+import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.survival.MaterialList;
 
@@ -51,6 +52,13 @@ public class SchematicScreen extends Screen {
 
     /** Where the rotate/mirror/height row starts. */
     private static final int CONTROLS_TOP = LIST_TOP + VISIBLE_ROWS * ROW_HEIGHT + 14;
+
+    /** Side length of the turning model panel, sitting right of the list. */
+    private static final int PREVIEW_SIZE = 130;
+    private static final int PREVIEW_GAP = 8;
+
+    /** List and preview together, so the pair stays centred on screen. */
+    private static final int TOTAL_WIDTH = PANEL_WIDTH + PREVIEW_GAP + PREVIEW_SIZE;
 
     /**
      * Lighter than the usual screen backdrop, so the hologram stays visible
@@ -106,7 +114,7 @@ public class SchematicScreen extends Screen {
         SchematicInfo.clear();
         loadEntries();
 
-        int left = (width - PANEL_WIDTH) / 2;
+        int left = (width - TOTAL_WIDTH) / 2;
 
         int sortWidth = 76;
         searchBox = new EditBox(font, left, 40, PANEL_WIDTH - sortWidth - 4, 18,
@@ -296,7 +304,7 @@ public class SchematicScreen extends Screen {
         }
         rowButtons.clear();
 
-        int left = (width - PANEL_WIDTH) / 2;
+        int left = (width - TOTAL_WIDTH) / 2;
 
         for (int row = 0; row < VISIBLE_ROWS; row++) {
             int index = scroll + row;
@@ -433,14 +441,58 @@ public class SchematicScreen extends Screen {
                 offset > 0 ? "+" + offset : String.valueOf(offset)));
     }
 
+    /**
+     * The turning model of whatever is currently selected.
+     *
+     * Drawn after the widgets so it sits on top of the panel, and skipped for
+     * large builds - every block is drawn every frame, so a cathedral would
+     * cost more framerate than the picture is worth.
+     */
+    private void renderPreview(GuiGraphics graphics, int left) {
+        int boxLeft = left + PANEL_WIDTH + PREVIEW_GAP;
+        int centreX = boxLeft + PREVIEW_SIZE / 2;
+        int centreY = LIST_TOP + PREVIEW_SIZE / 2;
+
+        graphics.fill(boxLeft, LIST_TOP, boxLeft + PREVIEW_SIZE, LIST_TOP + PREVIEW_SIZE, 0x55000000);
+
+        if (minecraft == null || minecraft.level == null) {
+            return;
+        }
+        String name = currentSettings().schematic();
+        if (name.isEmpty()) {
+            graphics.drawCenteredString(font, Component.translatable("screen.holobuild.preview_none"),
+                    centreX, centreY - 4, 0x888888);
+            return;
+        }
+
+        LoadedSchematic schematic;
+        try {
+            schematic = SchematicCache.get(name, minecraft.level);
+        } catch (Exception e) {
+            return;
+        }
+        if (schematic == null) {
+            return;
+        }
+
+        if (PreviewRenderer.tooLarge(schematic)) {
+            graphics.drawCenteredString(font, Component.translatable("screen.holobuild.preview_too_big"),
+                    centreX, centreY - 4, 0x888888);
+            return;
+        }
+        PreviewRenderer.render(graphics, schematic, centreX, centreY, PREVIEW_SIZE);
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         updateControlLabels();
         super.render(graphics, mouseX, mouseY, partialTick);
 
+        renderPreview(graphics, (width - TOTAL_WIDTH) / 2);
+
         graphics.drawCenteredString(font, title, width / 2, 20, 0xFFFFFF);
 
-        int left = (width - PANEL_WIDTH) / 2;
+        int left = (width - TOTAL_WIDTH) / 2;
         int listBottom = LIST_TOP + VISIBLE_ROWS * ROW_HEIGHT;
 
         if (all.isEmpty()) {

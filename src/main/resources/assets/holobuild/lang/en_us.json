@@ -37,6 +37,8 @@
   "screen.holobuild.materials_missing": "%s of %s - %s short",
   "screen.holobuild.materials_complete": "All there! %s blocks in total.",
   "screen.holobuild.materials_summary": "%s blocks in total, %s still missing",
+  "screen.holobuild.preview_none": "Nothing chosen",
+  "screen.holobuild.preview_too_big": "Too large to preview",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.survival_hint": "In survival the wand only previews. Press G and then Materials to see what you need. (Turn on survivalBuilding in the config to build.)",

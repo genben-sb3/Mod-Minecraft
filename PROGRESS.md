@@ -123,7 +123,7 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 4. [x] Ordner und Sortierung
 5. [x] Survival: Materialliste + Hologramm
 6. [x] Survival: Bauen aus dem Inventar (umschaltbar)
-7. [ ] 3D-Vorschau im Menue (aufwendigster Punkt, deshalb zuletzt)
+7. [x] 3D-Vorschau im Menue — **Bens Wunschliste komplett**
 
 ## Naechster Schritt
 Ben soll die Funktionen im Spiel durchprobieren, besonders
