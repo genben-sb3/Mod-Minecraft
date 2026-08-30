@@ -68,16 +68,24 @@ public final class SchematicLoader {
         }
     }
 
-    /** All .nbt files in the schematic folder, sorted by name. Never null. */
+    /** How deep subfolders may nest, so a symlink loop cannot spin forever. */
+    private static final int MAX_FOLDER_DEPTH = 8;
+
+    /**
+     * Every schematic in the folder and its subfolders, sorted by path.
+     *
+     * Subfolders are how schematics get organised - "haeuser/villa" is simply a
+     * file called villa.nbt inside a folder called haeuser.
+     */
     public static List<Path> listSchematics() {
         Path folder = getSchematicFolder();
         if (!Files.isDirectory(folder)) {
             return List.of();
         }
-        try (Stream<Path> files = Files.list(folder)) {
+        try (Stream<Path> files = Files.walk(folder, MAX_FOLDER_DEPTH)) {
             return files.filter(Files::isRegularFile)
                     .filter(p -> hasSchematicExtension(p.getFileName().toString()))
-                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                    .sorted(Comparator.comparing(Path::toString))
                     .toList();
         } catch (IOException e) {
             HoloBuild.LOGGER.error("Konnte den Schematic-Ordner nicht lesen: {}", folder, e);
@@ -178,7 +186,7 @@ public final class SchematicLoader {
     }
 
     /** Longer than any sensible file name; stops a huge string arriving over the network. */
-    public static final int MAX_NAME_LENGTH = 128;
+    public static final int MAX_NAME_LENGTH = SchematicName.MAX_LENGTH;
 
     /**
      * Only plain file names. Anything that could climb out of the schematics
@@ -188,20 +196,7 @@ public final class SchematicLoader {
      * {@link #findByName} together are what keep those inputs harmless.
      */
     public static boolean isSafeName(String name) {
-        if (name.isEmpty() || name.length() > MAX_NAME_LENGTH) {
-            return false;
-        }
-        for (int i = 0; i < name.length(); i++) {
-            char c = name.charAt(i);
-            boolean allowed = (c >= 'a' && c <= 'z')
-                    || (c >= 'A' && c <= 'Z')
-                    || (c >= '0' && c <= '9')
-                    || c == '_' || c == '-' || c == ' ' || c == '.';
-            if (!allowed) {
-                return false;
-            }
-        }
-        return !name.contains("..");
+        return SchematicName.isSafe(name);
     }
 
     /**
@@ -215,7 +210,18 @@ public final class SchematicLoader {
         }
         Path folder = getSchematicFolder().toAbsolutePath().normalize();
         Path file = folder.resolve(name + NBT_EXTENSION).toAbsolutePath().normalize();
-        return file.startsWith(folder) ? file : null;
+        if (!file.startsWith(folder)) {
+            return null;
+        }
+
+        // A name like "haeuser/villa" means the folder has to exist first.
+        try {
+            Files.createDirectories(file.getParent());
+        } catch (IOException e) {
+            HoloBuild.LOGGER.error("Konnte den Ordner nicht anlegen: {}", file.getParent(), e);
+            return null;
+        }
+        return file;
     }
 
     /**
@@ -238,16 +244,34 @@ public final class SchematicLoader {
         return null;
     }
 
-    /** File name without the extension, for showing to the player. */
+    /**
+     * The name shown to the player: path inside the schematics folder, without
+     * the extension. A file in a subfolder becomes "haeuser/villa".
+     *
+     * Always with forward slashes, even on Windows - the same spelling the name
+     * check allows and the network carries.
+     */
     public static String displayName(Path file) {
-        String fileName = file.getFileName().toString();
-        String lower = fileName.toLowerCase(Locale.ROOT);
+        Path folder = getSchematicFolder().toAbsolutePath().normalize();
+        Path absolute = file.toAbsolutePath().normalize();
+
+        String relative = absolute.startsWith(folder)
+                ? folder.relativize(absolute).toString().replace('\\', '/')
+                : file.getFileName().toString();
+
+        String lower = relative.toLowerCase(Locale.ROOT);
         for (String extension : EXTENSIONS) {
             if (lower.endsWith(extension)) {
-                return fileName.substring(0, fileName.length() - extension.length());
+                return relative.substring(0, relative.length() - extension.length());
             }
         }
-        return fileName;
+        return relative;
+    }
+
+    /** The folder part of a name, or empty for one sitting directly in the root. */
+    public static String folderOf(String name) {
+        int slash = name.lastIndexOf('/');
+        return slash < 0 ? "" : name.substring(0, slash);
     }
 
     /**

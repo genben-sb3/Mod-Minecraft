@@ -11,7 +11,10 @@ Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
   und die eigene Startmeldung. **Keine einzige HoloBuild-Fehlerzeile.**
   (Die roten Fehler im Log sind Create: `create:analog_lever` an Positionen mit Luft -
   Folge des Aeronautics-Updates 1.3.1 -> 1.3.2, nicht unser Problem.)
-- ⏳ Die einzelnen Funktionen (Hologramm, Tasten, Bauen, Undo) noch nicht durchprobiert.
+- ✅ **Baukasten im Spiel bestaetigt**: Ben hat `/holobuild random tower meinturm`
+  laufen lassen. Ergebnis 5x18x5, 299 Bloecke, 8 Materialien - das ist Sockel +
+  3 gewuerfelte Etagen + Dach, mit gemischten Etagenvarianten. Datei gueltig.
+- ⏳ Hologramm, Tasten und Undo noch nicht bestaetigt.
 
 ## Fertig (Code)
 | Etappe | Inhalt |
@@ -116,7 +119,7 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 1. [x] Infos im Auswahl-Menue (Groesse, Bloecke, Hauptmaterial) — Tooltip pro Eintrag
 2. [x] Befehle fuer jedes Bauwerk, auch im Survival (`/holobuild build <name>`)
 3. [x] Drehen/Spiegeln/Hoehe direkt im Menue
-4. [ ] Ordner und Sortierung
+4. [x] Ordner und Sortierung
 5. [ ] Survival: Materialliste + Hologramm
 6. [ ] Survival: Bauen aus dem Inventar (umschaltbar)
 7. [ ] 3D-Vorschau im Menue (aufwendigster Punkt, deshalb zuletzt)

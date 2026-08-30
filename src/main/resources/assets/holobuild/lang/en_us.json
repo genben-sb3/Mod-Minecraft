@@ -26,6 +26,10 @@
   "screen.holobuild.mirror_button_off": "Mirrored: no",
   "screen.holobuild.height_button": "Height: %s",
   "screen.holobuild.height_reset": "Click to reset the height to 0",
+  "screen.holobuild.sort_name": "A-Z",
+  "screen.holobuild.sort_size": "Size",
+  "screen.holobuild.sort_newest": "Newest",
+  "screen.holobuild.sort_hint": "Change the order. Favourites always stay on top.",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt, .schem or .litematic here: %s",

@@ -57,12 +57,33 @@ public class SchematicScreen extends Screen {
     private static final int BACKDROP = 0x66000000;
 
     /** One entry: the name shown to the player and how big the file is. */
-    private record Entry(String name, long sizeBytes, boolean builtIn) {}
+    private record Entry(String name, long sizeBytes, long modified, boolean builtIn) {}
+
+    /** How the list is ordered. Favourites stay on top whichever is chosen. */
+    private enum SortMode {
+        NAME("screen.holobuild.sort_name"),
+        SIZE("screen.holobuild.sort_size"),
+        NEWEST("screen.holobuild.sort_newest");
+
+        final String key;
+
+        SortMode(String key) {
+            this.key = key;
+        }
+
+        SortMode next() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
+
+    /** Kept across visits, so the chosen order sticks for the session. */
+    private static SortMode sortMode = SortMode.NAME;
 
     private final List<Entry> all = new ArrayList<>();
     private List<Entry> filtered = new ArrayList<>();
     private final List<Button> rowButtons = new ArrayList<>();
 
+    private Button sortButton;
     private Button rotateButton;
     private Button mirrorButton;
     private Button heightButton;
@@ -84,7 +105,8 @@ public class SchematicScreen extends Screen {
 
         int left = (width - PANEL_WIDTH) / 2;
 
-        searchBox = new EditBox(font, left, 40, PANEL_WIDTH, 18,
+        int sortWidth = 76;
+        searchBox = new EditBox(font, left, 40, PANEL_WIDTH - sortWidth - 4, 18,
                 Component.translatable("screen.holobuild.search"));
         searchBox.setHint(Component.translatable("screen.holobuild.search")
                 .withStyle(ChatFormatting.DARK_GRAY));
@@ -94,6 +116,12 @@ public class SchematicScreen extends Screen {
         });
         addRenderableWidget(searchBox);
         setInitialFocus(searchBox);
+
+        sortButton = Button.builder(Component.translatable(sortMode.key), b -> cycleSort())
+                .bounds(left + PANEL_WIDTH - sortWidth, 40, sortWidth, 18)
+                .build();
+        sortButton.setTooltip(Tooltip.create(Component.translatable("screen.holobuild.sort_hint")));
+        addRenderableWidget(sortButton);
 
         addControls(left);
 
@@ -144,6 +172,14 @@ public class SchematicScreen extends Screen {
         addRenderableWidget(up);
     }
 
+    /** Steps through the orders and re-sorts straight away. */
+    private void cycleSort() {
+        sortMode = sortMode.next();
+        sortButton.setMessage(Component.translatable(sortMode.key));
+        scroll = 0;
+        applyFilter(searchBox == null ? "" : searchBox.getValue());
+    }
+
     private void adjust(AdjustBlueprintPayload payload) {
         PacketDistributor.sendToServer(payload);
     }
@@ -175,28 +211,45 @@ public class SchematicScreen extends Screen {
         for (String name : SchematicLoader.allNames()) {
             Path file = SchematicLoader.findByName(name);
             long size = 0;
+            long modified = 0;
             if (file != null) {
                 try {
                     size = Files.size(file);
+                    modified = Files.getLastModifiedTime(file).toMillis();
                 } catch (IOException e) {
                     size = 0;
                 }
             }
-            all.add(new Entry(name, size, file == null));
+            all.add(new Entry(name, size, modified, file == null));
         }
     }
 
     private void applyFilter(String query) {
         String needle = query.trim().toLowerCase(Locale.ROOT);
         filtered = all.stream()
+                // The search covers the folder too, so typing "haeuser" brings
+                // up everything inside that folder.
                 .filter(e -> needle.isEmpty() || e.name().toLowerCase(Locale.ROOT).contains(needle))
-                // Starred entries float to the top, alphabetical within each group.
+                // Starred entries float to the top whatever the chosen order.
                 .sorted(Comparator
-                        .comparing((Entry e) -> Favourites.isFavourite(e.name()) ? 0 : 1)
-                        .thenComparing(e -> e.name().toLowerCase(Locale.ROOT)))
+                        .comparingInt((Entry e) -> Favourites.isFavourite(e.name()) ? 0 : 1)
+                        .thenComparing(orderWithin()))
                 .toList();
         clampScroll();
         rebuildRows();
+    }
+
+    /** How entries are ranked inside the starred and unstarred groups. */
+    private Comparator<Entry> orderWithin() {
+        return switch (sortMode) {
+            case NAME -> Comparator.comparing(e -> e.name().toLowerCase(Locale.ROOT));
+            // Biggest and newest first - that is what people are looking for
+            // when they pick those orders.
+            case SIZE -> Comparator.comparingLong(Entry::sizeBytes).reversed()
+                    .thenComparing(e -> e.name().toLowerCase(Locale.ROOT));
+            case NEWEST -> Comparator.comparingLong(Entry::modified).reversed()
+                    .thenComparing(e -> e.name().toLowerCase(Locale.ROOT));
+        };
     }
 
     private void clampScroll() {
