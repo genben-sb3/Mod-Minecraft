@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
 /**
@@ -42,6 +43,12 @@ public final class LitematicaReader {
         }
 
         List<StructureTemplate.StructureBlockInfo> all = new ArrayList<>();
+
+        // The size comes from what the regions declare, not from where blocks
+        // happen to sit. Trimming to the occupied blocks would shrink a
+        // schematic with air around its edges - and since rotation turns around
+        // size/2, a trimmed size means it spins around the wrong point. It would
+        // also disagree with the .schem reader, which uses the declared size.
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int minZ = Integer.MAX_VALUE;
@@ -50,22 +57,24 @@ public final class LitematicaReader {
         int maxZ = Integer.MIN_VALUE;
 
         for (String name : regions.getAllKeys()) {
-            List<StructureTemplate.StructureBlockInfo> blocks =
-                    readRegion(regions.getCompound(name), lookup, name);
-            for (StructureTemplate.StructureBlockInfo info : blocks) {
-                BlockPos pos = info.pos();
-                minX = Math.min(minX, pos.getX());
-                minY = Math.min(minY, pos.getY());
-                minZ = Math.min(minZ, pos.getZ());
-                maxX = Math.max(maxX, pos.getX());
-                maxY = Math.max(maxY, pos.getY());
-                maxZ = Math.max(maxZ, pos.getZ());
+            CompoundTag region = regions.getCompound(name);
+            BoundingBox bounds = regionBounds(region);
+            if (bounds != null) {
+                minX = Math.min(minX, bounds.minX());
+                minY = Math.min(minY, bounds.minY());
+                minZ = Math.min(minZ, bounds.minZ());
+                maxX = Math.max(maxX, bounds.maxX());
+                maxY = Math.max(maxY, bounds.maxY());
+                maxZ = Math.max(maxZ, bounds.maxZ());
             }
-            all.addAll(blocks);
+            all.addAll(readRegion(region, lookup, name));
         }
 
         if (all.isEmpty()) {
             throw new IOException("Litematic enthaelt keine Bloecke");
+        }
+        if (minX > maxX) {
+            throw new IOException("Litematic hat keine brauchbaren Regionsgrenzen");
         }
 
         // Regions sit at arbitrary coordinates; shift everything so the lowest
@@ -146,6 +155,33 @@ public final class LitematicaReader {
             }
         }
         return blocks;
+    }
+
+    /**
+     * The area a region claims, from its stated position and size.
+     *
+     * A negative size means it grows towards smaller coordinates, so the stated
+     * position is the far corner - the same rule {@link #readRegion} follows
+     * when placing the blocks.
+     *
+     * @return the box, or null if the region has no extent at all
+     */
+    private static BoundingBox regionBounds(CompoundTag region) {
+        Vec3i position = readVec(region.getCompound("Position"));
+        Vec3i size = readVec(region.getCompound("Size"));
+
+        if (size.getX() == 0 || size.getY() == 0 || size.getZ() == 0) {
+            return null;
+        }
+
+        int minX = size.getX() < 0 ? position.getX() + size.getX() + 1 : position.getX();
+        int minY = size.getY() < 0 ? position.getY() + size.getY() + 1 : position.getY();
+        int minZ = size.getZ() < 0 ? position.getZ() + size.getZ() + 1 : position.getZ();
+
+        return new BoundingBox(minX, minY, minZ,
+                minX + Math.abs(size.getX()) - 1,
+                minY + Math.abs(size.getY()) - 1,
+                minZ + Math.abs(size.getZ()) - 1);
     }
 
     /** Chest contents and the like, keyed by their position inside the region. */
