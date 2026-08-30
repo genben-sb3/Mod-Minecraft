@@ -48,9 +48,6 @@ public record AdjustBlueprintPayload(int quarterTurns, boolean toggleMirror, int
     /** Runs on the server, on the main thread - NeoForge takes care of that for us. */
     public static void handle(AdjustBlueprintPayload payload, IPayloadContext context) {
         Player player = context.player();
-        if (!player.isCreative()) {
-            return;
-        }
 
         ItemStack stack = findWand(player);
         if (stack == null) {

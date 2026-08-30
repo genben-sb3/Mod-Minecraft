@@ -8,12 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.item.BlueprintWandItem;
 import com.boyben.holobuild.network.AdjustBlueprintPayload;
 import com.boyben.holobuild.network.SelectSchematicPayload;
 import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.SchematicLoader;
+import com.boyben.holobuild.survival.MaterialList;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -125,11 +128,41 @@ public class SchematicScreen extends Screen {
 
         addControls(left);
 
+        addRenderableWidget(Button.builder(Component.translatable("screen.holobuild.materials_button"),
+                        b -> openMaterials())
+                .bounds(left, CONTROLS_TOP + 46, PANEL_WIDTH / 2 - 2, 20)
+                .build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(left + PANEL_WIDTH / 2 - 50, CONTROLS_TOP + 46, 100, 20)
+                .bounds(left + PANEL_WIDTH / 2 + 2, CONTROLS_TOP + 46, PANEL_WIDTH / 2 - 2, 20)
                 .build());
 
         applyFilter("");
+    }
+
+    /**
+     * Shows what the chosen schematic would cost to build by hand.
+     *
+     * Reading the inventory happens on the client, where it already is - no
+     * need to ask the server what the player is carrying.
+     */
+    private void openMaterials() {
+        if (minecraft == null || minecraft.player == null || minecraft.level == null) {
+            return;
+        }
+        String name = currentSettings().schematic();
+        if (name.isEmpty()) {
+            return;
+        }
+        try {
+            LoadedSchematic schematic = SchematicLoader.loadByName(name, minecraft.level);
+            if (schematic == null) {
+                return;
+            }
+            minecraft.setScreen(new MaterialScreen(this, schematic,
+                    MaterialList.of(schematic, minecraft.player)));
+        } catch (Exception e) {
+            HoloBuild.LOGGER.warn("Materialliste fuer '{}' nicht moeglich: {}", name, e.toString());
+        }
     }
 
     /**

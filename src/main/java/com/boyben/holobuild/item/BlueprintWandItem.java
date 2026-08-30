@@ -48,9 +48,12 @@ public class BlueprintWandItem extends Item {
             return InteractionResult.PASS;
         }
 
+        // In survival the wand still previews and still turns - only placing
+        // blocks out of nothing is off the table. Say where the shopping list
+        // is instead of just refusing.
         if (!player.isCreative()) {
             if (!level.isClientSide) {
-                tell(player, Component.translatable("message.holobuild.creative_only"), ChatFormatting.RED);
+                tell(player, Component.translatable("message.holobuild.survival_hint"), ChatFormatting.YELLOW);
             }
             return InteractionResult.FAIL;
         }

@@ -40,9 +40,6 @@ public record SelectSchematicPayload(String schematic) implements CustomPacketPa
 
     public static void handle(SelectSchematicPayload payload, IPayloadContext context) {
         Player player = context.player();
-        if (!player.isCreative()) {
-            return;
-        }
 
         String name = payload.schematic();
         if (!SchematicLoader.isSafeName(name) || !nameResolves(name)) {

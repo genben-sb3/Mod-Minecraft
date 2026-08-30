@@ -73,6 +73,7 @@ dem Namen des fertigen Bauwerks.
 | `/holobuild save <name>` | Auswahl speichern |
 | `/holobuild list` | alle Schematics auflisten |
 | `/holobuild build <name> [pos] [drehung]` | **bauen ohne Stab, auch im Survival** |
+| Material-Knopf im Menue | **zeigt was fehlt (Survival)** |
 | `/holobuild random tower <name>` | **neuen Turm wuerfeln** |
 
 ## Wichtige Entscheidungen (nicht "aufraeumen"!)
@@ -120,7 +121,7 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 2. [x] Befehle fuer jedes Bauwerk, auch im Survival (`/holobuild build <name>`)
 3. [x] Drehen/Spiegeln/Hoehe direkt im Menue
 4. [x] Ordner und Sortierung
-5. [ ] Survival: Materialliste + Hologramm
+5. [x] Survival: Materialliste + Hologramm
 6. [ ] Survival: Bauen aus dem Inventar (umschaltbar)
 7. [ ] 3D-Vorschau im Menue (aufwendigster Punkt, deshalb zuletzt)
 

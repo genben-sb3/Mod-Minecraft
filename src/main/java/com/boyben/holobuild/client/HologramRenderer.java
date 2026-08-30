@@ -100,7 +100,7 @@ public final class HologramRenderer {
     private static void render(RenderLevelStageEvent event) throws Exception {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.level == null || !player.isCreative()) {
+        if (player == null || mc.level == null) {
             return;
         }
 
