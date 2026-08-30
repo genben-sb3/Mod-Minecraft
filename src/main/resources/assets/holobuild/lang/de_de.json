@@ -21,6 +21,11 @@
   "screen.holobuild.info_blocks": "%s Bloecke, %s verschiedene",
   "screen.holobuild.info_main": "Hauptsaechlich: %s (%sx)",
   "screen.holobuild.info_unreadable": "Datei konnte nicht gelesen werden",
+  "screen.holobuild.rotate_button": "Drehen: %s°",
+  "screen.holobuild.mirror_button_on": "Gespiegelt: ja",
+  "screen.holobuild.mirror_button_off": "Gespiegelt: nein",
+  "screen.holobuild.height_button": "Hoehe: %s",
+  "screen.holobuild.height_reset": "Klicken setzt die Hoehe auf 0 zurueck",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab: %s",

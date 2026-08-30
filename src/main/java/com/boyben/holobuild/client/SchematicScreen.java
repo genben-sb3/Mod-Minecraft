@@ -8,7 +8,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.item.BlueprintWandItem;
+import com.boyben.holobuild.network.AdjustBlueprintPayload;
 import com.boyben.holobuild.network.SelectSchematicPayload;
+import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.SchematicLoader;
 
 import net.minecraft.ChatFormatting;
@@ -19,6 +23,8 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
@@ -40,12 +46,26 @@ public class SchematicScreen extends Screen {
     private static final String STAR_ON = "★";     // filled star
     private static final String STAR_OFF = "☆";    // hollow star
 
+    /** Where the rotate/mirror/height row starts. */
+    private static final int CONTROLS_TOP = LIST_TOP + VISIBLE_ROWS * ROW_HEIGHT + 14;
+
+    /**
+     * Lighter than the usual screen backdrop, so the hologram stays visible
+     * behind the menu - turning it and watching it turn is the whole point of
+     * having these buttons here rather than only on the keyboard.
+     */
+    private static final int BACKDROP = 0x66000000;
+
     /** One entry: the name shown to the player and how big the file is. */
     private record Entry(String name, long sizeBytes, boolean builtIn) {}
 
     private final List<Entry> all = new ArrayList<>();
     private List<Entry> filtered = new ArrayList<>();
     private final List<Button> rowButtons = new ArrayList<>();
+
+    private Button rotateButton;
+    private Button mirrorButton;
+    private Button heightButton;
 
     private EditBox searchBox;
     private int scroll = 0;
@@ -75,11 +95,79 @@ public class SchematicScreen extends Screen {
         addRenderableWidget(searchBox);
         setInitialFocus(searchBox);
 
+        addControls(left);
+
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(left + PANEL_WIDTH / 2 - 50, LIST_TOP + VISIBLE_ROWS * ROW_HEIGHT + 12, 100, 20)
+                .bounds(left + PANEL_WIDTH / 2 - 50, CONTROLS_TOP + 46, 100, 20)
                 .build());
 
         applyFilter("");
+    }
+
+    /**
+     * Rotate, mirror and height, right where the schematic is chosen.
+     *
+     * Every press goes to the server, because the wand lives there - the
+     * changed setting comes back on its own and the labels pick it up in
+     * {@link #render}, so they always show what is really set.
+     */
+    private void addControls(int left) {
+        int half = PANEL_WIDTH / 2;
+
+        rotateButton = Button.builder(Component.empty(),
+                        b -> adjust(new AdjustBlueprintPayload(1, false, 0)))
+                .bounds(left, CONTROLS_TOP, half - 2, 20)
+                .build();
+        mirrorButton = Button.builder(Component.empty(),
+                        b -> adjust(new AdjustBlueprintPayload(0, true, 0)))
+                .bounds(left + half + 2, CONTROLS_TOP, half - 2, 20)
+                .build();
+
+        Button down = Button.builder(Component.literal("▼"),
+                        b -> adjust(new AdjustBlueprintPayload(0, false, -1)))
+                .bounds(left, CONTROLS_TOP + 22, 40, 20)
+                .build();
+        heightButton = Button.builder(Component.empty(), b -> resetHeight())
+                .bounds(left + 42, CONTROLS_TOP + 22, PANEL_WIDTH - 84, 20)
+                .build();
+        heightButton.setTooltip(Tooltip.create(
+                Component.translatable("screen.holobuild.height_reset")));
+        Button up = Button.builder(Component.literal("▲"),
+                        b -> adjust(new AdjustBlueprintPayload(0, false, 1)))
+                .bounds(left + PANEL_WIDTH - 40, CONTROLS_TOP + 22, 40, 20)
+                .build();
+
+        addRenderableWidget(rotateButton);
+        addRenderableWidget(mirrorButton);
+        addRenderableWidget(down);
+        addRenderableWidget(heightButton);
+        addRenderableWidget(up);
+    }
+
+    private void adjust(AdjustBlueprintPayload payload) {
+        PacketDistributor.sendToServer(payload);
+    }
+
+    /** Back to the height the schematic was saved at. */
+    private void resetHeight() {
+        int offset = currentSettings().yOffset();
+        if (offset != 0) {
+            adjust(new AdjustBlueprintPayload(0, false, -offset));
+        }
+    }
+
+    /** The settings on the wand in hand, or empty if none is held. */
+    private BlueprintSettings currentSettings() {
+        if (minecraft == null || minecraft.player == null) {
+            return BlueprintSettings.EMPTY;
+        }
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = minecraft.player.getItemInHand(hand);
+            if (stack.getItem() instanceof BlueprintWandItem) {
+                return stack.getOrDefault(ModComponents.BLUEPRINT.get(), BlueprintSettings.EMPTY);
+            }
+        }
+        return BlueprintSettings.EMPTY;
     }
 
     private void loadEntries() {
@@ -229,8 +317,39 @@ public class SchematicScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
+    /**
+     * A thin veil instead of the usual heavy backdrop, so the hologram behind
+     * the menu stays readable while its buttons are being pressed.
+     */
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, width, height, BACKDROP);
+    }
+
+    /**
+     * Labels follow whatever is really on the wand.
+     *
+     * A press travels to the server and the answer comes back a tick later, so
+     * reading the values every frame is what keeps the buttons honest rather
+     * than showing what we hope happened.
+     */
+    private void updateControlLabels() {
+        BlueprintSettings settings = currentSettings();
+
+        rotateButton.setMessage(Component.translatable(
+                "screen.holobuild.rotate_button", settings.rotation() * 90));
+        mirrorButton.setMessage(Component.translatable(settings.mirrored()
+                ? "screen.holobuild.mirror_button_on"
+                : "screen.holobuild.mirror_button_off"));
+
+        int offset = settings.yOffset();
+        heightButton.setMessage(Component.translatable("screen.holobuild.height_button",
+                offset > 0 ? "+" + offset : String.valueOf(offset)));
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        updateControlLabels();
         super.render(graphics, mouseX, mouseY, partialTick);
 
         graphics.drawCenteredString(font, title, width / 2, 20, 0xFFFFFF);

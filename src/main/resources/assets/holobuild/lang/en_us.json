@@ -21,6 +21,11 @@
   "screen.holobuild.info_blocks": "%s blocks, %s different",
   "screen.holobuild.info_main": "Mostly: %s (%sx)",
   "screen.holobuild.info_unreadable": "Could not read this file",
+  "screen.holobuild.rotate_button": "Rotate: %s°",
+  "screen.holobuild.mirror_button_on": "Mirrored: yes",
+  "screen.holobuild.mirror_button_off": "Mirrored: no",
+  "screen.holobuild.height_button": "Height: %s",
+  "screen.holobuild.height_reset": "Click to reset the height to 0",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt, .schem or .litematic here: %s",
