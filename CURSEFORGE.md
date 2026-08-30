@@ -11,7 +11,7 @@ Beschreibung zum Kopieren, der untere die Checkliste.
 ist das egal, aber zum Hochladen muss ein Elternteil den Account anlegen und
 besitzen. Das ist keine Formsache — es steht in den Nutzungsbedingungen.
 
-**Ein echter Testlauf.** Stand 30.08.2026 sind 37 automatische Tests grün, aber
+**Ein echter Testlauf.** Stand 30.08.2026 sind 40 automatische Tests grün, aber
 die Dinge, die man nur sehen kann, hat noch niemand angeschaut: die
 3D-Vorschau, der Material-Bildschirm, die Knöpfe im Auswahl-Menü. Einen Mod zu
 veröffentlichen, dessen Oberfläche nie jemand gesehen hat, geht schief.
