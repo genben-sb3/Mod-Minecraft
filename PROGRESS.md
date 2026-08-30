@@ -111,6 +111,15 @@ Code privat lassen, ein zweites oeffentliches Repo nur fuer die Bauwerke.
 - **D13**: Ben hat gestartet - **der Mod laeuft**. Reichweite auf 32 erhoeht.
 - **D14**: Baukasten. Alle Builds gruen im ersten Versuch.
 
+## Bens Wunschliste vom 30.08. (Reihenfolge nach Wert je Aufwand)
+1. [x] Infos im Auswahl-Menue (Groesse, Bloecke, Hauptmaterial) — Tooltip pro Eintrag
+2. [ ] Befehle fuer jedes Bauwerk, auch im Survival (`/holobuild build <name>`)
+3. [ ] Drehen/Spiegeln/Hoehe direkt im Menue
+4. [ ] Ordner und Sortierung
+5. [ ] Survival: Materialliste + Hologramm
+6. [ ] Survival: Bauen aus dem Inventar (umschaltbar)
+7. [ ] 3D-Vorschau im Menue (aufwendigster Punkt, deshalb zuletzt)
+
 ## Naechster Schritt
 Ben soll die Funktionen im Spiel durchprobieren, besonders
 `/holobuild random tower meinturm`.

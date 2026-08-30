@@ -17,6 +17,10 @@
   "screen.holobuild.count": "%s von %s",
   "screen.holobuild.scroll_hint": "Zeile %s-%s (Mausrad zum Blaettern)",
   "screen.holobuild.built_in": "(mitgeliefert)",
+  "screen.holobuild.info_size": "Groesse: %s",
+  "screen.holobuild.info_blocks": "%s Bloecke, %s verschiedene",
+  "screen.holobuild.info_main": "Hauptsaechlich: %s (%sx)",
+  "screen.holobuild.info_unreadable": "Datei konnte nicht gelesen werden",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab: %s",

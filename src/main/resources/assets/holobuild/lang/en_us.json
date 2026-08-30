@@ -17,6 +17,10 @@
   "screen.holobuild.count": "%s of %s",
   "screen.holobuild.scroll_hint": "Row %s-%s (scroll to page)",
   "screen.holobuild.built_in": "(built in)",
+  "screen.holobuild.info_size": "Size: %s",
+  "screen.holobuild.info_blocks": "%s blocks, %s different",
+  "screen.holobuild.info_main": "Mostly: %s (%sx)",
+  "screen.holobuild.info_unreadable": "Could not read this file",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.no_schematics": "No schematics found. Put .nbt, .schem or .litematic here: %s",

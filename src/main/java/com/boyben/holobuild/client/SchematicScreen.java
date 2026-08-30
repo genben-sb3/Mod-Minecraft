@@ -15,8 +15,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
@@ -54,6 +56,10 @@ public class SchematicScreen extends Screen {
 
     @Override
     protected void init() {
+        // Files may have changed since the picker was last open - a saved build,
+        // a freshly rolled tower - so start over. Within one visit the cache
+        // still means each entry is only read once, however much you scroll.
+        SchematicInfo.clear();
         loadEntries();
 
         int left = (width - PANEL_WIDTH) / 2;
@@ -132,6 +138,9 @@ public class SchematicScreen extends Screen {
             Button name = Button.builder(nameLabel(entry), b -> choose(entry))
                     .bounds(left + STAR_WIDTH, y, NAME_WIDTH, ROW_HEIGHT - 2)
                     .build();
+            // Read on demand: only the eight rows on screen get looked up, and
+            // each one only once for the whole session.
+            name.setTooltip(tooltipFor(entry));
 
             rowButtons.add(star);
             rowButtons.add(name);
@@ -164,6 +173,44 @@ public class SchematicScreen extends Screen {
                 ? entry.sizeBytes() + " B"
                 : (entry.sizeBytes() / 1024) + " KB";
         return Component.literal(entry.name() + "  §7(" + size + ")");
+    }
+
+    /**
+     * What the entry contains: size, block count and the main material.
+     *
+     * Reading the file is what makes this possible, so it happens only for rows
+     * actually on screen, and the result is remembered for the session.
+     */
+    private Tooltip tooltipFor(Entry entry) {
+        SchematicInfo info = minecraft == null || minecraft.level == null
+                ? null
+                : SchematicInfo.of(entry.name(), minecraft.level);
+
+        if (info == null) {
+            return Tooltip.create(Component.translatable("screen.holobuild.info_unreadable")
+                    .withStyle(ChatFormatting.RED));
+        }
+
+        MutableComponent text = Component.literal(entry.name())
+                .withStyle(ChatFormatting.WHITE)
+                .append(Component.literal("\n"))
+                .append(Component.translatable("screen.holobuild.info_size", info.dimensions())
+                        .withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("\n"))
+                .append(Component.translatable("screen.holobuild.info_blocks", info.blocks(), info.distinct())
+                        .withStyle(ChatFormatting.GRAY));
+
+        if (!info.topBlock().isEmpty()) {
+            text.append(Component.literal("\n"))
+                    .append(Component.translatable("screen.holobuild.info_main",
+                            info.topBlock(), info.topCount()).withStyle(ChatFormatting.DARK_AQUA));
+        }
+        if (entry.builtIn()) {
+            text.append(Component.literal("\n"))
+                    .append(Component.translatable("screen.holobuild.built_in")
+                            .withStyle(ChatFormatting.DARK_GRAY));
+        }
+        return Tooltip.create(text);
     }
 
     private void choose(Entry entry) {
