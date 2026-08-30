@@ -12,14 +12,14 @@
 
   "screen.holobuild.title": "Bauplan auswaehlen",
   "screen.holobuild.search": "Suchen...",
-  "screen.holobuild.empty": "Noch keine Schematics gefunden. Leg .nbt-Dateien hier ab:",
+  "screen.holobuild.empty": "Noch keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab:",
   "screen.holobuild.no_match": "Nichts gefunden - such mal anders.",
   "screen.holobuild.count": "%s von %s",
   "screen.holobuild.scroll_hint": "Zeile %s-%s (Mausrad zum Blaettern)",
   "screen.holobuild.built_in": "(mitgeliefert)",
 
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
-  "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt-Dateien hier ab: %s",
+  "message.holobuild.no_schematics": "Keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab: %s",
   "message.holobuild.load_failed": "'%s' konnte nicht gelesen werden - ist das eine echte Struktur-Datei?",
   "message.holobuild.missing_file": "'%s' liegt nicht mehr im Schematics-Ordner.",
   "message.holobuild.place_failed": "Hier kann nicht gebaut werden.",

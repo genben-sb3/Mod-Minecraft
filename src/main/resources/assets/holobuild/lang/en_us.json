@@ -12,14 +12,14 @@
 
   "screen.holobuild.title": "Choose a blueprint",
   "screen.holobuild.search": "Search...",
-  "screen.holobuild.empty": "No schematics yet. Drop .nbt files here:",
+  "screen.holobuild.empty": "No schematics yet. Drop .nbt, .schem or .litematic here:",
   "screen.holobuild.no_match": "Nothing matches - try a different search.",
   "screen.holobuild.count": "%s of %s",
   "screen.holobuild.scroll_hint": "Row %s-%s (scroll to page)",
   "screen.holobuild.built_in": "(built in)",
 
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
-  "message.holobuild.no_schematics": "No schematics found. Put .nbt files here: %s",
+  "message.holobuild.no_schematics": "No schematics found. Put .nbt, .schem or .litematic here: %s",
   "message.holobuild.load_failed": "Could not read '%s' - is it a valid structure file?",
   "message.holobuild.missing_file": "'%s' is gone from the schematics folder.",
   "message.holobuild.place_failed": "Could not build here.",
