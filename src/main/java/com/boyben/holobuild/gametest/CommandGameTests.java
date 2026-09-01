@@ -2,8 +2,14 @@ package com.boyben.holobuild.gametest;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.component.SaveOptions;
+import com.boyben.holobuild.component.Selection;
+import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.registry.ModItems;
+import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
 
@@ -17,6 +23,11 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -126,6 +137,83 @@ public class CommandGameTests {
      * time in which something could have happened.
      */
     private static final int TICKS_FOR_A_SMALL_BUILD = 40;
+
+    /**
+     * Saving must leave the air out, so a building settles into the ground
+     * instead of cutting a box out of it.
+     *
+     * The pair below matters more than either half alone. This one shows the
+     * air is dropped; the next shows it comes back when the option is on. With
+     * only the first, a save that had quietly stopped reading the option at all
+     * would still look right.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 300)
+    public static void saveCommandLeavesAirOut(GameTestHelper helper) throws Exception {
+        int kept = saveAndCountBlocks(helper, "gametest_no_air", SaveOptions.DEFAULT);
+        if (kept != 3) {
+            helper.fail("Erwartet: 3 Steinbloecke ohne die Luft, gespeichert wurden " + kept);
+            return;
+        }
+        helper.succeed();
+    }
+
+    /** ... and with air switched on, the empty spot is part of the file again. */
+    @GameTest(template = ROOM, timeoutTicks = 300)
+    public static void saveCommandKeepsAirWhenAsked(GameTestHelper helper) throws Exception {
+        int kept = saveAndCountBlocks(helper, "gametest_with_air",
+                SaveOptions.DEFAULT.withAir(true));
+        if (kept != 4) {
+            helper.fail("Mit air=true gehoert die Luft dazu: erwartet 4, gespeichert wurden " + kept);
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Marks a 2x2x1 area holding three stone blocks and one gap, saves it
+     * through the real command, and reads the file back.
+     *
+     * @return how many blocks the saved file actually contains
+     */
+    private static int saveAndCountBlocks(GameTestHelper helper, String name, SaveOptions options)
+            throws Exception {
+
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        Path file = SchematicLoader.getSchematicFolder().resolve(name + ".nbt");
+
+        try {
+            BlockPos corner = helper.absolutePos(new BlockPos(1, 1, 1));
+            BlockPos opposite = corner.offset(1, 1, 0);
+
+            BlockState stone = Blocks.STONE.defaultBlockState();
+            level.setBlock(corner, stone, Block.UPDATE_CLIENTS);
+            level.setBlock(corner.east(), stone, Block.UPDATE_CLIENTS);
+            level.setBlock(corner.above(), stone, Block.UPDATE_CLIENTS);
+            // The deliberate gap - this is the block the test is about.
+            level.setBlock(corner.above().east(), Blocks.AIR.defaultBlockState(),
+                    Block.UPDATE_CLIENTS);
+
+            ItemStack wand = new ItemStack(ModItems.SELECTION_WAND.get());
+            wand.set(ModComponents.SELECTION.get(),
+                    new Selection(Optional.of(corner), Optional.of(opposite)));
+            wand.set(ModComponents.SAVE_OPTIONS.get(), options);
+            player.setItemInHand(InteractionHand.MAIN_HAND, wand);
+
+            run(level, player, "holobuild save " + name);
+
+            SchematicCache.clear();
+            LoadedSchematic saved = SchematicLoader.loadByName(name, level);
+            if (saved == null) {
+                throw new IllegalStateException("Der Befehl hat keine lesbare Datei hinterlassen");
+            }
+            return saved.blocks().size();
+
+        } finally {
+            Files.deleteIfExists(file);
+            SchematicCache.clear();
+        }
+    }
 
     /**
      * /holobuild random has to leave a usable file behind.

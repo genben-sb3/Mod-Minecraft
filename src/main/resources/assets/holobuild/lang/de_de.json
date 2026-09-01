@@ -73,5 +73,41 @@
   "message.holobuild.saved": "%s gespeichert (%s)",
   "message.holobuild.list_header": "%s Schematics:",
   "message.holobuild.generated": "%s gewuerfelt - %s Etagen (%s)",
-  "message.holobuild.missing_module": "Baukasten '%s' unvollstaendig. Fehlt oder passt nicht: %s"
+  "message.holobuild.missing_module": "Baukasten '%s' unvollstaendig. Fehlt oder passt nicht: %s",
+
+  "tooltip.holobuild.rmb": "Rechtsklick",
+  "tooltip.holobuild.shift_rmb": "UMSCHALT + Rechtsklick",
+  "tooltip.holobuild.key_open": "G",
+  "tooltip.holobuild.keys_turn": "R / M",
+
+  "tooltip.holobuild.selection.set_one": "Ecke 1 setzen",
+  "tooltip.holobuild.selection.set_two": "Ecke 2 setzen",
+  "tooltip.holobuild.selection.empty": "Noch nichts markiert",
+  "tooltip.holobuild.selection.one_done": "Ecke 1 bei %s %s %s",
+  "tooltip.holobuild.selection.need_two": "UMSCHALT halten und die gegenueberliegende Ecke anklicken",
+  "tooltip.holobuild.selection.ready": "Markiert: %s (%s Bloecke)",
+  "tooltip.holobuild.selection.save": "Speichern mit /holobuild save <name>",
+
+  "tooltip.holobuild.blueprint.choose": "Bauplan waehlen",
+  "tooltip.holobuild.blueprint.build": "Hier bauen",
+  "tooltip.holobuild.blueprint.undo": "Letzten Bau rueckgaengig",
+  "tooltip.holobuild.blueprint.turn": "Drehen / spiegeln",
+  "tooltip.holobuild.blueprint.none": "Noch nichts gewaehlt - G druecken",
+  "tooltip.holobuild.blueprint.chosen": "Gewaehlt: %s",
+
+  "tooltip.holobuild.selection.keeps": "Speichert: %s",
+  "tooltip.holobuild.keeps.air": "Luft",
+  "tooltip.holobuild.keeps.contents": "Kisteninhalte",
+  "tooltip.holobuild.keeps.entities": "Rahmen",
+  "tooltip.holobuild.keeps.nothing": "nur Bloecke",
+
+  "message.holobuild.no_wand": "Nimm erst einen Auswahl-Stab in die Hand.",
+  "message.holobuild.selection_all_air": "Da ist nur Luft drin - markier einen Bereich mit Bloecken.",
+  "message.holobuild.saved_without_air": "%s Luftbloecke weggelassen, damit sich der Bau ins Gelaende setzt. Anschalten mit /holobuild options air true",
+  "message.holobuild.options_header": "Dieser Stab speichert:",
+  "message.holobuild.option_air": "Luft",
+  "message.holobuild.option_contents": "Kisteninhalte, Schilder, Shulker-Kisten",
+  "message.holobuild.option_entities": "Rahmen, Ruestungsstaender, Gemaelde",
+  "message.holobuild.option_on": "ja",
+  "message.holobuild.option_off": "nein"
 }

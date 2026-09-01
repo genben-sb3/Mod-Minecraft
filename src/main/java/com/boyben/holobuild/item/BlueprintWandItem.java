@@ -25,6 +25,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -43,6 +44,34 @@ public class BlueprintWandItem extends Item {
 
     public BlueprintWandItem(Properties properties) {
         super(properties);
+    }
+
+    /**
+     * The controls, and which blueprint is loaded right now.
+     *
+     * Rotating and mirroring are on keys the player never pressed before, so
+     * they are listed even though they are not needed to get started - someone
+     * holding the wand should be able to find out what it can do without
+     * leaving the game.
+     */
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context,
+                                List<Component> lines, TooltipFlag flag) {
+        WandTooltip.control(lines, "tooltip.holobuild.key_open", "tooltip.holobuild.blueprint.choose");
+        WandTooltip.control(lines, "tooltip.holobuild.rmb", "tooltip.holobuild.blueprint.build");
+        WandTooltip.control(lines, "tooltip.holobuild.shift_rmb", "tooltip.holobuild.blueprint.undo");
+        WandTooltip.control(lines, "tooltip.holobuild.keys_turn", "tooltip.holobuild.blueprint.turn");
+        WandTooltip.blank(lines);
+
+        BlueprintSettings settings = stack.getOrDefault(
+                ModComponents.BLUEPRINT.get(), BlueprintSettings.EMPTY);
+        if (settings.hasSchematic()) {
+            WandTooltip.state(lines, Component.translatable("tooltip.holobuild.blueprint.chosen",
+                    settings.schematic()), ChatFormatting.GREEN);
+        } else {
+            WandTooltip.state(lines, Component.translatable("tooltip.holobuild.blueprint.none"),
+                    ChatFormatting.YELLOW);
+        }
     }
 
     @Override

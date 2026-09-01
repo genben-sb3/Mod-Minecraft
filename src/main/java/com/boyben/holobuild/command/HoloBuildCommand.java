@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import javax.annotation.Nullable;
 
@@ -11,6 +12,7 @@ import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.build.BuildOutcome;
 import com.boyben.holobuild.build.Builder;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.SaveOptions;
 import com.boyben.holobuild.component.Selection;
 import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
@@ -21,10 +23,13 @@ import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.schematic.format.RawSchematic;
+import com.boyben.holobuild.schematic.format.StructureFilter;
 import com.boyben.holobuild.schematic.format.StructureNbt;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.minecraft.ChatFormatting;
@@ -92,6 +97,11 @@ public final class HoloBuildCommand {
                                         StringArgumentType.getString(context, "name")))))
                 .then(Commands.literal("list")
                         .executes(context -> list(context.getSource())))
+                .then(Commands.literal("options")
+                        .executes(context -> showOptions(context.getSource()))
+                        .then(optionToggle("air", SaveOptions::withAir))
+                        .then(optionToggle("contents", SaveOptions::withContents))
+                        .then(optionToggle("entities", SaveOptions::withEntities)))
                 .then(Commands.literal("random")
                         .then(Commands.argument("set", StringArgumentType.string())
                                 .then(Commands.argument("name", StringArgumentType.string())
@@ -172,7 +182,9 @@ public final class HoloBuildCommand {
     private static int random(CommandSourceStack source, String set, String name, int floors)
             throws CommandSyntaxException {
 
-        ServerPlayer player = source.getPlayerOrException();
+        // Not for the result, but for the refusal: rolling a building is a
+        // player action, and this throws for the console or a command block.
+        source.getPlayerOrException();
         ServerLevel level = source.getLevel();
 
         Path target = SchematicLoader.pathForNewFile(name);
@@ -248,16 +260,30 @@ public final class HoloBuildCommand {
 
         BlockPos start = new BlockPos(box.minX(), box.minY(), box.minZ());
         Vec3i size = selection.size();
+        SaveOptions options = saveOptionsOf(player);
 
         StructureTemplate template = new StructureTemplate();
         template.setAuthor(player.getGameProfile().getName());
-        // Entities stay out: a saved building should not come with the cows
-        // that happened to stand in it.
-        template.fillFromWorld(level, start, size, false, null);
+        // Read everything first, including entities if they are wanted, then
+        // let StructureFilter take out what the player switched off. Vanilla
+        // can only leave out a single block type, which is not enough here.
+        template.fillFromWorld(level, start, size, options.entities(), null);
+
+        CompoundTag tag = template.save(new CompoundTag());
+        int droppedAir = options.air() ? 0 : StructureFilter.stripAir(tag);
+        if (!options.contents()) {
+            StructureFilter.stripBlockEntities(tag);
+        }
+
+        // Marking nothing but air is a mistake worth naming: the file would
+        // save fine and then build nothing at all.
+        if (StructureFilter.isEmpty(tag)) {
+            fail(source, Component.translatable("message.holobuild.selection_all_air"));
+            return 0;
+        }
 
         try {
             SchematicLoader.ensureFolderExists();
-            CompoundTag tag = template.save(new CompoundTag());
             NbtIo.writeCompressed(tag, target);
         } catch (IOException e) {
             HoloBuild.LOGGER.error("Schematic konnte nicht gespeichert werden: {}", target, e);
@@ -271,6 +297,11 @@ public final class HoloBuildCommand {
         source.sendSuccess(() -> Component.translatable("message.holobuild.saved",
                 name, size.getX() + "x" + size.getY() + "x" + size.getZ())
                 .withStyle(ChatFormatting.GREEN), false);
+        if (droppedAir > 0) {
+            // Say it, so nobody wonders why the file is smaller than the selection.
+            source.sendSuccess(() -> Component.translatable("message.holobuild.saved_without_air",
+                    droppedAir).withStyle(ChatFormatting.GRAY), false);
+        }
         return 1;
     }
 
@@ -301,12 +332,86 @@ public final class HoloBuildCommand {
         return names.size();
     }
 
+    /**
+     * One on/off switch under /holobuild options.
+     *
+     * The change itself is passed in rather than looked up from the name, so
+     * there is no second list of option names that could drift out of step with
+     * the first - the command tree is the only place they are written down.
+     */
+    private static LiteralArgumentBuilder<CommandSourceStack> optionToggle(
+            String name, BiFunction<SaveOptions, Boolean, SaveOptions> change) {
+
+        return Commands.literal(name)
+                .then(Commands.argument("on", BoolArgumentType.bool())
+                        .executes(context -> setOption(context.getSource(), change,
+                                BoolArgumentType.getBool(context, "on"))));
+    }
+
+    private static int setOption(CommandSourceStack source,
+                                 BiFunction<SaveOptions, Boolean, SaveOptions> change,
+                                 boolean on) throws CommandSyntaxException {
+
+        ServerPlayer player = source.getPlayerOrException();
+        ItemStack wand = selectionWandOf(player);
+        if (wand == null) {
+            // The settings live on the wand, so without one there is nothing
+            // to change - saying so beats silently altering nothing.
+            fail(source, Component.translatable("message.holobuild.no_wand"));
+            return 0;
+        }
+
+        SaveOptions options = wand.getOrDefault(ModComponents.SAVE_OPTIONS.get(), SaveOptions.DEFAULT);
+        wand.set(ModComponents.SAVE_OPTIONS.get(), change.apply(options, on));
+        return showOptions(source);
+    }
+
+    /** Lists what the held wand will keep the next time it saves. */
+    private static int showOptions(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (selectionWandOf(player) == null) {
+            fail(source, Component.translatable("message.holobuild.no_wand"));
+            return 0;
+        }
+
+        SaveOptions options = saveOptionsOf(player);
+        source.sendSuccess(() -> Component.translatable("message.holobuild.options_header")
+                .withStyle(ChatFormatting.AQUA), false);
+        optionLine(source, "message.holobuild.option_air", options.air());
+        optionLine(source, "message.holobuild.option_contents", options.contents());
+        optionLine(source, "message.holobuild.option_entities", options.entities());
+        return 1;
+    }
+
+    private static void optionLine(CommandSourceStack source, String key, boolean on) {
+        source.sendSuccess(() -> Component.translatable(key)
+                .append(Component.literal(": "))
+                .append(Component.translatable(on
+                                ? "message.holobuild.option_on"
+                                : "message.holobuild.option_off")
+                        .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.GRAY)), false);
+    }
+
     /** @return the selection on a Selection Wand in either hand, or null */
     private static Selection selectionOf(ServerPlayer player) {
+        ItemStack wand = selectionWandOf(player);
+        return wand == null ? null : wand.getOrDefault(ModComponents.SELECTION.get(), Selection.EMPTY);
+    }
+
+    /** @return what the held wand keeps when saving, or the defaults if none is held */
+    private static SaveOptions saveOptionsOf(ServerPlayer player) {
+        ItemStack wand = selectionWandOf(player);
+        return wand == null
+                ? SaveOptions.DEFAULT
+                : wand.getOrDefault(ModComponents.SAVE_OPTIONS.get(), SaveOptions.DEFAULT);
+    }
+
+    /** @return a Selection Wand from either hand, or null */
+    private static ItemStack selectionWandOf(ServerPlayer player) {
         for (InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = player.getItemInHand(hand);
             if (stack.getItem() instanceof SelectionWandItem) {
-                return stack.getOrDefault(ModComponents.SELECTION.get(), Selection.EMPTY);
+                return stack;
             }
         }
         return null;

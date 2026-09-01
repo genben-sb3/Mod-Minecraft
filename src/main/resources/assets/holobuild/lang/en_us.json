@@ -73,5 +73,41 @@
   "message.holobuild.saved": "Saved %s (%s)",
   "message.holobuild.list_header": "%s schematics:",
   "message.holobuild.generated": "Rolled %s - %s floors (%s)",
-  "message.holobuild.missing_module": "Module set '%s' is incomplete. Missing or mismatched: %s"
+  "message.holobuild.missing_module": "Module set '%s' is incomplete. Missing or mismatched: %s",
+
+  "tooltip.holobuild.rmb": "Right-click",
+  "tooltip.holobuild.shift_rmb": "SHIFT + right-click",
+  "tooltip.holobuild.key_open": "G",
+  "tooltip.holobuild.keys_turn": "R / M",
+
+  "tooltip.holobuild.selection.set_one": "Mark corner 1",
+  "tooltip.holobuild.selection.set_two": "Mark corner 2",
+  "tooltip.holobuild.selection.empty": "Nothing marked yet",
+  "tooltip.holobuild.selection.one_done": "Corner 1 at %s %s %s",
+  "tooltip.holobuild.selection.need_two": "Hold SHIFT and right-click the opposite corner",
+  "tooltip.holobuild.selection.ready": "Marked: %s (%s blocks)",
+  "tooltip.holobuild.selection.save": "Save it with /holobuild save <name>",
+
+  "tooltip.holobuild.blueprint.choose": "Choose a blueprint",
+  "tooltip.holobuild.blueprint.build": "Build it here",
+  "tooltip.holobuild.blueprint.undo": "Undo the last build",
+  "tooltip.holobuild.blueprint.turn": "Rotate / mirror",
+  "tooltip.holobuild.blueprint.none": "Nothing chosen yet - press G",
+  "tooltip.holobuild.blueprint.chosen": "Chosen: %s",
+
+  "tooltip.holobuild.selection.keeps": "Keeps: %s",
+  "tooltip.holobuild.keeps.air": "air",
+  "tooltip.holobuild.keeps.contents": "chest contents",
+  "tooltip.holobuild.keeps.entities": "item frames",
+  "tooltip.holobuild.keeps.nothing": "blocks only",
+
+  "message.holobuild.no_wand": "Hold a Selection Wand first.",
+  "message.holobuild.selection_all_air": "Nothing but air in there - mark an area with blocks in it.",
+  "message.holobuild.saved_without_air": "%s air blocks left out, so the build settles into the ground. Turn it on with /holobuild options air true",
+  "message.holobuild.options_header": "This wand saves:",
+  "message.holobuild.option_air": "Air",
+  "message.holobuild.option_contents": "Chest contents, signs, shulker boxes",
+  "message.holobuild.option_entities": "Item frames, armour stands, paintings",
+  "message.holobuild.option_on": "yes",
+  "message.holobuild.option_off": "no"
 }

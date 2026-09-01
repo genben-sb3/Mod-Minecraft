@@ -2,6 +2,7 @@ package com.boyben.holobuild.registry;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.SaveOptions;
 import com.boyben.holobuild.component.Selection;
 
 import net.minecraft.core.component.DataComponentType;
@@ -31,4 +32,10 @@ public final class ModComponents {
             COMPONENTS.registerComponentType("selection", builder -> builder
                     .persistent(Selection.CODEC)
                     .networkSynchronized(Selection.STREAM_CODEC));
+
+    /** What the Selection Wand keeps when it saves: air, contents, entities. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SaveOptions>> SAVE_OPTIONS =
+            COMPONENTS.registerComponentType("save_options", builder -> builder
+                    .persistent(SaveOptions.CODEC)
+                    .networkSynchronized(SaveOptions.STREAM_CODEC));
 }
