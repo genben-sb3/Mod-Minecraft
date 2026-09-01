@@ -130,6 +130,67 @@ public class AnimatorGameTests {
     }
 
     /**
+     * A block the world refuses must not take the rest of the building with it.
+     *
+     * The awkward block is put BELOW bedrock on purpose, because the animator
+     * builds from the bottom up: down there it is handled first, so everything
+     * else in the list comes after it. Placed high instead, it would be last
+     * and the test would pass without ever proving anything.
+     *
+     * Checks two separate things, because the first alone proved too little:
+     * that the other blocks still arrive, and that the refused one is counted.
+     * Written the short way - only looking at the stone - this test stayed
+     * green even with the tally removed entirely, which made it a test of
+     * something that already worked rather than of the new part.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 400)
+    public static void oneImpossibleBlockDoesNotStopTheRest(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+
+        BlockPos first = helper.absolutePos(new BlockPos(1, 1, 1));
+        BlockPos second = first.east();
+
+        // Below the world floor. setBlock says no to this and says it quietly,
+        // which is exactly the silence this test is about.
+        BlockPos impossible = new BlockPos(
+                first.getX(), level.getMinBuildHeight() - 10, first.getZ());
+
+        List<StructureTemplate.StructureBlockInfo> blocks = List.of(
+                new StructureTemplate.StructureBlockInfo(
+                        impossible, Blocks.GOLD_BLOCK.defaultBlockState(), null),
+                new StructureTemplate.StructureBlockInfo(
+                        first, Blocks.STONE.defaultBlockState(), null),
+                new StructureTemplate.StructureBlockInfo(
+                        second, Blocks.STONE.defaultBlockState(), null));
+
+        String jobName = "impossible block test";
+        BuildAnimator.start(player, level, jobName, blocks, false);
+
+        helper.succeedWhen(() -> {
+            if (!level.getBlockState(first).is(Blocks.STONE)) {
+                throw new GameTestAssertException("Der erste Stein fehlt - der unmoegliche "
+                        + "Block hat den Bau abgebrochen");
+            }
+            if (!level.getBlockState(second).is(Blocks.STONE)) {
+                throw new GameTestAssertException("Der zweite Stein fehlt - der Bau ist nach "
+                        + "dem unmoeglichen Block stehengeblieben");
+            }
+
+            // The tally only exists once the job has finished and settled, so
+            // this doubles as the check that the build really ran to the end.
+            BuildAnimator.Report report = BuildAnimator.lastReport(player.getUUID());
+            if (report == null || !jobName.equals(report.name())) {
+                throw new GameTestAssertException("Noch kein Bericht fuer diesen Bau");
+            }
+            if (report.skipped() != 1 || report.placed() != 2) {
+                throw new GameTestAssertException("Erwartet: 2 gesetzt, 1 abgelehnt. Gemeldet: "
+                        + report);
+            }
+        });
+    }
+
+    /**
      * Saving a piece of world and reading it back has to give the same blocks.
      *
      * This is the path behind /holobuild save, and the promise that a saved

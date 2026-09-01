@@ -4,7 +4,7 @@ Mod für Minecraft 1.21.1 + NeoForge 21.1.248 | Java 21 | `com.boyben.holobuild`
 Plan: `C:\Users\ben_h\.claude\plans\hi-ich-bin-ben-lazy-simon.md`
 Veröffentlichen: `CURSEFORGE.md`
 
-**Der Bau-Loop läuft wieder** (alle 15 Minuten), an Bens Wunschliste vom 01.09.2026.
+**Der Bau-Loop läuft** (alle 15 Minuten), an Bens Wunschliste vom 01.09.2026.
 Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 
 ---
@@ -31,14 +31,16 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 - **35 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien
-- **18 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **19 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
-  Wiederladen, Luft-Weglassen in beide Richtungen, Materialliste gegen
-  Verbrauch, Bezahlen, Baukasten, beide Fremdformate, Befehle, Sicherheitsgrenzen
+  Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
+  Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide Fremdformate,
+  Befehle, Sicherheitsgrenzen
 
 Alle Tests werden gegengeprüft: mit absichtlich kaputtem Code **müssen** sie
-fehlschlagen. Wer das nicht macht, sammelt Tests, die nichts prüfen — vier
-solche Fälle sind hier schon aufgeflogen.
+fehlschlagen. Wer das nicht macht, sammelt Tests, die nichts prüfen — fünf
+solche Fälle sind hier schon aufgeflogen, einer davon am 01.09.2026 an
+brandneuem Code.
 
 ## Was die Tests gefunden haben
 
@@ -51,6 +53,13 @@ solche Fälle sind hier schon aufgeflogen.
   nichts. Ohne Prüfung wären Bauwerke halb erschienen, ohne jede Meldung.
 - **Luft als Block**: Gespeicherte Bauwerke enthielten die Luft dazwischen und
   stanzten sich damit einen Kasten ins Gelände, statt sich hineinzusetzen.
+- **Verschwundene Blöcke**: Was außerhalb geladener Chunks lag, wurde übersprungen —
+  ohne Zählung, ohne Meldung. Ein Bauwerk konnte mit einer fehlenden Wand
+  herauskommen und niemand erfuhr davon.
+- **`setBlock` sagt zweimal dasselbe**: Es meldet `false` sowohl bei „verweigert"
+  als auch bei „war schon richtig". Wer beides gleich behandelt, meldet ein
+  Bauwerk auf passendem Untergrund als voller Löcher. Vom Test an frischem Code
+  gefunden, keine Stunde alt.
 
 ## Wichtige Entscheidungen (nicht "aufräumen"!)
 
@@ -65,6 +74,12 @@ solche Fälle sind hier schon aufgeflogen.
   `StructureFilter` aus dem fertigen NBT, was nicht mit soll. Vanilla kann nur
   *einen* Blocktyp auslassen — zu wenig. Der Filter erkennt Luft am Namen im
   Palette-Eintrag und braucht deshalb weder Welt noch Registry: testbar ohne Spiel.
+- **Vor `setBlock` wird gefragt, ob der Block schon stimmt.** Sieht überflüssig
+  aus, ist es nicht: sonst zählt jedes Bauwerk auf passendem Untergrund seine
+  eigenen Blöcke als abgelehnt.
+- `BuildAnimator.Report` hält die Zahlen des letzten Baus fest. Eine Zahl, die nur
+  in einer Chat-Meldung steht, kann niemand prüfen — weder ein Test noch später
+  ein Bildschirm.
 - Speicher-Optionen leben **auf dem Stab**, nicht in der Config: eine Einstellung
   pro Spieler statt einer fürs ganze Spiel, und im Tooltip sichtbar statt in einer
   Datei versteckt.
@@ -79,7 +94,9 @@ solche Fälle sind hier schon aufgeflogen.
 - `perl -0pi -e` mit **mehrzeiligen** Mustern hängt den Ersatz an den
   **Dateianfang**. Hat zweimal das README zerschossen.
   **Mehrzeilige Änderungen an Textdateien immer per Neuschreiben.**
-- **Kein Python auf diesem Rechner.** Für kleine Skripte `node` benutzen.
+- **Kein Python auf diesem Rechner.** Für kleine Skripte `node` benutzen — aber
+  deutsche Anführungszeichen („ ") in einem `node -e` aus der Bash heraus
+  zerlegen den Aufruf. Bei deutschem Text lieber die ganze Datei neu schreiben.
 - `winget` scheitert an UAC. Werkzeuge als portable ZIP.
 - Unit-Tests laufen seit dem `unitTest`-Block in `build.gradle` **nicht mehr im
   Projektordner**, sondern in `build/minecraft-junit`. Wer aus einem Test eine
@@ -89,15 +106,16 @@ solche Fälle sind hier schon aufgeflogen.
 
 ## Etappenplan (Bens Liste vom 01.09.2026)
 
-### A — Reparieren & Feinschliff
+### A — Reparieren & Feinschliff ✅
 - [x] **Tooltips über beiden Stäben** — erklären Rechtsklick und Shift+Rechtsklick.
       Das war der „kaputte" Auswahl-Stab: er ging immer, nur sagte es niemand.
 - [x] **Luft nicht mitspeichern** (`StructureFilter`), abschaltbar
 - [x] **Kisteninhalte, Repeater-Stellungen, Shulker-Kisten** — einzeln umschaltbar
       über `/holobuild options`, gespeichert auf dem Stab
-- [ ] **Alle Blöcke beim Bauen** — prüfen, ob irgendwo etwas stillschweigend wegfällt
+- [x] **Alle Blöcke beim Bauen** — was außerhalb geladener Chunks oder außerhalb
+      der Welt lag, verschwand wortlos. Wird jetzt gezählt und gemeldet.
 
-### B — Bedienung
+### B — Bedienung  ← *hier geht es weiter*
 - [ ] 3D-Vorschau schon beim **Drüberfahren** in der Liste (nicht erst nach Auswahl)
 - [ ] **Anleitung im Spiel** + Knopf im Menü, der sie öffnet
 - [ ] Cleaneres Design, Sound und Animationen in der Oberfläche
