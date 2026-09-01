@@ -45,7 +45,8 @@ class LanguageFilesTest {
      * the corner messages on the Selection Wand.
      */
     private static final Pattern KEY_IN_SOURCE = Pattern.compile(
-            "\"((?:message|screen|tooltip|key|item|itemGroup)\\.holobuild(?:\\.[A-Za-z0-9_.]+)?)\"");
+            "\"((?:message|screen|tooltip|guide|key|item|itemGroup)"
+                    + "\\.holobuild(?:\\.[A-Za-z0-9_.]+)?)\"");
 
     private static JsonObject load(String file) throws IOException {
         try (InputStream in = LanguageFilesTest.class.getResourceAsStream(LANG + file)) {

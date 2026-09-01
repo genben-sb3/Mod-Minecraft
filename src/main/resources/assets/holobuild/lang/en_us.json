@@ -111,5 +111,60 @@
   "message.holobuild.option_on": "yes",
   "message.holobuild.option_off": "no",
   "message.holobuild.build_skipped": "%s blocks could not be placed - they were outside the loaded area or outside the world.",
-  "screen.holobuild.preview_peek": "(just looking - click to choose)"
+  "screen.holobuild.preview_peek": "(just looking - click to choose)",
+
+  "screen.holobuild.guide_button": "Guide",
+  "screen.holobuild.guide_hint": "How everything works, without leaving the game",
+  "screen.holobuild.guide_title": "HoloBuild guide",
+  "screen.holobuild.guide_page": "Page %s of %s",
+
+  "guide.holobuild.start.title": "First steps",
+  "guide.holobuild.start.1": "1. Take the Blueprint Wand from the creative menu.",
+  "guide.holobuild.start.2": "2. Press G and pick a building from the list.",
+  "guide.holobuild.start.3": "3. Look where you want it and right-click.",
+  "guide.holobuild.start.4": "The see-through hologram shows exactly what you are",
+  "guide.holobuild.start.5": "about to place. SHIFT + right-click undoes it.",
+
+  "guide.holobuild.wand.title": "Blueprint Wand",
+  "guide.holobuild.wand.1": "G                          Choose a blueprint",
+  "guide.holobuild.wand.2": "Right-click                Build it here",
+  "guide.holobuild.wand.3": "SHIFT + right-click        Undo the last build",
+  "guide.holobuild.wand.4": "R / M                      Rotate / mirror",
+  "guide.holobuild.wand.5": "Page Up / Page Down        Move up and down",
+  "guide.holobuild.wand.6": "The wand reaches 32 blocks instead of the usual 5.",
+  "guide.holobuild.wand.7": "A red outline means it does not fit in the world.",
+
+  "guide.holobuild.selection.title": "Selection Wand",
+  "guide.holobuild.selection.1": "Right-click                Mark corner 1",
+  "guide.holobuild.selection.2": "SHIFT + right-click        Mark corner 2",
+  "guide.holobuild.selection.3": "Then save it:   /holobuild save myhouse",
+  "guide.holobuild.selection.4": "The file is a normal Minecraft structure, so the",
+  "guide.holobuild.selection.5": "structure block and other mods can read it too.",
+
+  "guide.holobuild.saving.title": "What gets saved",
+  "guide.holobuild.saving.1": "/holobuild options shows three switches.",
+  "guide.holobuild.saving.2": "Air is left out, so a building settles into the",
+  "guide.holobuild.saving.3": "ground instead of cutting a box out of it.",
+  "guide.holobuild.saving.4": "Chest contents are kept, item frames are not.",
+  "guide.holobuild.saving.5": "Change one:   /holobuild options entities true",
+
+  "guide.holobuild.commands.title": "Commands",
+  "guide.holobuild.commands.1": "/holobuild build <name> [x y z] [rotation]",
+  "guide.holobuild.commands.2": "/holobuild save <name>",
+  "guide.holobuild.commands.3": "/holobuild list",
+  "guide.holobuild.commands.4": "/holobuild random tower <name> [floors]",
+  "guide.holobuild.commands.5": "/holobuild options",
+  "guide.holobuild.commands.6": "They need operator rights and work in survival too.",
+
+  "guide.holobuild.survival.title": "Survival",
+  "guide.holobuild.survival.1": "The wand always shows the hologram, in any mode.",
+  "guide.holobuild.survival.2": "Press G, then Materials, to see what you still need.",
+  "guide.holobuild.survival.3": "Building in survival stays off until you switch on",
+  "guide.holobuild.survival.4": "survivalBuilding - then blocks come out of your bag.",
+
+  "guide.holobuild.files.title": "Your own files",
+  "guide.holobuild.files.1": "Drop .nbt, .schem or .litematic files into the folder",
+  "guide.holobuild.files.2": "the menu names when the list is still empty.",
+  "guide.holobuild.files.3": "Subfolders work and show up in the names.",
+  "guide.holobuild.files.4": "Create uses the same .nbt format - it just works."
 }

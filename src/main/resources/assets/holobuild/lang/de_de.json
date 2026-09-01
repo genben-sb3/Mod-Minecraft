@@ -111,5 +111,60 @@
   "message.holobuild.option_on": "ja",
   "message.holobuild.option_off": "nein",
   "message.holobuild.build_skipped": "%s Bloecke liessen sich nicht setzen - sie lagen ausserhalb des geladenen Bereichs oder ausserhalb der Welt.",
-  "screen.holobuild.preview_peek": "(nur angeschaut - klicken zum Waehlen)"
+  "screen.holobuild.preview_peek": "(nur angeschaut - klicken zum Waehlen)",
+
+  "screen.holobuild.guide_button": "Anleitung",
+  "screen.holobuild.guide_hint": "Wie alles funktioniert, ohne das Spiel zu verlassen",
+  "screen.holobuild.guide_title": "HoloBuild-Anleitung",
+  "screen.holobuild.guide_page": "Seite %s von %s",
+
+  "guide.holobuild.start.title": "Erste Schritte",
+  "guide.holobuild.start.1": "1. Nimm den Blaupausen-Zauberstab aus dem Kreativmenue.",
+  "guide.holobuild.start.2": "2. Druecke G und such dir ein Gebaeude aus.",
+  "guide.holobuild.start.3": "3. Schau hin, wo es stehen soll, und mach Rechtsklick.",
+  "guide.holobuild.start.4": "Das durchsichtige Hologramm zeigt dir vorher genau,",
+  "guide.holobuild.start.5": "was kommt. UMSCHALT + Rechtsklick macht es rueckgaengig.",
+
+  "guide.holobuild.wand.title": "Blaupausen-Zauberstab",
+  "guide.holobuild.wand.1": "G                          Bauplan waehlen",
+  "guide.holobuild.wand.2": "Rechtsklick                Hier bauen",
+  "guide.holobuild.wand.3": "UMSCHALT + Rechtsklick     Letzten Bau rueckgaengig",
+  "guide.holobuild.wand.4": "R / M                      Drehen / spiegeln",
+  "guide.holobuild.wand.5": "Bild hoch / Bild runter    Nach oben und unten",
+  "guide.holobuild.wand.6": "Der Stab reicht 32 Bloecke weit statt der ueblichen 5.",
+  "guide.holobuild.wand.7": "Ein roter Umriss heisst: passt nicht in die Welt.",
+
+  "guide.holobuild.selection.title": "Auswahl-Stab",
+  "guide.holobuild.selection.1": "Rechtsklick                Ecke 1 setzen",
+  "guide.holobuild.selection.2": "UMSCHALT + Rechtsklick     Ecke 2 setzen",
+  "guide.holobuild.selection.3": "Dann speichern:   /holobuild save meinhaus",
+  "guide.holobuild.selection.4": "Die Datei ist eine ganz normale Minecraft-Struktur -",
+  "guide.holobuild.selection.5": "auch der Strukturblock und andere Mods lesen sie.",
+
+  "guide.holobuild.saving.title": "Was gespeichert wird",
+  "guide.holobuild.saving.1": "/holobuild options zeigt dir drei Schalter.",
+  "guide.holobuild.saving.2": "Luft bleibt draussen, damit sich ein Bauwerk ins",
+  "guide.holobuild.saving.3": "Gelaende setzt statt einen Kasten hineinzustanzen.",
+  "guide.holobuild.saving.4": "Kisteninhalte kommen mit, Bilderrahmen nicht.",
+  "guide.holobuild.saving.5": "Umstellen:   /holobuild options entities true",
+
+  "guide.holobuild.commands.title": "Befehle",
+  "guide.holobuild.commands.1": "/holobuild build <name> [x y z] [drehung]",
+  "guide.holobuild.commands.2": "/holobuild save <name>",
+  "guide.holobuild.commands.3": "/holobuild list",
+  "guide.holobuild.commands.4": "/holobuild random tower <name> [etagen]",
+  "guide.holobuild.commands.5": "/holobuild options",
+  "guide.holobuild.commands.6": "Sie brauchen Operator-Rechte und gehen auch im Survival.",
+
+  "guide.holobuild.survival.title": "Ueberlebensmodus",
+  "guide.holobuild.survival.1": "Das Hologramm zeigt der Stab in jedem Modus.",
+  "guide.holobuild.survival.2": "Druecke G und dann Material, um zu sehen was fehlt.",
+  "guide.holobuild.survival.3": "Bauen im Survival bleibt aus, bis du in der Config",
+  "guide.holobuild.survival.4": "survivalBuilding anschaltest - dann zahlt dein Rucksack.",
+
+  "guide.holobuild.files.title": "Eigene Dateien",
+  "guide.holobuild.files.1": "Leg .nbt, .schem oder .litematic in den Ordner, den",
+  "guide.holobuild.files.2": "das Menue nennt, solange die Liste noch leer ist.",
+  "guide.holobuild.files.3": "Unterordner gehen und tauchen im Namen mit auf.",
+  "guide.holobuild.files.4": "Create nutzt dasselbe .nbt-Format - es geht einfach."
 }

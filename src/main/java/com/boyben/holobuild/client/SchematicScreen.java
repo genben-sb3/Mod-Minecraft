@@ -151,15 +151,31 @@ public class SchematicScreen extends Screen {
 
         addControls(left);
 
+        // Materials, guide and done share the bottom row in equal thirds.
+        int third = (PANEL_WIDTH - 2 * 4) / 3;
+        int row = CONTROLS_TOP + 46;
         addRenderableWidget(Button.builder(Component.translatable("screen.holobuild.materials_button"),
                         b -> openMaterials())
-                .bounds(left, CONTROLS_TOP + 46, PANEL_WIDTH / 2 - 2, 20)
+                .bounds(left, row, third, 20)
                 .build());
+        Button guide = Button.builder(Component.translatable("screen.holobuild.guide_button"),
+                        b -> openGuide())
+                .bounds(left + third + 4, row, third, 20)
+                .build();
+        guide.setTooltip(Tooltip.create(Component.translatable("screen.holobuild.guide_hint")));
+        addRenderableWidget(guide);
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose())
-                .bounds(left + PANEL_WIDTH / 2 + 2, CONTROLS_TOP + 46, PANEL_WIDTH / 2 - 2, 20)
+                .bounds(left + 2 * (third + 4), row, third, 20)
                 .build());
 
         applyFilter("");
+    }
+
+    /** Opens the manual, and comes back here when it is closed. */
+    private void openGuide() {
+        if (minecraft != null) {
+            minecraft.setScreen(new GuideScreen(this));
+        }
     }
 
     /**

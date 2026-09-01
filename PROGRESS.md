@@ -22,6 +22,7 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
 | Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
+| Anleitung | Sieben Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
@@ -29,10 +30,10 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 
 ## Tests
 
-- **42 Unit-Tests** — `.\gradlew test`
+- **46 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
-  Zeilen-Trefferrechnung der Liste
+  Zeilen-Trefferrechnung der Liste, Aufbau der Anleitung
 - **20 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
@@ -94,6 +95,10 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - `BuildAnimator.Report` hält die Zahlen des letzten Baus fest. Eine Zahl, die nur
   in einer Chat-Meldung steht, kann niemand prüfen — weder ein Test noch später
   ein Bildschirm.
+- **Die Anleitung zählt ihre Textschlüssel einzeln auf**, statt sie aus einer
+  Schleife zusammenzusetzen. `LanguageFilesTest` sucht die Schlüssel im Quelltext;
+  ein aus `"seite" + i` gebauter Name rutscht daran vorbei und fällt erst im Spiel
+  als Rohtext auf.
 - `ListLayout` liegt außerhalb des Bildschirms und ohne Minecraft-Klassen. Ein
   `Screen` lässt sich in keinem Test bauen, diese Rechnerei schon — und sie ist
   reines Off-by-one-Gelände.
@@ -136,8 +141,9 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - [x] **3D-Vorschau beim Drüberfahren** in der Liste, mit 200 ms Wartezeit und
       Beschriftung darunter. Dafür musste erst der Cache mehr als ein Bauwerk
       halten können.
-- [ ] **Anleitung im Spiel** + Knopf im Menü, der sie öffnet  ← *hier geht es weiter*
-- [ ] Cleaneres Design, Sound und Animationen in der Oberfläche
+- [x] **Anleitung im Spiel** — sieben Seiten, Knopf „Anleitung“ unten im Menü,
+      Blättern mit Pfeiltasten oder Maus. Merkt sich die Seite.
+- [ ] Cleaneres Design, Sound und Animationen in der Oberfläche  ← *hier geht es weiter*
 
 ### C — Survival
 - [ ] **Crafting-Rezepte** mit durchdachter Schwierigkeit (die Stäbe müssen etwas kosten)
