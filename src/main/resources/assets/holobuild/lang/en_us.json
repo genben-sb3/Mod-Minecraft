@@ -110,5 +110,6 @@
   "message.holobuild.option_entities": "Item frames, armour stands, paintings",
   "message.holobuild.option_on": "yes",
   "message.holobuild.option_off": "no",
-  "message.holobuild.build_skipped": "%s blocks could not be placed - they were outside the loaded area or outside the world."
+  "message.holobuild.build_skipped": "%s blocks could not be placed - they were outside the loaded area or outside the world.",
+  "screen.holobuild.preview_peek": "(just looking - click to choose)"
 }

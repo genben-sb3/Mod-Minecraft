@@ -39,6 +39,43 @@ public class FormatGameTests {
     private static final String ROOM = "test_platform";
 
     /**
+     * The cache has to hold more than one schematic at a time.
+     *
+     * This is not tidiness. The hologram asks for the selected building every
+     * frame while the menu shows a preview of whatever the mouse is over - two
+     * different files at once. With room for only one, those two would throw
+     * each other out twice per frame and the game would read and parse two
+     * files sixty times a second.
+     *
+     * All three calls happen inside this one method, so no other test running
+     * in the same batch can clear the cache in between and make the count wrong.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void cacheHoldsMoreThanOneSchematic(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+
+        SchematicCache.clear();
+        long before = SchematicCache.diskLoads();
+
+        SchematicCache.get("cottage", level);
+        SchematicCache.get("watchtower", level);
+        SchematicCache.get("cottage", level);      // must come back from memory
+
+        long reads = SchematicCache.diskLoads() - before;
+        if (reads != 2) {
+            helper.fail("Zwei verschiedene Bauwerke, dreimal geholt: erwartet 2 Lesevorgaenge "
+                    + "von der Platte, gezaehlt " + reads);
+            return;
+        }
+        if (SchematicCache.size() != 2) {
+            helper.fail("Der Cache haelt " + SchematicCache.size()
+                    + " Bauwerke statt 2 - das zweite hat das erste hinausgeworfen");
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
      * Both test files describe the same tiny 2x2x2 shape: stone wherever x is 1,
      * air everywhere else. Four stone blocks, easy to check by eye.
      */

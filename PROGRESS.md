@@ -21,26 +21,33 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Speicher-Optionen | Luft / Kisteninhalte / Rahmen einzeln an und aus, `/holobuild options` |
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
-| Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, 3D-Vorschau, Steuerung |
+| Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
+| Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
 | Befehle | `build`, `save`, `list`, `random`, `options` — mit Operator-Rechten, auch im Survival |
 
 ## Tests
 
-- **35 Unit-Tests** — `.\gradlew test`
+- **42 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
-  Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien
-- **19 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+  Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
+  Zeilen-Trefferrechnung der Liste
+- **20 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
-  Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide Fremdformate,
-  Befehle, Sicherheitsgrenzen
+  Cache-Kapazität, Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
+  Fremdformate, Befehle, Sicherheitsgrenzen
 
 Alle Tests werden gegengeprüft: mit absichtlich kaputtem Code **müssen** sie
 fehlschlagen. Wer das nicht macht, sammelt Tests, die nichts prüfen — fünf
 solche Fälle sind hier schon aufgeflogen, einer davon am 01.09.2026 an
 brandneuem Code.
+
+Umgekehrt gilt auch: **eine Sabotage, die keinen Test umwirft, ist nicht
+automatisch eine Lücke.** Am 01.09.2026 blieb `(intoList + 1) / rowHeight`
+grün — zu Recht, denn die Lücken-Regel fängt genau die Pixel ab, an denen sich
+das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenhaft.
 
 ## Was die Tests gefunden haben
 
@@ -77,9 +84,19 @@ brandneuem Code.
 - **Vor `setBlock` wird gefragt, ob der Block schon stimmt.** Sieht überflüssig
   aus, ist es nicht: sonst zählt jedes Bauwerk auf passendem Untergrund seine
   eigenen Blöcke als abgelehnt.
+- **Der `SchematicCache` hält mehrere Bauwerke, nicht eines.** Sobald das Menü
+  beim Drüberfahren eine Vorschau zeigt, wollen Hologramm und Vorschau zwei
+  verschiedene Dateien gleichzeitig. Mit einem Platz würfen die beiden sich
+  sechzigmal pro Sekunde gegenseitig hinaus. Die Grenze zählt **Blöcke**, nicht
+  Einträge — acht Hütten sind nichts, eine Kathedrale ist viel.
+- **200 ms Wartezeit vor der Hover-Vorschau.** Ohne sie liest ein Mauswisch über
+  die Liste jede Datei, an der er vorbeikommt.
 - `BuildAnimator.Report` hält die Zahlen des letzten Baus fest. Eine Zahl, die nur
   in einer Chat-Meldung steht, kann niemand prüfen — weder ein Test noch später
   ein Bildschirm.
+- `ListLayout` liegt außerhalb des Bildschirms und ohne Minecraft-Klassen. Ein
+  `Screen` lässt sich in keinem Test bauen, diese Rechnerei schon — und sie ist
+  reines Off-by-one-Gelände.
 - Speicher-Optionen leben **auf dem Stab**, nicht in der Config: eine Einstellung
   pro Spieler statt einer fürs ganze Spiel, und im Tooltip sichtbar statt in einer
   Datei versteckt.
@@ -115,9 +132,11 @@ brandneuem Code.
 - [x] **Alle Blöcke beim Bauen** — was außerhalb geladener Chunks oder außerhalb
       der Welt lag, verschwand wortlos. Wird jetzt gezählt und gemeldet.
 
-### B — Bedienung  ← *hier geht es weiter*
-- [ ] 3D-Vorschau schon beim **Drüberfahren** in der Liste (nicht erst nach Auswahl)
-- [ ] **Anleitung im Spiel** + Knopf im Menü, der sie öffnet
+### B — Bedienung
+- [x] **3D-Vorschau beim Drüberfahren** in der Liste, mit 200 ms Wartezeit und
+      Beschriftung darunter. Dafür musste erst der Cache mehr als ein Bauwerk
+      halten können.
+- [ ] **Anleitung im Spiel** + Knopf im Menü, der sie öffnet  ← *hier geht es weiter*
 - [ ] Cleaneres Design, Sound und Animationen in der Oberfläche
 
 ### C — Survival
@@ -135,9 +154,10 @@ brandneuem Code.
 
 ## 👉 Was nur Ben kann
 
-**1. Hinschauen.** Die Oberfläche — 3D-Vorschau, Material-Bildschirm, Menü-Knöpfe,
-und jetzt neu die Tooltips — hat noch nie jemand im Spiel gesehen. Render-Code
-kann fehlerfrei kompilieren und trotzdem falsch aussehen.
+**1. Hinschauen.** Die Oberfläche — 3D-Vorschau, Hover-Vorschau,
+Material-Bildschirm, Menü-Knöpfe und die neuen Tooltips — hat noch nie jemand im
+Spiel gesehen. Render-Code kann fehlerfrei kompilieren und trotzdem falsch
+aussehen. Stand 01.09.2026: Bens letzte Spielsitzung war am 30.08. um 21:24.
 
 **2. Etappe 7, Online-Bibliothek.** Braucht ein **öffentliches** Repo; das
 private `Mod-Minecraft` kann der Mod nicht lesen, ohne ein Passwort

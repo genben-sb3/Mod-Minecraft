@@ -20,6 +20,7 @@ import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.survival.MaterialList;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -44,6 +45,8 @@ public class SchematicScreen extends Screen {
     private static final int NAME_WIDTH = 220;
     private static final int PANEL_WIDTH = STAR_WIDTH + NAME_WIDTH;
     private static final int ROW_HEIGHT = 20;
+    /** Dead space at the bottom of each row, so the buttons do not touch. */
+    private static final int ROW_GAP = 2;
     private static final int VISIBLE_ROWS = 8;
     private static final int LIST_TOP = 64;
 
@@ -101,6 +104,18 @@ public class SchematicScreen extends Screen {
 
     private EditBox searchBox;
     private int scroll = 0;
+
+    /**
+     * How long the mouse has to rest on an entry before it is previewed.
+     *
+     * Long enough that running the mouse down the list costs nothing, short
+     * enough that stopping on a name feels like it answered straight away.
+     */
+    private static final long HOVER_DELAY_MS = 200;
+
+    /** The entry the mouse is currently on, and since when. */
+    private String hoverName = "";
+    private long hoverSince;
 
     public SchematicScreen() {
         super(Component.translatable("screen.holobuild.title"));
@@ -315,10 +330,10 @@ public class SchematicScreen extends Screen {
             int y = LIST_TOP + row * ROW_HEIGHT;
 
             Button star = Button.builder(starLabel(entry.name()), b -> toggleStar(entry))
-                    .bounds(left, y, STAR_WIDTH, ROW_HEIGHT - 2)
+                    .bounds(left, y, STAR_WIDTH, ROW_HEIGHT - ROW_GAP)
                     .build();
             Button name = Button.builder(nameLabel(entry), b -> choose(entry))
-                    .bounds(left + STAR_WIDTH, y, NAME_WIDTH, ROW_HEIGHT - 2)
+                    .bounds(left + STAR_WIDTH, y, NAME_WIDTH, ROW_HEIGHT - ROW_GAP)
                     .build();
             // Read on demand: only the eight rows on screen get looked up, and
             // each one only once for the whole session.
@@ -442,7 +457,52 @@ public class SchematicScreen extends Screen {
     }
 
     /**
-     * The turning model of whatever is currently selected.
+     * Which list entry the mouse is resting on.
+     *
+     * Worked out from the geometry rather than asked of the row buttons,
+     * because a Button only knows it is hovered while it is drawing itself, and
+     * the preview is drawn afterwards. The arithmetic itself lives in
+     * {@link ListLayout}, where it can be tested.
+     *
+     * @return the entry under the mouse, or null if the mouse is elsewhere
+     */
+    private Entry hoveredEntry(int mouseX, int mouseY) {
+        ListLayout layout = new ListLayout((width - TOTAL_WIDTH) / 2, PANEL_WIDTH,
+                LIST_TOP, ROW_HEIGHT, ROW_GAP, VISIBLE_ROWS);
+        int index = layout.indexAt(mouseX, mouseY, scroll, filtered.size());
+        return index == ListLayout.NONE ? null : filtered.get(index);
+    }
+
+    /**
+     * Decides what the preview should show: the entry under the mouse, or the
+     * chosen one when the mouse is elsewhere.
+     *
+     * The short wait matters. Without it, sweeping the mouse down a long list
+     * would read every file it passed over, and most of those pictures nobody
+     * would even see. Resting on an entry is what says "show me this one".
+     *
+     * @return the name to preview, empty for nothing
+     */
+    private String previewName() {
+        return hoverSettled() ? hoverName : currentSettings().schematic();
+    }
+
+    private boolean hoverSettled() {
+        return !hoverName.isEmpty() && Util.getMillis() - hoverSince >= HOVER_DELAY_MS;
+    }
+
+    /** Notices when the mouse moves to a different entry and restarts the clock. */
+    private void trackHover(int mouseX, int mouseY) {
+        Entry under = hoveredEntry(mouseX, mouseY);
+        String name = under == null ? "" : under.name();
+        if (!name.equals(hoverName)) {
+            hoverName = name;
+            hoverSince = Util.getMillis();
+        }
+    }
+
+    /**
+     * The turning model of whatever is being previewed.
      *
      * Drawn after the widgets so it sits on top of the panel, and skipped for
      * large builds - every block is drawn every frame, so a cathedral would
@@ -458,11 +518,23 @@ public class SchematicScreen extends Screen {
         if (minecraft == null || minecraft.level == null) {
             return;
         }
-        String name = currentSettings().schematic();
+        String name = previewName();
         if (name.isEmpty()) {
             graphics.drawCenteredString(font, Component.translatable("screen.holobuild.preview_none"),
                     centreX, centreY - 4, 0x888888);
             return;
+        }
+
+        // Name the building under the picture, and say plainly when it is only
+        // being looked at rather than chosen - otherwise the preview quietly
+        // disagreeing with the hologram behind it is baffling.
+        boolean peeking = hoverSettled() && !name.equals(currentSettings().schematic());
+        graphics.drawCenteredString(font, Component.literal(name),
+                centreX, LIST_TOP + PREVIEW_SIZE + 4, peeking ? 0xFFD24A : 0xAAAAAA);
+        if (peeking) {
+            graphics.drawCenteredString(font,
+                    Component.translatable("screen.holobuild.preview_peek"),
+                    centreX, LIST_TOP + PREVIEW_SIZE + 15, 0x888888);
         }
 
         LoadedSchematic schematic;
@@ -486,6 +558,7 @@ public class SchematicScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         updateControlLabels();
+        trackHover(mouseX, mouseY);
         super.render(graphics, mouseX, mouseY, partialTick);
 
         renderPreview(graphics, (width - TOTAL_WIDTH) / 2);

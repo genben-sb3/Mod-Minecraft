@@ -110,5 +110,6 @@
   "message.holobuild.option_entities": "Rahmen, Ruestungsstaender, Gemaelde",
   "message.holobuild.option_on": "ja",
   "message.holobuild.option_off": "nein",
-  "message.holobuild.build_skipped": "%s Bloecke liessen sich nicht setzen - sie lagen ausserhalb des geladenen Bereichs oder ausserhalb der Welt."
+  "message.holobuild.build_skipped": "%s Bloecke liessen sich nicht setzen - sie lagen ausserhalb des geladenen Bereichs oder ausserhalb der Welt.",
+  "screen.holobuild.preview_peek": "(nur angeschaut - klicken zum Waehlen)"
 }
