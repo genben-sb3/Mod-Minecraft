@@ -54,6 +54,15 @@ public class RecipeGameTests {
                 Items.STICK, Items.AIR, Items.AIR);
     }
 
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void siteWandCanBeCrafted(GameTestHelper helper) {
+        // A pickaxe at the core, because clearing ground is what it does.
+        check(helper, ModItems.SITE_WAND.get(),
+                Items.AIR, Items.AIR, Items.AMETHYST_SHARD,
+                Items.AIR, Items.IRON_PICKAXE, Items.AIR,
+                Items.STICK, Items.AIR, Items.AIR);
+    }
+
     /**
      * The wands must not be crafted by accident.
      *

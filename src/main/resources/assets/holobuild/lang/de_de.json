@@ -1,15 +1,12 @@
 {
   "itemGroup.holobuild": "HoloBuild",
-
   "item.holobuild.blueprint_wand": "Blaupausen-Zauberstab",
-
   "key.categories.holobuild": "HoloBuild",
   "key.holobuild.rotate": "Bauplan drehen",
   "key.holobuild.mirror": "Bauplan spiegeln",
   "key.holobuild.up": "Bauplan nach oben",
   "key.holobuild.down": "Bauplan nach unten",
   "key.holobuild.open": "Bauplan auswaehlen",
-
   "screen.holobuild.title": "Bauplan auswaehlen",
   "screen.holobuild.search": "Suchen...",
   "screen.holobuild.empty": "Noch keine Schematics gefunden. Leg .nbt, .schem oder .litematic hier ab:",
@@ -39,7 +36,6 @@
   "screen.holobuild.materials_summary": "%s Bloecke insgesamt, %s fehlen dir noch",
   "screen.holobuild.preview_none": "Nichts gewaehlt",
   "screen.holobuild.preview_too_big": "Zu gross fuer die Vorschau",
-
   "message.holobuild.creative_only": "Der Blaupausen-Zauberstab geht nur im Kreativmodus.",
   "message.holobuild.survival_hint": "Im Ueberlebensmodus zeigt der Stab nur die Vorschau. Druck G und dann Material, um zu sehen was du brauchst. (In der Config laesst sich survivalBuilding einschalten.)",
   "message.holobuild.build_incomplete": "%s Bloecke fehlten dir - die Stellen sind leer geblieben.",
@@ -62,7 +58,6 @@
   "message.holobuild.too_low": "Passt nicht - das Bauwerk waere %s Bloecke unter dem Weltboden. Bau hoeher.",
   "message.holobuild.selection_outside_world": "Die Auswahl ragt aus der Welt heraus. Markier sie zwischen Weltboden und Weltdecke.",
   "item.holobuild.selection_wand": "Auswahl-Stab",
-
   "message.holobuild.corner_one": "Ecke 1 gesetzt: %s %s %s",
   "message.holobuild.corner_two": "Ecke 2 gesetzt: %s %s %s",
   "message.holobuild.selection_size": "Auswahl: %s (%s Bloecke) - jetzt /holobuild save <name>",
@@ -74,12 +69,10 @@
   "message.holobuild.list_header": "%s Schematics:",
   "message.holobuild.generated": "%s gewuerfelt - %s Etagen (%s)",
   "message.holobuild.missing_module": "Baukasten '%s' unvollstaendig. Fehlt oder passt nicht: %s",
-
   "tooltip.holobuild.rmb": "Rechtsklick",
   "tooltip.holobuild.shift_rmb": "UMSCHALT + Rechtsklick",
   "tooltip.holobuild.key_open": "G",
   "tooltip.holobuild.keys_turn": "R / M",
-
   "tooltip.holobuild.selection.set_one": "Ecke 1 setzen",
   "tooltip.holobuild.selection.set_two": "Ecke 2 setzen",
   "tooltip.holobuild.selection.empty": "Noch nichts markiert",
@@ -87,20 +80,17 @@
   "tooltip.holobuild.selection.need_two": "UMSCHALT halten und die gegenueberliegende Ecke anklicken",
   "tooltip.holobuild.selection.ready": "Markiert: %s (%s Bloecke)",
   "tooltip.holobuild.selection.save": "Speichern mit /holobuild save <name>",
-
   "tooltip.holobuild.blueprint.choose": "Bauplan waehlen",
   "tooltip.holobuild.blueprint.build": "Hier bauen",
   "tooltip.holobuild.blueprint.undo": "Letzten Bau rueckgaengig",
   "tooltip.holobuild.blueprint.turn": "Drehen / spiegeln",
   "tooltip.holobuild.blueprint.none": "Noch nichts gewaehlt - G druecken",
   "tooltip.holobuild.blueprint.chosen": "Gewaehlt: %s",
-
   "tooltip.holobuild.selection.keeps": "Speichert: %s",
   "tooltip.holobuild.keeps.air": "Luft",
   "tooltip.holobuild.keeps.contents": "Kisteninhalte",
   "tooltip.holobuild.keeps.entities": "Rahmen",
   "tooltip.holobuild.keeps.nothing": "nur Bloecke",
-
   "message.holobuild.no_wand": "Nimm erst einen Auswahl-Stab in die Hand.",
   "message.holobuild.selection_all_air": "Da ist nur Luft drin - markier einen Bereich mit Bloecken.",
   "message.holobuild.saved_without_air": "%s Luftbloecke weggelassen, damit sich der Bau ins Gelaende setzt. Anschalten mit /holobuild options air true",
@@ -112,19 +102,16 @@
   "message.holobuild.option_off": "nein",
   "message.holobuild.build_skipped": "%s Bloecke liessen sich nicht setzen - sie lagen ausserhalb des geladenen Bereichs oder ausserhalb der Welt.",
   "screen.holobuild.preview_peek": "(nur angeschaut - klicken zum Waehlen)",
-
   "screen.holobuild.guide_button": "Anleitung",
   "screen.holobuild.guide_hint": "Wie alles funktioniert, ohne das Spiel zu verlassen",
   "screen.holobuild.guide_title": "HoloBuild-Anleitung",
   "screen.holobuild.guide_page": "Seite %s von %s",
-
   "guide.holobuild.start.title": "Erste Schritte",
   "guide.holobuild.start.1": "1. Nimm den Blaupausen-Zauberstab aus dem Kreativmenue.",
   "guide.holobuild.start.2": "2. Druecke G und such dir ein Gebaeude aus.",
   "guide.holobuild.start.3": "3. Schau hin, wo es stehen soll, und mach Rechtsklick.",
   "guide.holobuild.start.4": "Das durchsichtige Hologramm zeigt dir vorher genau,",
   "guide.holobuild.start.5": "was kommt. UMSCHALT + Rechtsklick macht es rueckgaengig.",
-
   "guide.holobuild.wand.title": "Blaupausen-Zauberstab",
   "guide.holobuild.wand.1": "G                          Bauplan waehlen",
   "guide.holobuild.wand.2": "Rechtsklick                Hier bauen",
@@ -133,21 +120,18 @@
   "guide.holobuild.wand.5": "Bild hoch / Bild runter    Nach oben und unten",
   "guide.holobuild.wand.6": "Der Stab reicht 32 Bloecke weit statt der ueblichen 5.",
   "guide.holobuild.wand.7": "Ein roter Umriss heisst: passt nicht in die Welt.",
-
   "guide.holobuild.selection.title": "Auswahl-Stab",
   "guide.holobuild.selection.1": "Rechtsklick                Ecke 1 setzen",
   "guide.holobuild.selection.2": "UMSCHALT + Rechtsklick     Ecke 2 setzen",
   "guide.holobuild.selection.3": "Dann speichern:   /holobuild save meinhaus",
   "guide.holobuild.selection.4": "Die Datei ist eine ganz normale Minecraft-Struktur -",
   "guide.holobuild.selection.5": "auch der Strukturblock und andere Mods lesen sie.",
-
   "guide.holobuild.saving.title": "Was gespeichert wird",
   "guide.holobuild.saving.1": "/holobuild options zeigt dir drei Schalter.",
   "guide.holobuild.saving.2": "Luft bleibt draussen, damit sich ein Bauwerk ins",
   "guide.holobuild.saving.3": "Gelaende setzt statt einen Kasten hineinzustanzen.",
   "guide.holobuild.saving.4": "Kisteninhalte kommen mit, Bilderrahmen nicht.",
   "guide.holobuild.saving.5": "Umstellen:   /holobuild options entities true",
-
   "guide.holobuild.commands.title": "Befehle",
   "guide.holobuild.commands.1": "/holobuild build <name> [x y z] [drehung]",
   "guide.holobuild.commands.2": "/holobuild save <name>",
@@ -155,29 +139,44 @@
   "guide.holobuild.commands.4": "/holobuild random tower <name> [etagen]",
   "guide.holobuild.commands.5": "/holobuild options",
   "guide.holobuild.commands.6": "Sie brauchen Operator-Rechte und gehen auch im Survival.",
-
   "guide.holobuild.survival.title": "Ueberlebensmodus",
   "guide.holobuild.survival.1": "Das Hologramm zeigt der Stab in jedem Modus.",
   "guide.holobuild.survival.2": "Druecke G und dann Material, um zu sehen was fehlt.",
   "guide.holobuild.survival.3": "Bauen im Survival bleibt aus, bis du in der Config",
   "guide.holobuild.survival.4": "survivalBuilding anschaltest - dann zahlt dein Rucksack.",
-
   "guide.holobuild.files.title": "Eigene Dateien",
   "guide.holobuild.files.1": "Leg .nbt, .schem oder .litematic in den Ordner, den",
   "guide.holobuild.files.2": "das Menue nennt, solange die Liste noch leer ist.",
   "guide.holobuild.files.3": "Unterordner gehen und tauchen im Namen mit auf.",
   "guide.holobuild.files.4": "Create nutzt dasselbe .nbt-Format - es geht einfach.",
-
   "guide.holobuild.craft.title": "Die Staebe herstellen",
   "guide.holobuild.craft.1": "Beide Staebe haben dieselbe Form, schraeg wie eine Spitzhacke:",
   "guide.holobuild.craft.2": "ein Amethystsplitter oben rechts, ein Kern in der Mitte,",
   "guide.holobuild.craft.3": "und ein Stock unten links.",
   "guide.holobuild.craft.4": "Der Kern entscheidet, welchen du bekommst:",
-  "guide.holobuild.craft.5": "Diamant = Blaupausen-Zauberstab, Eisenbarren = Auswahl-Stab.",
-  "guide.holobuild.craft.6": "Im Kreativmodus nimmst du sie einfach aus dem HoloBuild-Tab.",
+  "guide.holobuild.craft.5": "Diamant = Blaupausen-Stab, Eisenbarren = Auswahl-Stab,",
+  "guide.holobuild.craft.6": "Eisenspitzhacke = Baugrund-Stab.",
   "message.holobuild.short_of": "Es fehlt: %s",
   "message.holobuild.short_more": "und %s weitere Sorten",
   "message.holobuild.short_confirm": "Nochmal klicken innerhalb von 10 Sekunden baut trotzdem - es hoert auf, wo die Bloecke ausgehen. Druck G und dann Material fuer die ganze Liste.",
   "guide.holobuild.survival.5": "Zu wenig Bloecke? Der Stab sagt, was fehlt, und wartet.",
-  "guide.holobuild.survival.6": "Nochmal klicken baut so weit es reicht."
+  "guide.holobuild.survival.6": "Nochmal klicken baut so weit es reicht.",
+  "item.holobuild.site_wand": "Baugrund-Stab",
+  "tooltip.holobuild.site.clear": "Platz fuer das gewaehlte Bauwerk freiraeumen",
+  "tooltip.holobuild.site.needs_wand": "Bauwerk vorher mit dem Blaupausen-Zauberstab waehlen",
+  "tooltip.holobuild.site.undo": "Rueckgaengig mit dem Blaupausen-Stab: UMSCHALT + Rechtsklick",
+  "message.holobuild.site_creative_only": "Der Baugrund-Stab geht nur im Kreativmodus.",
+  "message.holobuild.site_no_blueprint": "Kein Bauwerk gewaehlt. Nimm einen Blaupausen-Zauberstab mit und druecke G.",
+  "message.holobuild.site_outside_world": "Der Platz ragt aus der Welt heraus. Ziel tiefer oder hoeher.",
+  "message.holobuild.site_already_clear": "Nichts im Weg - der Platz ist schon frei.",
+  "message.holobuild.site_clearing": "Raeume den Platz frei - %s Bloecke",
+  "guide.holobuild.craft.7": "Im Kreativmodus nimmst du sie aus dem HoloBuild-Tab.",
+  "guide.holobuild.site.title": "Baugrund-Stab",
+  "guide.holobuild.site.1": "Gespeicherte Bauwerke enthalten die Luft nicht mehr,",
+  "guide.holobuild.site.2": "sie setzen sich also ins Gelaende, statt einen Kasten",
+  "guide.holobuild.site.3": "hineinzustanzen. Am Hang steht der Huegel dann mitten",
+  "guide.holobuild.site.4": "im Wohnzimmer.",
+  "guide.holobuild.site.5": "Der Baugrund-Stab raeumt den Platz vorher frei. Waehl",
+  "guide.holobuild.site.6": "das Bauwerk mit dem Blaupausen-Stab, dann Rechtsklick.",
+  "guide.holobuild.site.7": "Rueckgaengig: Blaupausen-Stab, UMSCHALT + Rechtsklick."
 }

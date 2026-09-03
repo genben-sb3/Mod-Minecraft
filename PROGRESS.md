@@ -22,8 +22,9 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
 | Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
-| Anleitung | Acht Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
-| Herstellen | Beide Stäbe craftbar: Amethyst + Kern + Stock. Diamant für den Bau-, Eisen für den Auswahl-Stab |
+| Anleitung | Zehn Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
+| Herstellen | Alle drei Stäbe craftbar: Amethyst + Kern + Stock. Diamant / Eisen / Spitzhacke als Kern |
+| Baugrund-Stab | Räumt den Platz frei, den das gewählte Bauwerk füllen würde — mit grüner Vorschau und Rückgängig |
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
@@ -37,11 +38,11 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
   Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
   Animations-Zeitrechnung
-- **24 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **27 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
   Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
-  Speicherbarkeit der Bau-Zusage,
+  Speicherbarkeit der Bau-Zusage, Freiräumen und sein Rückgängig,
   Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
   Fremdformate, Befehle, Sicherheitsgrenzen
 
@@ -114,6 +115,10 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - `ListLayout` liegt außerhalb des Bildschirms und ohne Minecraft-Klassen. Ein
   `Screen` lässt sich in keinem Test bauen, diese Rechnerei schon — und sie ist
   reines Off-by-one-Gelände.
+- **Der Baugrund-Stab kam aus der Luft-Änderung.** Seit gespeicherte Bauwerke die
+  Luft nicht mehr mitbringen, setzen sie sich ins Gelände — gut in der Ebene, am
+  Hang steht der Hügel im Wohnzimmer. Statt die Luft zurückzuholen, wurde das
+  Freiräumen ein eigenes Werkzeug: eine Entscheidung des Spielers statt eine der Datei.
 - **Die Bau-Zusage liegt auf dem Stab, nicht in einer Spielerliste.** Genau so eine
   Liste war das Undo-Leck: nichts hat sie je geleert. Daten auf einem Gegenstand
   brauchen kein Aufräumen — sie gehen, wenn der Gegenstand geht.
@@ -162,16 +167,18 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
       und Vorschau, der gewählte Eintrag ist als ▶ in Gold markiert, Klänge beim
       Wählen / Favorisieren / Blättern, Anleitung blendet Seiten ein.
 
-### C — Survival
+### C — Survival ✅
 - [x] **Crafting-Rezepte** — beide Stäbe teilen eine Form (Amethyst oben rechts,
       Kern in der Mitte, Stock unten links). Der Kern setzt den Preis: Eisen für
       den harmlosen Auswahl-Stab, Diamant für den, der ganze Häuser setzt.
 - [x] **Survival-Anforderungen** — wer nicht genug Material hat, bekommt erst
       gesagt was fehlt (die drei größten Posten plus „und N weitere Sorten“).
       Ein zweiter Klick innerhalb von 10 Sekunden baut trotzdem, so weit es reicht.
-- [ ] Mehr Hilfs-Items für den Spieler  ← *hier geht es weiter*
+- [x] **Baugrund-Stab** — räumt genau den Kasten frei, den der gewählte Bauplan
+      füllen würde. Grüne Umriss-Vorschau vorher, Rückgängig hinterher,
+      Kreativmodus only.
 
-### D — Editor
+### D — Editor  ← *hier geht es weiter*
 - [ ] Drehbares 3D-Modell des Bauwerks, **Blöcke löschen und bearbeiten**, abspeichern
 
 ### E — Teilen

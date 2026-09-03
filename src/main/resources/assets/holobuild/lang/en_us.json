@@ -1,15 +1,12 @@
 {
   "itemGroup.holobuild": "HoloBuild",
-
   "item.holobuild.blueprint_wand": "Blueprint Wand",
-
   "key.categories.holobuild": "HoloBuild",
   "key.holobuild.rotate": "Rotate blueprint",
   "key.holobuild.mirror": "Mirror blueprint",
   "key.holobuild.up": "Move blueprint up",
   "key.holobuild.down": "Move blueprint down",
   "key.holobuild.open": "Choose blueprint",
-
   "screen.holobuild.title": "Choose a blueprint",
   "screen.holobuild.search": "Search...",
   "screen.holobuild.empty": "No schematics yet. Drop .nbt, .schem or .litematic here:",
@@ -39,7 +36,6 @@
   "screen.holobuild.materials_summary": "%s blocks in total, %s still missing",
   "screen.holobuild.preview_none": "Nothing chosen",
   "screen.holobuild.preview_too_big": "Too large to preview",
-
   "message.holobuild.creative_only": "The Blueprint Wand only works in creative mode.",
   "message.holobuild.survival_hint": "In survival the wand only previews. Press G and then Materials to see what you need. (Turn on survivalBuilding in the config to build.)",
   "message.holobuild.build_incomplete": "You were %s blocks short - those spots were left empty.",
@@ -62,7 +58,6 @@
   "message.holobuild.too_low": "Does not fit - the build would reach %s blocks below the world floor. Build higher.",
   "message.holobuild.selection_outside_world": "The selection sticks out of the world. Mark it between the world floor and ceiling.",
   "item.holobuild.selection_wand": "Selection Wand",
-
   "message.holobuild.corner_one": "Corner 1 set: %s %s %s",
   "message.holobuild.corner_two": "Corner 2 set: %s %s %s",
   "message.holobuild.selection_size": "Selection: %s (%s blocks) - now /holobuild save <name>",
@@ -74,12 +69,10 @@
   "message.holobuild.list_header": "%s schematics:",
   "message.holobuild.generated": "Rolled %s - %s floors (%s)",
   "message.holobuild.missing_module": "Module set '%s' is incomplete. Missing or mismatched: %s",
-
   "tooltip.holobuild.rmb": "Right-click",
   "tooltip.holobuild.shift_rmb": "SHIFT + right-click",
   "tooltip.holobuild.key_open": "G",
   "tooltip.holobuild.keys_turn": "R / M",
-
   "tooltip.holobuild.selection.set_one": "Mark corner 1",
   "tooltip.holobuild.selection.set_two": "Mark corner 2",
   "tooltip.holobuild.selection.empty": "Nothing marked yet",
@@ -87,20 +80,17 @@
   "tooltip.holobuild.selection.need_two": "Hold SHIFT and right-click the opposite corner",
   "tooltip.holobuild.selection.ready": "Marked: %s (%s blocks)",
   "tooltip.holobuild.selection.save": "Save it with /holobuild save <name>",
-
   "tooltip.holobuild.blueprint.choose": "Choose a blueprint",
   "tooltip.holobuild.blueprint.build": "Build it here",
   "tooltip.holobuild.blueprint.undo": "Undo the last build",
   "tooltip.holobuild.blueprint.turn": "Rotate / mirror",
   "tooltip.holobuild.blueprint.none": "Nothing chosen yet - press G",
   "tooltip.holobuild.blueprint.chosen": "Chosen: %s",
-
   "tooltip.holobuild.selection.keeps": "Keeps: %s",
   "tooltip.holobuild.keeps.air": "air",
   "tooltip.holobuild.keeps.contents": "chest contents",
   "tooltip.holobuild.keeps.entities": "item frames",
   "tooltip.holobuild.keeps.nothing": "blocks only",
-
   "message.holobuild.no_wand": "Hold a Selection Wand first.",
   "message.holobuild.selection_all_air": "Nothing but air in there - mark an area with blocks in it.",
   "message.holobuild.saved_without_air": "%s air blocks left out, so the build settles into the ground. Turn it on with /holobuild options air true",
@@ -112,19 +102,16 @@
   "message.holobuild.option_off": "no",
   "message.holobuild.build_skipped": "%s blocks could not be placed - they were outside the loaded area or outside the world.",
   "screen.holobuild.preview_peek": "(just looking - click to choose)",
-
   "screen.holobuild.guide_button": "Guide",
   "screen.holobuild.guide_hint": "How everything works, without leaving the game",
   "screen.holobuild.guide_title": "HoloBuild guide",
   "screen.holobuild.guide_page": "Page %s of %s",
-
   "guide.holobuild.start.title": "First steps",
   "guide.holobuild.start.1": "1. Take the Blueprint Wand from the creative menu.",
   "guide.holobuild.start.2": "2. Press G and pick a building from the list.",
   "guide.holobuild.start.3": "3. Look where you want it and right-click.",
   "guide.holobuild.start.4": "The see-through hologram shows exactly what you are",
   "guide.holobuild.start.5": "about to place. SHIFT + right-click undoes it.",
-
   "guide.holobuild.wand.title": "Blueprint Wand",
   "guide.holobuild.wand.1": "G                          Choose a blueprint",
   "guide.holobuild.wand.2": "Right-click                Build it here",
@@ -133,21 +120,18 @@
   "guide.holobuild.wand.5": "Page Up / Page Down        Move up and down",
   "guide.holobuild.wand.6": "The wand reaches 32 blocks instead of the usual 5.",
   "guide.holobuild.wand.7": "A red outline means it does not fit in the world.",
-
   "guide.holobuild.selection.title": "Selection Wand",
   "guide.holobuild.selection.1": "Right-click                Mark corner 1",
   "guide.holobuild.selection.2": "SHIFT + right-click        Mark corner 2",
   "guide.holobuild.selection.3": "Then save it:   /holobuild save myhouse",
   "guide.holobuild.selection.4": "The file is a normal Minecraft structure, so the",
   "guide.holobuild.selection.5": "structure block and other mods can read it too.",
-
   "guide.holobuild.saving.title": "What gets saved",
   "guide.holobuild.saving.1": "/holobuild options shows three switches.",
   "guide.holobuild.saving.2": "Air is left out, so a building settles into the",
   "guide.holobuild.saving.3": "ground instead of cutting a box out of it.",
   "guide.holobuild.saving.4": "Chest contents are kept, item frames are not.",
   "guide.holobuild.saving.5": "Change one:   /holobuild options entities true",
-
   "guide.holobuild.commands.title": "Commands",
   "guide.holobuild.commands.1": "/holobuild build <name> [x y z] [rotation]",
   "guide.holobuild.commands.2": "/holobuild save <name>",
@@ -155,29 +139,44 @@
   "guide.holobuild.commands.4": "/holobuild random tower <name> [floors]",
   "guide.holobuild.commands.5": "/holobuild options",
   "guide.holobuild.commands.6": "They need operator rights and work in survival too.",
-
   "guide.holobuild.survival.title": "Survival",
   "guide.holobuild.survival.1": "The wand always shows the hologram, in any mode.",
   "guide.holobuild.survival.2": "Press G, then Materials, to see what you still need.",
   "guide.holobuild.survival.3": "Building in survival stays off until you switch on",
   "guide.holobuild.survival.4": "survivalBuilding - then blocks come out of your bag.",
-
   "guide.holobuild.files.title": "Your own files",
   "guide.holobuild.files.1": "Drop .nbt, .schem or .litematic files into the folder",
   "guide.holobuild.files.2": "the menu names when the list is still empty.",
   "guide.holobuild.files.3": "Subfolders work and show up in the names.",
   "guide.holobuild.files.4": "Create uses the same .nbt format - it just works.",
-
   "guide.holobuild.craft.title": "Crafting the wands",
   "guide.holobuild.craft.1": "Both wands share one shape, like a diagonal pick:",
   "guide.holobuild.craft.2": "an amethyst shard top right, a core in the middle,",
   "guide.holobuild.craft.3": "and a stick bottom left.",
   "guide.holobuild.craft.4": "The core decides which one you get:",
-  "guide.holobuild.craft.5": "diamond = Blueprint Wand, iron ingot = Selection Wand.",
-  "guide.holobuild.craft.6": "In creative just take them from the HoloBuild tab.",
+  "guide.holobuild.craft.5": "diamond = Blueprint Wand, iron ingot = Selection Wand,",
+  "guide.holobuild.craft.6": "iron pickaxe = Site Wand.",
   "message.holobuild.short_of": "Not enough: %s",
   "message.holobuild.short_more": "and %s more kinds",
   "message.holobuild.short_confirm": "Click again within 10 seconds to build anyway - it will stop where the blocks run out. Press G, then Materials, for the full list.",
   "guide.holobuild.survival.5": "Short of blocks? The wand names what is missing and",
-  "guide.holobuild.survival.6": "waits. Click again to build as far as it gets."
+  "guide.holobuild.survival.6": "waits. Click again to build as far as it gets.",
+  "item.holobuild.site_wand": "Site Wand",
+  "tooltip.holobuild.site.clear": "Clear the space for the chosen building",
+  "tooltip.holobuild.site.needs_wand": "Choose the building with the Blueprint Wand first",
+  "tooltip.holobuild.site.undo": "Undo it with the Blueprint Wand: SHIFT + right-click",
+  "message.holobuild.site_creative_only": "The Site Wand only works in creative mode.",
+  "message.holobuild.site_no_blueprint": "No building chosen. Carry a Blueprint Wand and press G.",
+  "message.holobuild.site_outside_world": "That space sticks out of the world. Aim lower or higher.",
+  "message.holobuild.site_already_clear": "Nothing in the way - the space is already clear.",
+  "message.holobuild.site_clearing": "Clearing the space - %s blocks",
+  "guide.holobuild.craft.7": "In creative just take them from the HoloBuild tab.",
+  "guide.holobuild.site.title": "Site Wand",
+  "guide.holobuild.site.1": "Saved buildings do not carry the air inside them, so",
+  "guide.holobuild.site.2": "they settle into the ground instead of cutting a box",
+  "guide.holobuild.site.3": "out of it. On a hillside that puts the hill in your",
+  "guide.holobuild.site.4": "living room.",
+  "guide.holobuild.site.5": "The Site Wand empties the space first. Choose the",
+  "guide.holobuild.site.6": "building with the Blueprint Wand, then right-click.",
+  "guide.holobuild.site.7": "Undo it with the Blueprint Wand: SHIFT + right-click."
 }

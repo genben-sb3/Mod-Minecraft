@@ -6,6 +6,7 @@ import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.component.Selection;
 import com.boyben.holobuild.item.BlueprintWandItem;
+import com.boyben.holobuild.item.SiteWandItem;
 import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
@@ -66,6 +67,11 @@ public final class HologramRenderer {
     private static final float BLOCKED_G = 0.25f;
     private static final float BLOCKED_B = 0.25f;
 
+    /** The space the Site Wand would empty - green, like the wand's own crystal. */
+    private static final float SITE_R = 0.36f;
+    private static final float SITE_G = 0.78f;
+    private static final float SITE_B = 0.29f;
+
     /** Selection box is amber, so it never gets confused with the blueprint outline. */
     private static final float SELECT_R = 1.00f;
     private static final float SELECT_G = 0.78f;
@@ -105,6 +111,7 @@ public final class HologramRenderer {
         }
 
         renderSelection(event, player);
+        renderSiteBox(event, player);
 
         ItemStack stack = wandInHand(player);
         if (stack == null) {
@@ -205,6 +212,47 @@ public final class HologramRenderer {
             selection.first().or(selection::second).ifPresent(corner ->
                     drawOutline(event, new BoundingBox(corner), SELECT_R, SELECT_G, SELECT_B, OUTLINE_A));
         }
+    }
+
+    /**
+     * Outlines the space the Site Wand is about to empty.
+     *
+     * Clearing without seeing where would be the one thing this mod exists to
+     * stop. No ghost blocks though - the point is the hole, not the building,
+     * and drawing the house over ground that is about to be dug out reads as if
+     * the house were what happens next.
+     */
+    private static void renderSiteBox(RenderLevelStageEvent event, LocalPlayer player) throws Exception {
+        Minecraft mc = Minecraft.getInstance();
+        if (itemInHand(player, SiteWandItem.class) == null || mc.level == null) {
+            return;
+        }
+
+        BlueprintSettings settings = SiteWandItem.blueprintOf(player);
+        if (!settings.hasSchematic()) {
+            return;
+        }
+        if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) {
+            return;
+        }
+
+        LoadedSchematic schematic = SchematicCache.get(settings.schematic(), mc.level);
+        if (schematic == null) {
+            return;
+        }
+
+        BlockPos origin = Placement.origin(hit.getBlockPos(), hit.getDirection(), settings);
+        BoundingBox box = Placement.box(schematic,
+                Placement.settings(schematic.size(), settings), origin);
+
+        // Same red warning as the blueprint outline: outside the world nothing
+        // would be cleared there, quietly.
+        boolean fits = Placement.fitsInWorld(box, mc.level);
+        drawOutline(event, box,
+                fits ? SITE_R : BLOCKED_R,
+                fits ? SITE_G : BLOCKED_G,
+                fits ? SITE_B : BLOCKED_B,
+                OUTLINE_A);
     }
 
     private static ItemStack wandInHand(LocalPlayer player) {

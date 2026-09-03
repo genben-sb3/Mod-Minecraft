@@ -3,6 +3,7 @@ package com.boyben.holobuild.registry;
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.item.BlueprintWandItem;
 import com.boyben.holobuild.item.SelectionWandItem;
+import com.boyben.holobuild.item.SiteWandItem;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -39,6 +40,10 @@ public final class ModItems {
     /** Mark two corners, then save the area with /holobuild save. */
     public static final DeferredItem<SelectionWandItem> SELECTION_WAND =
             ITEMS.registerItem("selection_wand", SelectionWandItem::new, wandProperties());
+
+    /** Empties the space the chosen building would fill, before building it. */
+    public static final DeferredItem<SiteWandItem> SITE_WAND =
+            ITEMS.registerItem("site_wand", SiteWandItem::new, wandProperties());
 
     /**
      * The reach bonus rides on the item, so it applies only while a wand is in

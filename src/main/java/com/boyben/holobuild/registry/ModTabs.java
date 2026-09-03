@@ -24,6 +24,7 @@ public final class ModTabs {
                     .displayItems((parameters, output) -> {
                         output.accept(ModItems.BLUEPRINT_WAND.get());
                         output.accept(ModItems.SELECTION_WAND.get());
+                        output.accept(ModItems.SITE_WAND.get());
                     })
                     .build());
 }

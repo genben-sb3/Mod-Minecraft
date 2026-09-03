@@ -35,7 +35,8 @@ public final class GuideBook {
                     "guide.holobuild.craft.3",
                     "guide.holobuild.craft.4",
                     "guide.holobuild.craft.5",
-                    "guide.holobuild.craft.6")),
+                    "guide.holobuild.craft.6",
+                    "guide.holobuild.craft.7")),
 
             new Page("guide.holobuild.wand.title", List.of(
                     "guide.holobuild.wand.1",
@@ -52,6 +53,15 @@ public final class GuideBook {
                     "guide.holobuild.selection.3",
                     "guide.holobuild.selection.4",
                     "guide.holobuild.selection.5")),
+
+            new Page("guide.holobuild.site.title", List.of(
+                    "guide.holobuild.site.1",
+                    "guide.holobuild.site.2",
+                    "guide.holobuild.site.3",
+                    "guide.holobuild.site.4",
+                    "guide.holobuild.site.5",
+                    "guide.holobuild.site.6",
+                    "guide.holobuild.site.7")),
 
             new Page("guide.holobuild.saving.title", List.of(
                     "guide.holobuild.saving.1",
