@@ -227,6 +227,49 @@ public class CommandGameTests {
         }
     }
 
+    /**
+     * /holobuild share has to turn a built-in building into a real file.
+     *
+     * The built-ins live inside the mod jar, so there is nothing to attach to a
+     * message - which makes exactly the buildings a beginner starts with the
+     * only ones they cannot pass on. Sharing has to copy one out, and the copy
+     * has to be a schematic that loads, not just bytes on disk.
+     *
+     * The whole check sits inside one call, so no other test in the batch can
+     * see the folder while the file is briefly in it.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 200)
+    public static void shareCopiesABuiltInBuildingOut(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+
+        Path file = SchematicLoader.getSchematicFolder().resolve("well.nbt");
+        try {
+            if (Files.exists(file)) {
+                helper.fail("Fuer diesen Test darf 'well' noch keine Datei sein");
+                return;
+            }
+
+            run(level, player, "holobuild share well");
+
+            if (!Files.isRegularFile(file)) {
+                helper.fail("Es wurde keine Datei angelegt: " + file);
+                return;
+            }
+            SchematicCache.clear();
+            LoadedSchematic copied = SchematicLoader.loadByName("well", level);
+            if (copied == null || copied.blocks().isEmpty()) {
+                helper.fail("Die herauskopierte Datei laesst sich nicht als Bauwerk laden");
+                return;
+            }
+            helper.succeed();
+
+        } finally {
+            Files.deleteIfExists(file);
+            SchematicCache.clear();
+        }
+    }
+
     private static int countOf(LoadedSchematic schematic, net.minecraft.world.level.block.Block kind) {
         int found = 0;
         for (StructureTemplate.StructureBlockInfo info : schematic.blocks()) {

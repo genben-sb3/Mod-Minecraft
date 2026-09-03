@@ -202,5 +202,17 @@
   "screen.holobuild.editor_save": "Save",
   "screen.holobuild.editor_count": "%s blocks left, %s removed",
   "screen.holobuild.editor_hint": "Left-click a block to remove it, right-drag to turn",
-  "message.holobuild.editor_too_big": "Too large to edit - more than %s blocks."
+  "message.holobuild.editor_too_big": "Too large to edit - more than %s blocks.",
+  "message.holobuild.share_exported": "%s was built into the mod, so a copy has been put in your folder.",
+  "message.holobuild.share_file": "Send this file: %s (%s)",
+  "message.holobuild.share_how": "Whoever gets it drops it into their own schematics folder.",
+  "screen.holobuild.folder_button": "Open folder",
+  "screen.holobuild.folder_hint": "Opens the schematics folder, so you can send a building to a friend or drop one in",
+  "guide.holobuild.share.title": "Sharing a building",
+  "guide.holobuild.share.1": "Every building is just a file in your folder.",
+  "guide.holobuild.share.2": "Press G and click Open folder to get there.",
+  "guide.holobuild.share.3": "Send the file to a friend. They drop it into their",
+  "guide.holobuild.share.4": "own folder and it turns up in their list.",
+  "guide.holobuild.share.5": "/holobuild share <name> says which file it is - and",
+  "guide.holobuild.share.6": "makes one for the buildings that came with the mod."
 }

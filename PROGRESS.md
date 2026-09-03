@@ -22,15 +22,16 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
 | Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
-| Anleitung | Elf Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
+| Anleitung | Dreizehn Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
 | Herstellen | Alle drei Stäbe craftbar: Amethyst + Kern + Stock. Diamant / Eisen / Spitzhacke als Kern |
 | Baugrund-Stab | Räumt den Platz frei, den das gewählte Bauwerk füllen würde — mit grüner Vorschau und Rückgängig |
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
 | Materialprüfung | Zu wenig Blöcke? Der Stab nennt das Fehlende und wartet — nochmal klicken baut trotzdem |
-| Befehle | `build`, `save`, `list`, `random`, `options`, `erase`, `replace` — mit Operator-Rechten, auch im Survival |
+| Befehle | `build`, `save`, `list`, `random`, `options`, `erase`, `replace`, `share` — mit Operator-Rechten, auch im Survival |
 | Bearbeiten | Blocksorten löschen oder tauschen (Befehl), einzelne Blöcke anklicken (3D-Editor) |
+| Weitergeben | Knopf „Ordner öffnen“ im Menü, `/holobuild share` nennt die Datei und kopiert Mitgeliefertes heraus |
 | 3D-Editor | Knopf unter der Vorschau: drehen, zoomen, Blöcke wegklicken, unter neuem Namen speichern |
 
 ## Tests
@@ -41,7 +42,7 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
   Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
   Editor-Kamera und Block-Treffer,
   Animations-Zeitrechnung
-- **37 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **38 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
   Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
@@ -202,8 +203,17 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
       Mausrad zoomt, Linksklick entfernt einen Block, Speichern unter neuem Namen.
       **Von Ben noch nie gesehen.**
 
-### E — Teilen  ← *hier geht es weiter*
-- [ ] Einfacher Weg, Bauwerke mit anderen zu tauschen
+### E — Teilen ✅
+- [x] **Einfacher Weg zum Weitergeben** — Knopf „Ordner öffnen“ im Menü (der
+      Ordner zu finden war die eigentliche Hürde) und `/holobuild share <name>`,
+      das die Datei nennt und mitgelieferte Bauwerke erst herauskopiert.
+
+---
+
+---
+
+**Alle fünf Etappen von Bens Liste (01.09.2026) sind abgearbeitet.** Was jetzt
+noch offen ist, steht unten — und braucht Ben, nicht mehr Code.
 
 ---
 

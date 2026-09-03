@@ -94,6 +94,14 @@ public final class GuideBook {
                     "guide.holobuild.survival.5",
                     "guide.holobuild.survival.6")),
 
+            new Page("guide.holobuild.share.title", List.of(
+                    "guide.holobuild.share.1",
+                    "guide.holobuild.share.2",
+                    "guide.holobuild.share.3",
+                    "guide.holobuild.share.4",
+                    "guide.holobuild.share.5",
+                    "guide.holobuild.share.6")),
+
             new Page("guide.holobuild.files.title", List.of(
                     "guide.holobuild.files.1",
                     "guide.holobuild.files.2",

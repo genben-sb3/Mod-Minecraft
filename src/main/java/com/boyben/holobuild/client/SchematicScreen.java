@@ -185,7 +185,28 @@ public class SchematicScreen extends Screen {
                 .bounds(previewLeft, LIST_TOP + PREVIEW_SIZE + 28, PREVIEW_SIZE, 20)
                 .build());
 
+        Button folder = Button.builder(Component.translatable("screen.holobuild.folder_button"),
+                        b -> openFolder())
+                .bounds(previewLeft, LIST_TOP + PREVIEW_SIZE + 50, PREVIEW_SIZE, 20)
+                .build();
+        folder.setTooltip(Tooltip.create(Component.translatable("screen.holobuild.folder_hint")));
+        addRenderableWidget(folder);
+
         applyFilter("");
+    }
+
+    /**
+     * Opens the schematics folder in the system's own file browser.
+     *
+     * This is the whole of "sharing a building" in practice: the file is
+     * already there, finding it is the hard part. Done on the client, because
+     * only the client has a desktop to open a window on - and because a server
+     * telling a client to open a folder is exactly what Minecraft refuses to
+     * allow, for good reason.
+     */
+    private void openFolder() {
+        SchematicLoader.ensureFolderExists();
+        Util.getPlatform().openPath(SchematicLoader.getSchematicFolder());
     }
 
     /**

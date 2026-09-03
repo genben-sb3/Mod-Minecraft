@@ -20,6 +20,7 @@ import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
 import com.boyben.holobuild.item.SelectionWandItem;
 import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.schematic.BuiltInLibrary;
 import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
@@ -127,6 +128,11 @@ public final class HoloBuildCommand {
                                                                 BlockStateArgument.getBlock(context, "to")
                                                                         .getState(),
                                                                 StringArgumentType.getString(context, "target"))))))))
+                .then(Commands.literal("share")
+                        .then(Commands.argument("name", StringArgumentType.string())
+                                .executes(context -> share(
+                                        context.getSource(),
+                                        StringArgumentType.getString(context, "name")))))
                 .then(Commands.literal("options")
                         .executes(context -> showOptions(context.getSource()))
                         .then(optionToggle("air", SaveOptions::withAir))
@@ -428,6 +434,74 @@ public final class HoloBuildCommand {
             fail(source, Component.translatable("message.holobuild.save_failed", targetName));
             return false;
         }
+    }
+
+    /**
+     * Says which file to send, and makes one first if there is none yet.
+     *
+     * The built-in buildings live inside the mod jar, so there is nothing to
+     * attach to a message - which makes exactly the buildings a beginner has
+     * the only ones they cannot pass on. Sharing one copies it out into the
+     * folder first, and from then on it behaves like any other file.
+     */
+    private static int share(CommandSourceStack source, String name) {
+        if (!SchematicLoader.isSafeName(name)) {
+            fail(source, Component.translatable("message.holobuild.bad_name", name));
+            return 0;
+        }
+
+        Path file = SchematicLoader.findByName(name);
+        if (file == null) {
+            file = exportBuiltIn(source, name);
+            if (file == null) {
+                return 0;
+            }
+            source.sendSuccess(() -> Component.translatable("message.holobuild.share_exported", name)
+                    .withStyle(ChatFormatting.AQUA), false);
+        }
+
+        long bytes;
+        try {
+            bytes = Files.size(file);
+        } catch (IOException e) {
+            bytes = 0;
+        }
+        String size = bytes < 1024 ? bytes + " B" : (bytes / 1024) + " KB";
+
+        Path shown = file;
+        String finalSize = size;
+        source.sendSuccess(() -> Component.translatable("message.holobuild.share_file",
+                shown.getFileName().toString(), finalSize).withStyle(ChatFormatting.GREEN), false);
+        source.sendSuccess(() -> Component.literal(shown.toString())
+                .withStyle(ChatFormatting.GRAY), false);
+        source.sendSuccess(() -> Component.translatable("message.holobuild.share_how")
+                .withStyle(ChatFormatting.GRAY), false);
+        return 1;
+    }
+
+    /** @return where the built-in now sits on disk, or null after complaining */
+    @Nullable
+    private static Path exportBuiltIn(CommandSourceStack source, String name) {
+        if (!BuiltInLibrary.contains(name)) {
+            fail(source, Component.translatable("message.holobuild.missing_file", name));
+            return null;
+        }
+        Path target = SchematicLoader.pathForNewFile(name);
+        if (target == null) {
+            fail(source, Component.translatable("message.holobuild.bad_name", name));
+            return null;
+        }
+        try {
+            SchematicLoader.ensureFolderExists();
+            NbtIo.writeCompressed(BuiltInLibrary.load(name), target);
+        } catch (IOException e) {
+            HoloBuild.LOGGER.error("Mitgeliefertes Bauwerk nicht herauskopiert: {}", name, e);
+            fail(source, Component.translatable("message.holobuild.save_failed", name));
+            return null;
+        }
+        // The name now stands for a file rather than for something in the jar.
+        SchematicCache.clear();
+        return target;
     }
 
     private static int list(CommandSourceStack source) {

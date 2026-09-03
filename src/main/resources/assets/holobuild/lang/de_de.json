@@ -202,5 +202,17 @@
   "screen.holobuild.editor_save": "Speichern",
   "screen.holobuild.editor_count": "%s Bloecke uebrig, %s entfernt",
   "screen.holobuild.editor_hint": "Linksklick entfernt einen Block, Rechts-Ziehen dreht",
-  "message.holobuild.editor_too_big": "Zu gross zum Bearbeiten - mehr als %s Bloecke."
+  "message.holobuild.editor_too_big": "Zu gross zum Bearbeiten - mehr als %s Bloecke.",
+  "message.holobuild.share_exported": "%s war im Mod eingebaut - eine Kopie liegt jetzt in deinem Ordner.",
+  "message.holobuild.share_file": "Verschick diese Datei: %s (%s)",
+  "message.holobuild.share_how": "Wer sie bekommt, legt sie in seinen eigenen Schematics-Ordner.",
+  "screen.holobuild.folder_button": "Ordner oeffnen",
+  "screen.holobuild.folder_hint": "Oeffnet den Schematics-Ordner - zum Verschicken oder zum Hineinlegen",
+  "guide.holobuild.share.title": "Ein Bauwerk weitergeben",
+  "guide.holobuild.share.1": "Jedes Bauwerk ist nur eine Datei in deinem Ordner.",
+  "guide.holobuild.share.2": "Druck G und klick auf Ordner oeffnen, um hinzukommen.",
+  "guide.holobuild.share.3": "Schick die Datei einem Freund. Er legt sie in seinen",
+  "guide.holobuild.share.4": "eigenen Ordner, dann steht sie in seiner Liste.",
+  "guide.holobuild.share.5": "/holobuild share <name> sagt dir, welche Datei das ist -",
+  "guide.holobuild.share.6": "und legt eine an fuer die mitgelieferten Bauwerke."
 }
