@@ -30,21 +30,23 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
 | Materialprüfung | Zu wenig Blöcke? Der Stab nennt das Fehlende und wartet — nochmal klicken baut trotzdem |
 | Befehle | `build`, `save`, `list`, `random`, `options`, `erase`, `replace` — mit Operator-Rechten, auch im Survival |
-| Bearbeiten | Blocksorten aus einem Bauwerk löschen oder tauschen, Ergebnis unter neuem Namen |
+| Bearbeiten | Blocksorten löschen oder tauschen (Befehl), einzelne Blöcke anklicken (3D-Editor) |
+| 3D-Editor | Knopf unter der Vorschau: drehen, zoomen, Blöcke wegklicken, unter neuem Namen speichern |
 
 ## Tests
 
-- **60 Unit-Tests** — `.\gradlew test`
+- **70 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
   Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
+  Editor-Kamera und Block-Treffer,
   Animations-Zeitrechnung
-- **33 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **37 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
   Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
   Speicherbarkeit der Bau-Zusage, Freiräumen und sein Rückgängig,
-  Bearbeiten (Löschen, Ersetzen, Größe bleibt, Original bleibt),
+  Bearbeiten (Löschen, Ersetzen, Größe bleibt, Original bleibt, Editor-Grenzen),
   Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
   Fremdformate, Befehle, Sicherheitsgrenzen
 
@@ -114,6 +116,12 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
   Gedreht wird um die halbe Größe — eine Kopie, die auf ihre Restblöcke
   schrumpft, dreht sich um einen anderen Punkt als das Original. Genau die
   Falle, in die der `.litematic`-Leser schon einmal gelaufen ist.
+- **Zeichnen und Anklicken teilen sich EINE Matrix** (`EditorCamera`). Zweimal
+  dieselbe Rechnung hätte irgendwann bedeutet: das Modell dreht sich so herum,
+  die Klicks landen andersherum. So kann das nicht passieren.
+- **Der Editor schickt nur Positionen, nie das fertige Bauwerk.** Ein Client, der
+  ein ganzes Schematic übergeben könnte, könnte alles übergeben. So lädt der
+  Server die echte Datei selbst und kann daraus nur wegnehmen.
 - **Bearbeiten schreibt immer unter neuem Namen.** Ein Versuch, der die einzige
   Kopie überschreibt, ist einer, den sich niemand traut.
 - `Fade` rechnet Animations-Fortschritt aus, `ListLayout` Zeilentreffer — beide
@@ -186,14 +194,15 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
       füllen würde. Grüne Umriss-Vorschau vorher, Rückgängig hinterher,
       Kreativmodus only.
 
-### D — Editor
+### D — Editor ✅
 - [x] **Unterbau: bearbeiten und speichern** — `SchematicEdit` als Arbeitskopie,
       dazu `/holobuild erase` und `/holobuild replace`. Ergebnis immer unter
       neuem Namen, das Original bleibt.
-- [ ] **3D-Ansicht zum Anklicken** — drehbares Modell, einzelne Blöcke wählen
-      und ändern  ← *hier geht es weiter*
+- [x] **3D-Ansicht zum Anklicken** — drehbares Modell, Rechts-Ziehen dreht,
+      Mausrad zoomt, Linksklick entfernt einen Block, Speichern unter neuem Namen.
+      **Von Ben noch nie gesehen.**
 
-### E — Teilen
+### E — Teilen  ← *hier geht es weiter*
 - [ ] Einfacher Weg, Bauwerke mit anderen zu tauschen
 
 ---

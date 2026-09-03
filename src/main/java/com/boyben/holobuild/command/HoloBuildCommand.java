@@ -14,6 +14,7 @@ import com.boyben.holobuild.build.Builder;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.component.SaveOptions;
 import com.boyben.holobuild.component.Selection;
+import com.boyben.holobuild.edit.EditIo;
 import com.boyben.holobuild.edit.SchematicEdit;
 import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
@@ -401,17 +402,12 @@ public final class HoloBuildCommand {
     /** @return a working copy of the named schematic, or null after complaining */
     @Nullable
     private static SchematicEdit open(CommandSourceStack source, String name) {
-        if (!SchematicLoader.isSafeName(name)) {
-            fail(source, Component.translatable("message.holobuild.bad_name", name));
-            return null;
-        }
         try {
-            LoadedSchematic schematic = SchematicCache.get(name, source.getLevel());
-            if (schematic == null) {
+            SchematicEdit edit = EditIo.open(name, source.getLevel());
+            if (edit == null) {
                 fail(source, Component.translatable("message.holobuild.missing_file", name));
-                return null;
             }
-            return SchematicEdit.of(schematic);
+            return edit;
         } catch (IOException | RuntimeException e) {
             HoloBuild.LOGGER.error("Schematic konnte nicht geladen werden: {}", name, e);
             fail(source, Component.translatable("message.holobuild.load_failed", name));
@@ -421,22 +417,17 @@ public final class HoloBuildCommand {
 
     /** Writes the edited copy out. @return true if it landed on disk */
     private static boolean write(CommandSourceStack source, SchematicEdit edit, String targetName) {
-        Path target = SchematicLoader.pathForNewFile(targetName);
-        if (target == null) {
-            fail(source, Component.translatable("message.holobuild.bad_name", targetName));
-            return false;
-        }
         try {
-            SchematicLoader.ensureFolderExists();
-            NbtIo.writeCompressed(StructureNbt.toCompound(edit.toRaw()), target);
+            if (!EditIo.save(edit, targetName)) {
+                fail(source, Component.translatable("message.holobuild.bad_name", targetName));
+                return false;
+            }
+            return true;
         } catch (IOException e) {
-            HoloBuild.LOGGER.error("Bearbeitetes Schematic nicht gespeichert: {}", target, e);
+            HoloBuild.LOGGER.error("Bearbeitetes Schematic nicht gespeichert: {}", targetName, e);
             fail(source, Component.translatable("message.holobuild.save_failed", targetName));
             return false;
         }
-        // The name may now point at different contents than a moment ago.
-        SchematicCache.clear();
-        return true;
     }
 
     private static int list(CommandSourceStack source) {

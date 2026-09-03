@@ -20,6 +20,10 @@ public final class ModNetwork {
                 AdjustBlueprintPayload.STREAM_CODEC,
                 AdjustBlueprintPayload::handle);
         registrar.playToServer(
+                EditSchematicPayload.TYPE,
+                EditSchematicPayload.STREAM_CODEC,
+                EditSchematicPayload::handle);
+        registrar.playToServer(
                 SelectSchematicPayload.TYPE,
                 SelectSchematicPayload.STREAM_CODEC,
                 SelectSchematicPayload::handle);

@@ -1,11 +1,18 @@
 package com.boyben.holobuild.gametest;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.edit.EditIo;
 import com.boyben.holobuild.edit.SchematicEdit;
+import com.boyben.holobuild.network.EditSchematicPayload;
 import com.boyben.holobuild.schematic.LoadedSchematic;
+import com.boyben.holobuild.schematic.SchematicCache;
+import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.schematic.format.RawSchematic;
 
 import net.minecraft.core.BlockPos;
@@ -13,6 +20,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -149,6 +157,93 @@ public class EditGameTests {
             return;
         }
         helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void removeAtTakesOnlyTheNamedSpots(GameTestHelper helper) {
+        SchematicEdit edit = SchematicEdit.of(handmade(helper.getLevel(), helper));
+
+        int gone = edit.removeAt(Set.of(new BlockPos(1, 0, 0)));
+
+        if (gone != 1 || edit.blockCount() != 2) {
+            helper.fail("Genau ein Block sollte weg sein, entfernt " + gone
+                    + ", uebrig " + edit.blockCount());
+            return;
+        }
+        if (edit.count(Blocks.CHEST) != 1 || edit.count(Blocks.STONE) != 1) {
+            helper.fail("Es ist der falsche Block gegangen");
+            return;
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void editRefusesWhenItHitsNothing(GameTestHelper helper) {
+        SchematicEdit edit = SchematicEdit.of(handmade(helper.getLevel(), helper));
+
+        // A spot with no block in it - a client sending stale positions, or
+        // simply clicking a place that was already empty.
+        int result = EditSchematicPayload.apply(edit, Set.of(new BlockPos(9, 9, 9)));
+
+        if (result != EditSchematicPayload.NOTHING_MATCHED) {
+            helper.fail("Ein Treffer ins Leere muss abgelehnt werden, kam zurueck: " + result);
+            return;
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void editRefusesToEmptyTheBuilding(GameTestHelper helper) {
+        SchematicEdit edit = SchematicEdit.of(handmade(helper.getLevel(), helper));
+
+        int result = EditSchematicPayload.apply(edit, Set.of(
+                new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), new BlockPos(2, 0, 0)));
+
+        if (result != EditSchematicPayload.WOULD_BE_EMPTY) {
+            helper.fail("Ein Bauwerk ohne Bloecke muss abgelehnt werden, kam zurueck: " + result);
+            return;
+        }
+        helper.succeed();
+    }
+
+    /**
+     * A name off the network must not reach a file outside the folder.
+     *
+     * The editor is opened by a message from a client, and the source name in
+     * that message becomes a file path. A real, loadable schematic is placed
+     * one level above the folder first - without it the test would pass for the
+     * boring reason that no such file exists.
+     *
+     * <p>What this proves is the outcome, not any one check. Two things stand in
+     * the way - the name rule in EditIo and the path rule in findByName - and
+     * taking either one out on its own leaves this test green, because the other
+     * still holds. That was measured, not assumed: with both removed it fails.
+     * Which is the whole point of having two.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void editingCannotReachOutsideTheFolder(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+        Path outside = SchematicLoader.getSchematicFolder().getParent()
+                .resolve("gametest_edit_bait.nbt");
+
+        try {
+            Files.createDirectories(outside.getParent());
+            StructureTemplate bait = new StructureTemplate();
+            bait.fillFromWorld(level, helper.absolutePos(new BlockPos(0, 0, 0)),
+                    new Vec3i(2, 2, 2), false, null);
+            NbtIo.writeCompressed(bait.save(new CompoundTag()), outside);
+            SchematicCache.clear();
+
+            if (EditIo.open("../gametest_edit_bait", level) != null) {
+                helper.fail("Der Editor hat eine Datei ausserhalb des Ordners geoeffnet");
+                return;
+            }
+            helper.succeed();
+
+        } finally {
+            Files.deleteIfExists(outside);
+            SchematicCache.clear();
+        }
     }
 
     /** Editing a copy must not disturb the schematic everyone else is sharing. */

@@ -2,10 +2,12 @@ package com.boyben.holobuild.edit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.format.RawSchematic;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -83,6 +85,25 @@ public final class SchematicEdit {
             changed++;
         }
         return changed;
+    }
+
+    /**
+     * Takes out the blocks at these exact spots.
+     *
+     * This is what the 3D editor sends: a person clicked some blocks away, and
+     * the positions are all the server needs to redo the same edit on the real
+     * file. Sending the finished building instead would mean trusting a client
+     * to hand over a whole schematic.
+     *
+     * @return how many blocks went
+     */
+    public int removeAt(Set<BlockPos> spots) {
+        if (spots.isEmpty()) {
+            return 0;
+        }
+        int before = blocks.size();
+        blocks.removeIf(info -> spots.contains(info.pos()));
+        return before - blocks.size();
     }
 
     /** How many blocks of this kind are in here. */

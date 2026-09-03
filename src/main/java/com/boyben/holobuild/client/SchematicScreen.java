@@ -178,7 +178,34 @@ public class SchematicScreen extends Screen {
                 .bounds(left + 2 * (third + 4), row, third, 20)
                 .build());
 
+        // Under the preview panel, where the building being looked at already is.
+        int previewLeft = left + PANEL_WIDTH + PREVIEW_GAP;
+        addRenderableWidget(Button.builder(Component.translatable("screen.holobuild.editor_button"),
+                        b -> openEditor())
+                .bounds(previewLeft, LIST_TOP + PREVIEW_SIZE + 28, PREVIEW_SIZE, 20)
+                .build());
+
         applyFilter("");
+    }
+
+    /**
+     * Opens the 3D editor for whatever the preview is showing.
+     *
+     * The hovered entry counts, not only the chosen one - looking at a building
+     * and pressing Edit should open that building, not the last one clicked.
+     */
+    private void openEditor() {
+        if (minecraft == null) {
+            return;
+        }
+        String name = previewName();
+        if (name.isEmpty()) {
+            return;
+        }
+        EditorScreen editor = EditorScreen.tryOpen(this, name);
+        if (editor != null) {
+            minecraft.setScreen(editor);
+        }
     }
 
     /** Opens the manual, and comes back here when it is closed. */

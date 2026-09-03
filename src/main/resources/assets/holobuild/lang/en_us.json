@@ -189,5 +189,18 @@
   "guide.holobuild.edit.3": "/holobuild replace <name> <from> <to> <newname>",
   "guide.holobuild.edit.4": "swaps one kind of block for another.",
   "guide.holobuild.edit.5": "The result always goes to a new name, so whatever you",
-  "guide.holobuild.edit.6": "started from is still there if it goes wrong."
+  "guide.holobuild.edit.6": "started from is still there if it goes wrong.",
+  "message.holobuild.edit_not_allowed": "You are not allowed to save schematics here.",
+  "message.holobuild.edit_too_many": "Too many blocks removed at once - use /holobuild erase instead.",
+  "message.holobuild.edit_nothing_removed": "Nothing was removed - the file is unchanged.",
+  "message.holobuild.edit_saved": "Removed %s blocks. Saved as %s",
+  "screen.holobuild.editor_button": "Edit in 3D",
+  "screen.holobuild.editor_title": "Edit the building",
+  "screen.holobuild.editor_name": "Save as...",
+  "screen.holobuild.editor_undo": "Undo",
+  "screen.holobuild.editor_reset": "Reset view",
+  "screen.holobuild.editor_save": "Save",
+  "screen.holobuild.editor_count": "%s blocks left, %s removed",
+  "screen.holobuild.editor_hint": "Left-click a block to remove it, right-drag to turn",
+  "message.holobuild.editor_too_big": "Too large to edit - more than %s blocks."
 }

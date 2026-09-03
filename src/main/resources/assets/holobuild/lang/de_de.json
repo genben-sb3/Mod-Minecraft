@@ -189,5 +189,18 @@
   "guide.holobuild.edit.3": "/holobuild replace <name> <von> <zu> <neuername>",
   "guide.holobuild.edit.4": "tauscht eine Blocksorte gegen eine andere.",
   "guide.holobuild.edit.5": "Das Ergebnis bekommt immer einen neuen Namen - dein",
-  "guide.holobuild.edit.6": "Ausgangsbauwerk bleibt also erhalten."
+  "guide.holobuild.edit.6": "Ausgangsbauwerk bleibt also erhalten.",
+  "message.holobuild.edit_not_allowed": "Du darfst hier keine Schematics speichern.",
+  "message.holobuild.edit_too_many": "Zu viele Bloecke auf einmal - nimm dafuer /holobuild erase.",
+  "message.holobuild.edit_nothing_removed": "Es wurde nichts entfernt - die Datei bleibt wie sie war.",
+  "message.holobuild.edit_saved": "%s Bloecke entfernt. Gespeichert als %s",
+  "screen.holobuild.editor_button": "In 3D bearbeiten",
+  "screen.holobuild.editor_title": "Bauwerk bearbeiten",
+  "screen.holobuild.editor_name": "Speichern als...",
+  "screen.holobuild.editor_undo": "Zurueck",
+  "screen.holobuild.editor_reset": "Ansicht",
+  "screen.holobuild.editor_save": "Speichern",
+  "screen.holobuild.editor_count": "%s Bloecke uebrig, %s entfernt",
+  "screen.holobuild.editor_hint": "Linksklick entfernt einen Block, Rechts-Ziehen dreht",
+  "message.holobuild.editor_too_big": "Zu gross zum Bearbeiten - mehr als %s Bloecke."
 }
