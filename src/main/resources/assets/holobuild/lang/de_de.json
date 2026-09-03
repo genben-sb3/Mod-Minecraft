@@ -166,5 +166,13 @@
   "guide.holobuild.files.1": "Leg .nbt, .schem oder .litematic in den Ordner, den",
   "guide.holobuild.files.2": "das Menue nennt, solange die Liste noch leer ist.",
   "guide.holobuild.files.3": "Unterordner gehen und tauchen im Namen mit auf.",
-  "guide.holobuild.files.4": "Create nutzt dasselbe .nbt-Format - es geht einfach."
+  "guide.holobuild.files.4": "Create nutzt dasselbe .nbt-Format - es geht einfach.",
+
+  "guide.holobuild.craft.title": "Die Staebe herstellen",
+  "guide.holobuild.craft.1": "Beide Staebe haben dieselbe Form, schraeg wie eine Spitzhacke:",
+  "guide.holobuild.craft.2": "ein Amethystsplitter oben rechts, ein Kern in der Mitte,",
+  "guide.holobuild.craft.3": "und ein Stock unten links.",
+  "guide.holobuild.craft.4": "Der Kern entscheidet, welchen du bekommst:",
+  "guide.holobuild.craft.5": "Diamant = Blaupausen-Zauberstab, Eisenbarren = Auswahl-Stab.",
+  "guide.holobuild.craft.6": "Im Kreativmodus nimmst du sie einfach aus dem HoloBuild-Tab."
 }

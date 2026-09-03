@@ -65,12 +65,13 @@ class GuideBookTest {
     @DisplayName("Every page keeps to the height the screen can draw")
     void pagesFitOnScreen() {
         // The screen starts the text at y=66 and gives each line 12 pixels; the
-        // buttons sit at the bottom. Ten lines is what fits without running into
-        // them on the smallest window Minecraft allows.
+        // buttons sit at the bottom. On the smallest window Minecraft allows,
+        // about eleven rows fit. The budget is eight keys rather than eleven
+        // because the screen wraps long lines, so one key can become two rows.
         for (GuideBook.Page page : GuideBook.PAGES) {
-            assertTrue(page.lineKeys().size() <= 10,
+            assertTrue(page.lineKeys().size() <= 8,
                     "Seite '" + page.titleKey() + "' hat " + page.lineKeys().size()
-                            + " Zeilen - mehr als 10 laufen unten in die Knoepfe");
+                            + " Zeilen - mit Umbruch laufen die unten in die Knoepfe");
         }
     }
 }

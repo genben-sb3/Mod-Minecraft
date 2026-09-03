@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 
 /**
  * The manual, inside the game.
@@ -120,11 +121,18 @@ public class GuideScreen extends Screen {
                 .withStyle(ChatFormatting.YELLOW), width / 2, 44, 0xFFFF55);
 
         float arrived = Fade.smooth(Fade.progress(turnedAt, Util.getMillis(), TURN_MILLIS));
+        int colour = Fade.colour(0xDDDDDD, arrived, 255);
+
         int y = TEXT_TOP;
         for (String line : current.lineKeys()) {
-            graphics.drawString(font, Component.translatable(line), left, y,
-                    Fade.colour(0xDDDDDD, arrived, 255), false);
-            y += LINE_HEIGHT;
+            // Wrapped rather than trusted to fit. German says the same thing in
+            // more letters than English, and the player can change the GUI
+            // scale at any time - counting characters when writing the text
+            // would only be right for one language at one size.
+            for (FormattedCharSequence part : font.split(Component.translatable(line), PAGE_WIDTH)) {
+                graphics.drawString(font, part, left, y, colour, false);
+                y += LINE_HEIGHT;
+            }
         }
 
         graphics.drawCenteredString(font,

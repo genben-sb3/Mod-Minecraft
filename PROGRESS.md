@@ -22,7 +22,8 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
 | Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
-| Anleitung | Sieben Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
+| Anleitung | Acht Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
+| Herstellen | Beide Stäbe craftbar: Amethyst + Kern + Stock. Diamant für den Bau-, Eisen für den Auswahl-Stab |
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
@@ -30,14 +31,16 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 
 ## Tests
 
-- **54 Unit-Tests** — `.\gradlew test`
+- **55 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
-  Zeilen-Trefferrechnung der Liste, Aufbau der Anleitung, Animations-Zeitrechnung
-- **20 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+  Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
+  Animations-Zeitrechnung
+- **23 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
-  Cache-Kapazität, Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
+  Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
+  Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
   Fremdformate, Befehle, Sicherheitsgrenzen
 
 Alle Tests werden gegengeprüft: mit absichtlich kaputtem Code **müssen** sie
@@ -99,6 +102,9 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
   Schleife zusammenzusetzen. `LanguageFilesTest` sucht die Schlüssel im Quelltext;
   ein aus `"seite" + i` gebauter Name rutscht daran vorbei und fällt erst im Spiel
   als Rohtext auf.
+- **Die Anleitung bricht Zeilen um, statt auf passende Länge zu hoffen.** Deutsch
+  braucht für dasselbe mehr Buchstaben, und die Menügröße kann jeder ändern —
+  Zeichen abzählen wäre nur für eine Sprache in einer Größe richtig.
 - `Fade` rechnet Animations-Fortschritt aus, `ListLayout` Zeilentreffer — beide
   ohne Minecraft-Klassen. Zeichnen lässt sich nicht testen, rechnen schon, und
   genau da geht es schief: ein Fortschritt über 1 lässt eine Farbe überlaufen,
@@ -151,9 +157,11 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
       und Vorschau, der gewählte Eintrag ist als ▶ in Gold markiert, Klänge beim
       Wählen / Favorisieren / Blättern, Anleitung blendet Seiten ein.
 
-### C — Survival  ← *hier geht es weiter*
-- [ ] **Crafting-Rezepte** mit durchdachter Schwierigkeit (die Stäbe müssen etwas kosten)
-- [ ] Survival-Anforderungen rund ums Bauen
+### C — Survival
+- [x] **Crafting-Rezepte** — beide Stäbe teilen eine Form (Amethyst oben rechts,
+      Kern in der Mitte, Stock unten links). Der Kern setzt den Preis: Eisen für
+      den harmlosen Auswahl-Stab, Diamant für den, der ganze Häuser setzt.
+- [ ] Survival-Anforderungen rund ums Bauen  ← *hier geht es weiter*
 - [ ] Mehr Hilfs-Items für den Spieler
 
 ### D — Editor

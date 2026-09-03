@@ -90,6 +90,28 @@ class LanguageFilesTest {
     }
 
     @Test
+    @DisplayName("No guide line is long enough to swallow a whole page")
+    void guideLinesStayShort() throws IOException {
+        // The screen wraps, so a long line is not cut off - it just takes two
+        // rows instead of one, and a page of those runs off the bottom. This is
+        // a ceiling against a whole paragraph landing in a single key, not an
+        // attempt to measure pixels: that depends on the font and the GUI scale.
+        int limit = 70;
+        for (String file : List.of("en_us.json", "de_de.json")) {
+            JsonObject texts = load(file);
+            for (String key : texts.keySet()) {
+                if (!key.startsWith("guide.holobuild.")) {
+                    continue;
+                }
+                String text = texts.get(key).getAsString();
+                assertTrue(text.length() <= limit,
+                        file + ": '" + key + "' hat " + text.length()
+                                + " Zeichen, erlaubt sind " + limit);
+            }
+        }
+    }
+
+    @Test
     @DisplayName("Every key the code asks for exists in the language file")
     void everyKeyUsedInCodeExists() throws IOException {
         // Handed in by build.gradle: with Minecraft on the classpath the tests

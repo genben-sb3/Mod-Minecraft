@@ -29,6 +29,14 @@ public final class GuideBook {
                     "guide.holobuild.start.4",
                     "guide.holobuild.start.5")),
 
+            new Page("guide.holobuild.craft.title", List.of(
+                    "guide.holobuild.craft.1",
+                    "guide.holobuild.craft.2",
+                    "guide.holobuild.craft.3",
+                    "guide.holobuild.craft.4",
+                    "guide.holobuild.craft.5",
+                    "guide.holobuild.craft.6")),
+
             new Page("guide.holobuild.wand.title", List.of(
                     "guide.holobuild.wand.1",
                     "guide.holobuild.wand.2",

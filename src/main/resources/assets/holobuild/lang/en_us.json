@@ -166,5 +166,13 @@
   "guide.holobuild.files.1": "Drop .nbt, .schem or .litematic files into the folder",
   "guide.holobuild.files.2": "the menu names when the list is still empty.",
   "guide.holobuild.files.3": "Subfolders work and show up in the names.",
-  "guide.holobuild.files.4": "Create uses the same .nbt format - it just works."
+  "guide.holobuild.files.4": "Create uses the same .nbt format - it just works.",
+
+  "guide.holobuild.craft.title": "Crafting the wands",
+  "guide.holobuild.craft.1": "Both wands share one shape, like a diagonal pick:",
+  "guide.holobuild.craft.2": "an amethyst shard top right, a core in the middle,",
+  "guide.holobuild.craft.3": "and a stick bottom left.",
+  "guide.holobuild.craft.4": "The core decides which one you get:",
+  "guide.holobuild.craft.5": "diamond = Blueprint Wand, iron ingot = Selection Wand.",
+  "guide.holobuild.craft.6": "In creative just take them from the HoloBuild tab."
 }
