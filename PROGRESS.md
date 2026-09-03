@@ -22,14 +22,15 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Baukasten | `/holobuild random tower <name>` würfelt aus Modulen ein neues Gebäude |
 | Bibliothek | Fünf mitgelieferte Bauwerke + fünf Turm-Module |
 | Menü | Taste **G**: Suche, Favoriten ⭐, Ordner, Sortierung, Infos, Steuerung |
-| Anleitung | Zehn Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
+| Anleitung | Elf Seiten im Spiel, Knopf unten im Menü — kein Nachschlagen im Netz nötig |
 | Herstellen | Alle drei Stäbe craftbar: Amethyst + Kern + Stock. Diamant / Eisen / Spitzhacke als Kern |
 | Baugrund-Stab | Räumt den Platz frei, den das gewählte Bauwerk füllen würde — mit grüner Vorschau und Rückgängig |
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
 | Materialprüfung | Zu wenig Blöcke? Der Stab nennt das Fehlende und wartet — nochmal klicken baut trotzdem |
-| Befehle | `build`, `save`, `list`, `random`, `options` — mit Operator-Rechten, auch im Survival |
+| Befehle | `build`, `save`, `list`, `random`, `options`, `erase`, `replace` — mit Operator-Rechten, auch im Survival |
+| Bearbeiten | Blocksorten aus einem Bauwerk löschen oder tauschen, Ergebnis unter neuem Namen |
 
 ## Tests
 
@@ -38,11 +39,12 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
   Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
   Animations-Zeitrechnung
-- **27 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **33 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
   Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
   Speicherbarkeit der Bau-Zusage, Freiräumen und sein Rückgängig,
+  Bearbeiten (Löschen, Ersetzen, Größe bleibt, Original bleibt),
   Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
   Fremdformate, Befehle, Sicherheitsgrenzen
 
@@ -108,6 +110,12 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - **Die Anleitung bricht Zeilen um, statt auf passende Länge zu hoffen.** Deutsch
   braucht für dasselbe mehr Buchstaben, und die Menügröße kann jeder ändern —
   Zeichen abzählen wäre nur für eine Sprache in einer Größe richtig.
+- **`SchematicEdit` lässt die Größe in Ruhe, auch wenn Blöcke verschwinden.**
+  Gedreht wird um die halbe Größe — eine Kopie, die auf ihre Restblöcke
+  schrumpft, dreht sich um einen anderen Punkt als das Original. Genau die
+  Falle, in die der `.litematic`-Leser schon einmal gelaufen ist.
+- **Bearbeiten schreibt immer unter neuem Namen.** Ein Versuch, der die einzige
+  Kopie überschreibt, ist einer, den sich niemand traut.
 - `Fade` rechnet Animations-Fortschritt aus, `ListLayout` Zeilentreffer — beide
   ohne Minecraft-Klassen. Zeichnen lässt sich nicht testen, rechnen schon, und
   genau da geht es schief: ein Fortschritt über 1 lässt eine Farbe überlaufen,
@@ -178,8 +186,12 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
       füllen würde. Grüne Umriss-Vorschau vorher, Rückgängig hinterher,
       Kreativmodus only.
 
-### D — Editor  ← *hier geht es weiter*
-- [ ] Drehbares 3D-Modell des Bauwerks, **Blöcke löschen und bearbeiten**, abspeichern
+### D — Editor
+- [x] **Unterbau: bearbeiten und speichern** — `SchematicEdit` als Arbeitskopie,
+      dazu `/holobuild erase` und `/holobuild replace`. Ergebnis immer unter
+      neuem Namen, das Original bleibt.
+- [ ] **3D-Ansicht zum Anklicken** — drehbares Modell, einzelne Blöcke wählen
+      und ändern  ← *hier geht es weiter*
 
 ### E — Teilen
 - [ ] Einfacher Weg, Bauwerke mit anderen zu tauschen

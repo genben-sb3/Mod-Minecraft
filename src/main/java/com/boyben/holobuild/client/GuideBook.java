@@ -78,6 +78,14 @@ public final class GuideBook {
                     "guide.holobuild.commands.5",
                     "guide.holobuild.commands.6")),
 
+            new Page("guide.holobuild.edit.title", List.of(
+                    "guide.holobuild.edit.1",
+                    "guide.holobuild.edit.2",
+                    "guide.holobuild.edit.3",
+                    "guide.holobuild.edit.4",
+                    "guide.holobuild.edit.5",
+                    "guide.holobuild.edit.6")),
+
             new Page("guide.holobuild.survival.title", List.of(
                     "guide.holobuild.survival.1",
                     "guide.holobuild.survival.2",

@@ -178,5 +178,16 @@
   "guide.holobuild.site.4": "living room.",
   "guide.holobuild.site.5": "The Site Wand empties the space first. Choose the",
   "guide.holobuild.site.6": "building with the Blueprint Wand, then right-click.",
-  "guide.holobuild.site.7": "Undo it with the Blueprint Wand: SHIFT + right-click."
+  "guide.holobuild.site.7": "Undo it with the Blueprint Wand: SHIFT + right-click.",
+  "message.holobuild.erased": "Removed %s x %s. Saved as %s",
+  "message.holobuild.replaced": "Swapped %s x %s for %s. Saved as %s",
+  "message.holobuild.edit_nothing_matched": "There is no %s in there - nothing changed.",
+  "message.holobuild.edit_would_empty": "That would leave the building with no blocks at all.",
+  "guide.holobuild.edit.title": "Changing a building",
+  "guide.holobuild.edit.1": "/holobuild erase <name> <block> <newname>",
+  "guide.holobuild.edit.2": "takes every block of that kind out of a building.",
+  "guide.holobuild.edit.3": "/holobuild replace <name> <from> <to> <newname>",
+  "guide.holobuild.edit.4": "swaps one kind of block for another.",
+  "guide.holobuild.edit.5": "The result always goes to a new name, so whatever you",
+  "guide.holobuild.edit.6": "started from is still there if it goes wrong."
 }

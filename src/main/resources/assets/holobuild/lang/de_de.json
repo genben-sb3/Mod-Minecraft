@@ -178,5 +178,16 @@
   "guide.holobuild.site.4": "im Wohnzimmer.",
   "guide.holobuild.site.5": "Der Baugrund-Stab raeumt den Platz vorher frei. Waehl",
   "guide.holobuild.site.6": "das Bauwerk mit dem Blaupausen-Stab, dann Rechtsklick.",
-  "guide.holobuild.site.7": "Rueckgaengig: Blaupausen-Stab, UMSCHALT + Rechtsklick."
+  "guide.holobuild.site.7": "Rueckgaengig: Blaupausen-Stab, UMSCHALT + Rechtsklick.",
+  "message.holobuild.erased": "%s x %s entfernt. Gespeichert als %s",
+  "message.holobuild.replaced": "%s x %s durch %s ersetzt. Gespeichert als %s",
+  "message.holobuild.edit_nothing_matched": "Da ist kein %s drin - nichts geaendert.",
+  "message.holobuild.edit_would_empty": "Dann haette das Bauwerk gar keine Bloecke mehr.",
+  "guide.holobuild.edit.title": "Ein Bauwerk aendern",
+  "guide.holobuild.edit.1": "/holobuild erase <name> <block> <neuername>",
+  "guide.holobuild.edit.2": "nimmt jeden Block dieser Sorte aus dem Bauwerk.",
+  "guide.holobuild.edit.3": "/holobuild replace <name> <von> <zu> <neuername>",
+  "guide.holobuild.edit.4": "tauscht eine Blocksorte gegen eine andere.",
+  "guide.holobuild.edit.5": "Das Ergebnis bekommt immer einen neuen Namen - dein",
+  "guide.holobuild.edit.6": "Ausgangsbauwerk bleibt also erhalten."
 }

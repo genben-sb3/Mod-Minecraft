@@ -170,6 +170,74 @@ public class CommandGameTests {
     }
 
     /**
+     * /holobuild erase has to write a real file with the block gone.
+     *
+     * The editing itself is covered elsewhere; what this proves is the trip
+     * through the command and back off the disk - a copy that never reached the
+     * folder, or reached it unreadable, would look identical from inside.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 200)
+    public static void eraseCommandWritesAnEditedFile(GameTestHelper helper) throws Exception {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+
+        String name = "gametest_erased";
+        Path file = SchematicLoader.getSchematicFolder().resolve(name + ".nbt");
+        try {
+            SchematicCache.clear();
+            LoadedSchematic before = SchematicLoader.loadByName("cottage", level);
+            if (before == null) {
+                helper.fail("Eingebautes Bauwerk 'cottage' nicht gefunden");
+                return;
+            }
+            int cobbleBefore = countOf(before, Blocks.COBBLESTONE);
+            if (cobbleBefore == 0) {
+                helper.fail("Die Huette hat gar kein Bruchstein - dann prueft der Test nichts");
+                return;
+            }
+
+            run(level, player, "holobuild erase cottage minecraft:cobblestone " + name);
+
+            SchematicCache.clear();
+            LoadedSchematic after = SchematicLoader.loadByName(name, level);
+            if (after == null) {
+                helper.fail("Der Befehl hat keine lesbare Datei hinterlassen: " + file);
+                return;
+            }
+            if (countOf(after, Blocks.COBBLESTONE) != 0) {
+                helper.fail("Es ist noch Bruchstein drin");
+                return;
+            }
+            if (after.blocks().size() != before.blocks().size() - cobbleBefore) {
+                helper.fail("Es sind andere Bloecke mitgegangen: erwartet "
+                        + (before.blocks().size() - cobbleBefore)
+                        + ", uebrig " + after.blocks().size());
+                return;
+            }
+            if (!after.size().equals(before.size())) {
+                helper.fail("Die Groesse hat sich geaendert: " + before.size()
+                        + " zu " + after.size());
+                return;
+            }
+            helper.succeed();
+
+        } finally {
+            Files.deleteIfExists(file);
+            SchematicCache.clear();
+        }
+    }
+
+    private static int countOf(LoadedSchematic schematic, net.minecraft.world.level.block.Block kind) {
+        int found = 0;
+        for (StructureTemplate.StructureBlockInfo info : schematic.blocks()) {
+            if (info.state().is(kind)) {
+                found++;
+            }
+        }
+        return found;
+    }
+
+    /**
      * Marks a 2x2x1 area holding three stone blocks and one gap, saves it
      * through the real command, and reads the file back.
      *

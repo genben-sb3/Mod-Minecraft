@@ -13,6 +13,8 @@ public final class ModCommands {
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
-        HoloBuildCommand.register(event.getDispatcher());
+        // The build context is what lets a command argument name a block:
+        // block ids only mean something against a registry.
+        HoloBuildCommand.register(event.getDispatcher(), event.getBuildContext());
     }
 }

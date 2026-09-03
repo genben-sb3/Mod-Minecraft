@@ -14,6 +14,7 @@ import com.boyben.holobuild.build.Builder;
 import com.boyben.holobuild.component.BlueprintSettings;
 import com.boyben.holobuild.component.SaveOptions;
 import com.boyben.holobuild.component.Selection;
+import com.boyben.holobuild.edit.SchematicEdit;
 import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
 import com.boyben.holobuild.item.SelectionWandItem;
@@ -35,6 +36,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.arguments.blocks.BlockStateArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
@@ -46,6 +49,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
@@ -66,7 +71,8 @@ public final class HoloBuildCommand {
     /** Beyond this, saving would stall the server and produce a huge file. */
     private static final long MAX_SAVE_VOLUME = 500_000L;
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher,
+                                CommandBuildContext blocks) {
         dispatcher.register(Commands.literal("holobuild")
                 // Same bar vanilla sets for /setblock and /fill: anything that
                 // rewrites the world needs operator rights. That is also why
@@ -97,6 +103,29 @@ public final class HoloBuildCommand {
                                         StringArgumentType.getString(context, "name")))))
                 .then(Commands.literal("list")
                         .executes(context -> list(context.getSource())))
+                .then(Commands.literal("erase")
+                        .then(Commands.argument("source", StringArgumentType.string())
+                                .then(Commands.argument("block", BlockStateArgument.block(blocks))
+                                        .then(Commands.argument("target", StringArgumentType.string())
+                                                .executes(context -> erase(
+                                                        context.getSource(),
+                                                        StringArgumentType.getString(context, "source"),
+                                                        BlockStateArgument.getBlock(context, "block")
+                                                                .getState().getBlock(),
+                                                        StringArgumentType.getString(context, "target")))))))
+                .then(Commands.literal("replace")
+                        .then(Commands.argument("source", StringArgumentType.string())
+                                .then(Commands.argument("from", BlockStateArgument.block(blocks))
+                                        .then(Commands.argument("to", BlockStateArgument.block(blocks))
+                                                .then(Commands.argument("target", StringArgumentType.string())
+                                                        .executes(context -> replace(
+                                                                context.getSource(),
+                                                                StringArgumentType.getString(context, "source"),
+                                                                BlockStateArgument.getBlock(context, "from")
+                                                                        .getState().getBlock(),
+                                                                BlockStateArgument.getBlock(context, "to")
+                                                                        .getState(),
+                                                                StringArgumentType.getString(context, "target"))))))))
                 .then(Commands.literal("options")
                         .executes(context -> showOptions(context.getSource()))
                         .then(optionToggle("air", SaveOptions::withAir))
@@ -303,6 +332,111 @@ public final class HoloBuildCommand {
                     droppedAir).withStyle(ChatFormatting.GRAY), false);
         }
         return 1;
+    }
+
+    /**
+     * Takes every block of one kind out of a schematic and saves the result
+     * under a new name.
+     *
+     * A new name rather than in place, always. Editing a building is an
+     * experiment, and an experiment that overwrites the only copy is one nobody
+     * dares to run.
+     */
+    private static int erase(CommandSourceStack source, String sourceName,
+                             Block kind, String targetName) {
+
+        SchematicEdit edit = open(source, sourceName);
+        if (edit == null) {
+            return 0;
+        }
+
+        int removed = edit.erase(kind);
+        if (removed == 0) {
+            fail(source, Component.translatable("message.holobuild.edit_nothing_matched",
+                    kind.getName()));
+            return 0;
+        }
+        if (edit.blockCount() == 0) {
+            // A file with no blocks loads fine and builds nothing at all - the
+            // sort of result that looks like the mod broke.
+            fail(source, Component.translatable("message.holobuild.edit_would_empty"));
+            return 0;
+        }
+        if (!write(source, edit, targetName)) {
+            return 0;
+        }
+
+        int count = removed;
+        source.sendSuccess(() -> Component.translatable("message.holobuild.erased",
+                count, kind.getName(), targetName).withStyle(ChatFormatting.GREEN), false);
+        return 1;
+    }
+
+    /** Swaps every block of one kind for another and saves under a new name. */
+    private static int replace(CommandSourceStack source, String sourceName,
+                               Block from, BlockState to, String targetName) {
+
+        SchematicEdit edit = open(source, sourceName);
+        if (edit == null) {
+            return 0;
+        }
+
+        int changed = edit.replace(from, to);
+        if (changed == 0) {
+            fail(source, Component.translatable("message.holobuild.edit_nothing_matched",
+                    from.getName()));
+            return 0;
+        }
+        if (!write(source, edit, targetName)) {
+            return 0;
+        }
+
+        int count = changed;
+        source.sendSuccess(() -> Component.translatable("message.holobuild.replaced",
+                count, from.getName(), to.getBlock().getName(), targetName)
+                .withStyle(ChatFormatting.GREEN), false);
+        return 1;
+    }
+
+    /** @return a working copy of the named schematic, or null after complaining */
+    @Nullable
+    private static SchematicEdit open(CommandSourceStack source, String name) {
+        if (!SchematicLoader.isSafeName(name)) {
+            fail(source, Component.translatable("message.holobuild.bad_name", name));
+            return null;
+        }
+        try {
+            LoadedSchematic schematic = SchematicCache.get(name, source.getLevel());
+            if (schematic == null) {
+                fail(source, Component.translatable("message.holobuild.missing_file", name));
+                return null;
+            }
+            return SchematicEdit.of(schematic);
+        } catch (IOException | RuntimeException e) {
+            HoloBuild.LOGGER.error("Schematic konnte nicht geladen werden: {}", name, e);
+            fail(source, Component.translatable("message.holobuild.load_failed", name));
+            return null;
+        }
+    }
+
+    /** Writes the edited copy out. @return true if it landed on disk */
+    private static boolean write(CommandSourceStack source, SchematicEdit edit, String targetName) {
+        Path target = SchematicLoader.pathForNewFile(targetName);
+        if (target == null) {
+            fail(source, Component.translatable("message.holobuild.bad_name", targetName));
+            return false;
+        }
+        try {
+            SchematicLoader.ensureFolderExists();
+            NbtIo.writeCompressed(StructureNbt.toCompound(edit.toRaw()), target);
+        } catch (IOException e) {
+            HoloBuild.LOGGER.error("Bearbeitetes Schematic nicht gespeichert: {}", target, e);
+            fail(source, Component.translatable("message.holobuild.save_failed", targetName));
+            return false;
+        }
+        // The name may now point at different contents than a moment ago.
+        SchematicCache.clear();
+        return true;
     }
 
     private static int list(CommandSourceStack source) {
