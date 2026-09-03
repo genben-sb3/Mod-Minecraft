@@ -1,6 +1,7 @@
 package com.boyben.holobuild.client;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,6 +36,16 @@ public class GuideScreen extends Screen {
     private Button previous;
     private Button next;
 
+    /**
+     * How long a page takes to appear, and when the current one started.
+     *
+     * Short on purpose. A page that fades in slowly feels like the game is
+     * thinking; this is just enough that the text arrives rather than snapping
+     * into place mid-sentence.
+     */
+    private static final long TURN_MILLIS = 160;
+    private long turnedAt;
+
     public GuideScreen(Screen parent) {
         super(Component.translatable("screen.holobuild.guide_title"));
         this.parent = parent;
@@ -43,6 +54,7 @@ public class GuideScreen extends Screen {
     @Override
     protected void init() {
         page = GuideBook.clamp(page);
+        turnedAt = Util.getMillis();
 
         int left = (width - PAGE_WIDTH) / 2;
         int bottom = height - 40;
@@ -64,7 +76,15 @@ public class GuideScreen extends Screen {
     }
 
     private void turn(int by) {
-        page = GuideBook.clamp(page + by);
+        int wanted = GuideBook.clamp(page + by);
+        if (wanted == page) {
+            // Already at the end of the book. No sound, no fade - pretending
+            // something happened is worse than nothing happening.
+            return;
+        }
+        page = wanted;
+        turnedAt = Util.getMillis();
+        UiSounds.page();
         updateArrows();
     }
 
@@ -99,9 +119,11 @@ public class GuideScreen extends Screen {
         graphics.drawCenteredString(font, Component.translatable(current.titleKey())
                 .withStyle(ChatFormatting.YELLOW), width / 2, 44, 0xFFFF55);
 
+        float arrived = Fade.smooth(Fade.progress(turnedAt, Util.getMillis(), TURN_MILLIS));
         int y = TEXT_TOP;
         for (String line : current.lineKeys()) {
-            graphics.drawString(font, Component.translatable(line), left, y, 0xDDDDDD, false);
+            graphics.drawString(font, Component.translatable(line), left, y,
+                    Fade.colour(0xDDDDDD, arrived, 255), false);
             y += LINE_HEIGHT;
         }
 

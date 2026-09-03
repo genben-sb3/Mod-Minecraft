@@ -30,10 +30,10 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 
 ## Tests
 
-- **46 Unit-Tests** — `.\gradlew test`
+- **54 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
-  Zeilen-Trefferrechnung der Liste, Aufbau der Anleitung
+  Zeilen-Trefferrechnung der Liste, Aufbau der Anleitung, Animations-Zeitrechnung
 - **20 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
@@ -99,6 +99,10 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
   Schleife zusammenzusetzen. `LanguageFilesTest` sucht die Schlüssel im Quelltext;
   ein aus `"seite" + i` gebauter Name rutscht daran vorbei und fällt erst im Spiel
   als Rohtext auf.
+- `Fade` rechnet Animations-Fortschritt aus, `ListLayout` Zeilentreffer — beide
+  ohne Minecraft-Klassen. Zeichnen lässt sich nicht testen, rechnen schon, und
+  genau da geht es schief: ein Fortschritt über 1 lässt eine Farbe überlaufen,
+  eine Dauer von 0 teilt durch null. Nichts davon stürzt ab, es sieht nur kaputt aus.
 - `ListLayout` liegt außerhalb des Bildschirms und ohne Minecraft-Klassen. Ein
   `Screen` lässt sich in keinem Test bauen, diese Rechnerei schon — und sie ist
   reines Off-by-one-Gelände.
@@ -137,15 +141,17 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - [x] **Alle Blöcke beim Bauen** — was außerhalb geladener Chunks oder außerhalb
       der Welt lag, verschwand wortlos. Wird jetzt gezählt und gemeldet.
 
-### B — Bedienung
+### B — Bedienung ✅
 - [x] **3D-Vorschau beim Drüberfahren** in der Liste, mit 200 ms Wartezeit und
       Beschriftung darunter. Dafür musste erst der Cache mehr als ein Bauwerk
       halten können.
 - [x] **Anleitung im Spiel** — sieben Seiten, Knopf „Anleitung“ unten im Menü,
       Blättern mit Pfeiltasten oder Maus. Merkt sich die Seite.
-- [ ] Cleaneres Design, Sound und Animationen in der Oberfläche  ← *hier geht es weiter*
+- [x] **Cleaneres Design, Sound und Animationen** — Panels mit Rahmen hinter Liste
+      und Vorschau, der gewählte Eintrag ist als ▶ in Gold markiert, Klänge beim
+      Wählen / Favorisieren / Blättern, Anleitung blendet Seiten ein.
 
-### C — Survival
+### C — Survival  ← *hier geht es weiter*
 - [ ] **Crafting-Rezepte** mit durchdachter Schwierigkeit (die Stäbe müssen etwas kosten)
 - [ ] Survival-Anforderungen rund ums Bauen
 - [ ] Mehr Hilfs-Items für den Spieler

@@ -70,6 +70,16 @@ public class SchematicScreen extends Screen {
      */
     private static final int BACKDROP = 0x66000000;
 
+    /** Surface and edge of the panels the list and the preview sit on. */
+    private static final int PANEL_FILL = 0x50101018;
+    private static final int PANEL_EDGE = 0x40FFFFFF;
+
+    /** Draws one panel: a dark surface with a thin light edge. */
+    private static void panel(GuiGraphics graphics, int x1, int y1, int x2, int y2) {
+        graphics.fill(x1, y1, x2, y2, PANEL_FILL);
+        graphics.renderOutline(x1, y1, x2 - x1, y2 - y1, PANEL_EDGE);
+    }
+
     /** One entry: the name shown to the player and how big the file is. */
     private record Entry(String name, long sizeBytes, long modified, boolean builtIn) {}
 
@@ -364,6 +374,9 @@ public class SchematicScreen extends Screen {
 
     private void toggleStar(Entry entry) {
         Favourites.toggle(entry.name());
+        // Higher going on, lower coming off - the pitch says which way it went
+        // without having to look at the star.
+        UiSounds.favourite(Favourites.isFavourite(entry.name()));
         // Re-sort, so the entry moves to or from the top straight away.
         applyFilter(searchBox == null ? "" : searchBox.getValue());
     }
@@ -375,17 +388,25 @@ public class SchematicScreen extends Screen {
     }
 
     private Component nameLabel(Entry entry) {
+        // Mark the one the wand is actually holding. Choosing closes the menu,
+        // so without this there is nothing anywhere that says which building is
+        // loaded - reopening the list showed eight identical-looking rows.
+        boolean chosen = entry.name().equals(currentSettings().schematic());
+        MutableComponent label = Component.literal((chosen ? "▶ " : "") + entry.name())
+                .withStyle(chosen ? ChatFormatting.GOLD : ChatFormatting.WHITE);
+
         // Built-in buildings have no file, so show where they come from instead
         // of a size - otherwise every one of them would read "0 B".
         if (entry.builtIn()) {
-            return Component.literal(entry.name() + "  ")
+            return label.append(Component.literal("  "))
                     .append(Component.translatable("screen.holobuild.built_in")
                             .withStyle(ChatFormatting.DARK_AQUA));
         }
         String size = entry.sizeBytes() < 1024
                 ? entry.sizeBytes() + " B"
                 : (entry.sizeBytes() / 1024) + " KB";
-        return Component.literal(entry.name() + "  §7(" + size + ")");
+        return label.append(Component.literal("  (" + size + ")")
+                .withStyle(ChatFormatting.GRAY));
     }
 
     /**
@@ -427,6 +448,9 @@ public class SchematicScreen extends Screen {
     }
 
     private void choose(Entry entry) {
+        // The menu closes straight away, so the sound is the only thing that
+        // confirms the click landed on the row you meant.
+        UiSounds.chosen();
         PacketDistributor.sendToServer(new SelectSchematicPayload(entry.name()));
         onClose();
     }
@@ -449,6 +473,17 @@ public class SchematicScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         graphics.fill(0, 0, width, height, BACKDROP);
+
+        // Panels behind the widgets rather than in front, so the buttons keep
+        // their own look and only gain a surface to sit on. Drawn here because
+        // this runs before the widgets do.
+        int left = (width - TOTAL_WIDTH) / 2;
+        int listBottom = LIST_TOP + VISIBLE_ROWS * ROW_HEIGHT;
+        panel(graphics, left - 4, LIST_TOP - 4, left + PANEL_WIDTH + 4, listBottom + 2);
+
+        int previewLeft = left + PANEL_WIDTH + PREVIEW_GAP;
+        panel(graphics, previewLeft - 4, LIST_TOP - 4,
+                previewLeft + PREVIEW_SIZE + 4, LIST_TOP + PREVIEW_SIZE + 4);
     }
 
     /**
