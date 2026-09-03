@@ -2,6 +2,7 @@ package com.boyben.holobuild.registry;
 
 import com.boyben.holobuild.HoloBuild;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.BuildConfirm;
 import com.boyben.holobuild.component.SaveOptions;
 import com.boyben.holobuild.component.Selection;
 
@@ -32,6 +33,12 @@ public final class ModComponents {
             COMPONENTS.registerComponentType("selection", builder -> builder
                     .persistent(Selection.CODEC)
                     .networkSynchronized(Selection.STREAM_CODEC));
+
+    /** A standing offer to build anyway, after a warning about missing materials. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BuildConfirm>> BUILD_CONFIRM =
+            COMPONENTS.registerComponentType("build_confirm", builder -> builder
+                    .persistent(BuildConfirm.CODEC)
+                    .networkSynchronized(BuildConfirm.STREAM_CODEC));
 
     /** What the Selection Wand keeps when it saves: air, contents, entities. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<SaveOptions>> SAVE_OPTIONS =

@@ -174,5 +174,10 @@
   "guide.holobuild.craft.3": "and a stick bottom left.",
   "guide.holobuild.craft.4": "The core decides which one you get:",
   "guide.holobuild.craft.5": "diamond = Blueprint Wand, iron ingot = Selection Wand.",
-  "guide.holobuild.craft.6": "In creative just take them from the HoloBuild tab."
+  "guide.holobuild.craft.6": "In creative just take them from the HoloBuild tab.",
+  "message.holobuild.short_of": "Not enough: %s",
+  "message.holobuild.short_more": "and %s more kinds",
+  "message.holobuild.short_confirm": "Click again within 10 seconds to build anyway - it will stop where the blocks run out. Press G, then Materials, for the full list.",
+  "guide.holobuild.survival.5": "Short of blocks? The wand names what is missing and",
+  "guide.holobuild.survival.6": "waits. Click again to build as far as it gets."
 }

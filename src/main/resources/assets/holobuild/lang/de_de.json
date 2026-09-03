@@ -174,5 +174,10 @@
   "guide.holobuild.craft.3": "und ein Stock unten links.",
   "guide.holobuild.craft.4": "Der Kern entscheidet, welchen du bekommst:",
   "guide.holobuild.craft.5": "Diamant = Blaupausen-Zauberstab, Eisenbarren = Auswahl-Stab.",
-  "guide.holobuild.craft.6": "Im Kreativmodus nimmst du sie einfach aus dem HoloBuild-Tab."
+  "guide.holobuild.craft.6": "Im Kreativmodus nimmst du sie einfach aus dem HoloBuild-Tab.",
+  "message.holobuild.short_of": "Es fehlt: %s",
+  "message.holobuild.short_more": "und %s weitere Sorten",
+  "message.holobuild.short_confirm": "Nochmal klicken innerhalb von 10 Sekunden baut trotzdem - es hoert auf, wo die Bloecke ausgehen. Druck G und dann Material fuer die ganze Liste.",
+  "guide.holobuild.survival.5": "Zu wenig Bloecke? Der Stab sagt, was fehlt, und wartet.",
+  "guide.holobuild.survival.6": "Nochmal klicken baut so weit es reicht."
 }

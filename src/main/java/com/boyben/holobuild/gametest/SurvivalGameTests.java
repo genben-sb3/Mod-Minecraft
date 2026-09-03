@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.boyben.holobuild.HoloBuild;
+import com.boyben.holobuild.component.BuildConfirm;
 import com.boyben.holobuild.generator.ModulePack;
 import com.boyben.holobuild.generator.StackGenerator;
+import com.boyben.holobuild.registry.ModComponents;
+import com.boyben.holobuild.registry.ModItems;
 import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.SchematicLoader;
 import com.boyben.holobuild.schematic.format.RawSchematic;
@@ -42,6 +45,36 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public class SurvivalGameTests {
 
     private static final String ROOM = "test_platform";
+
+    /**
+     * The "build anyway" offer has to survive being written to disk.
+     *
+     * It is stored on the wand as a data component, which means a codec, which
+     * means it can be silently wrong: a broken one saves nothing, the offer is
+     * gone by the next click, and the wand refuses forever with a message that
+     * says clicking again would work. Nobody would suspect the file format.
+     */
+    @GameTest(template = ROOM, timeoutTicks = 100)
+    public static void buildConfirmSurvivesSaving(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+
+        ItemStack wand = new ItemStack(ModItems.BLUEPRINT_WAND.get());
+        wand.set(ModComponents.BUILD_CONFIRM.get(), new BuildConfirm("cottage", 4321L));
+
+        ItemStack reloaded = ItemStack.parse(level.registryAccess(),
+                wand.save(level.registryAccess())).orElse(ItemStack.EMPTY);
+
+        BuildConfirm back = reloaded.getOrDefault(ModComponents.BUILD_CONFIRM.get(), BuildConfirm.NONE);
+        if (!"cottage".equals(back.schematic()) || back.warnedAtTick() != 4321L) {
+            helper.fail("Die Zusage kam anders zurueck als sie hineinging: " + back);
+            return;
+        }
+        if (!back.allows("cottage", 4321L + 10)) {
+            helper.fail("Nach dem Laden gilt die Zusage nicht mehr");
+            return;
+        }
+        helper.succeed();
+    }
 
     /**
      * A door is two blocks and one item.

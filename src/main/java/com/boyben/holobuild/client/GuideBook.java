@@ -72,7 +72,9 @@ public final class GuideBook {
                     "guide.holobuild.survival.1",
                     "guide.holobuild.survival.2",
                     "guide.holobuild.survival.3",
-                    "guide.holobuild.survival.4")),
+                    "guide.holobuild.survival.4",
+                    "guide.holobuild.survival.5",
+                    "guide.holobuild.survival.6")),
 
             new Page("guide.holobuild.files.title", List.of(
                     "guide.holobuild.files.1",

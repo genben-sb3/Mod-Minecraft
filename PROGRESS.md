@@ -27,19 +27,21 @@ Reihenfolge: erst reparieren, dann Neues. Siehe „Etappenplan" unten.
 | Vorschau im Menü | Drehendes 3D-Modell — auch schon beim **Drüberfahren**, ohne Klick |
 | Tooltips | Beide Stäbe erklären beim Drüberfahren ihre Steuerung und ihren Zustand |
 | Survival | Hologramm + Materialliste; optional Bauen aus dem Inventar (`survivalBuilding`) |
+| Materialprüfung | Zu wenig Blöcke? Der Stab nennt das Fehlende und wartet — nochmal klicken baut trotzdem |
 | Befehle | `build`, `save`, `list`, `random`, `options` — mit Operator-Rechten, auch im Survival |
 
 ## Tests
 
-- **55 Unit-Tests** — `.\gradlew test`
+- **60 Unit-Tests** — `.\gradlew test`
   Bit-Packing (.litematic), varints (.schem), Namensprüfung gegen Path Traversal,
   Speicher-Filter (Luft/Inhalte/Entities), Vollständigkeit der Sprachdateien,
   Zeilen-Trefferrechnung der Liste, Aufbau und Zeilenlänge der Anleitung,
   Animations-Zeitrechnung
-- **23 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
+- **24 GameTests im echten Server** — `.\gradlew runGameTestServer` (~10 Sekunden)
   Laden, Bauen, Undo, Drehen, animiertes Bauen über Ticks, Türen, Speichern und
   Wiederladen, Luft-Weglassen in beide Richtungen, abgelehnte Blöcke,
   Cache-Kapazität, Crafting-Rezepte (auch: falsches Muster ergibt nichts),
+  Speicherbarkeit der Bau-Zusage,
   Materialliste gegen Verbrauch, Bezahlen, Baukasten, beide
   Fremdformate, Befehle, Sicherheitsgrenzen
 
@@ -112,6 +114,9 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - `ListLayout` liegt außerhalb des Bildschirms und ohne Minecraft-Klassen. Ein
   `Screen` lässt sich in keinem Test bauen, diese Rechnerei schon — und sie ist
   reines Off-by-one-Gelände.
+- **Die Bau-Zusage liegt auf dem Stab, nicht in einer Spielerliste.** Genau so eine
+  Liste war das Undo-Leck: nichts hat sie je geleert. Daten auf einem Gegenstand
+  brauchen kein Aufräumen — sie gehen, wenn der Gegenstand geht.
 - Speicher-Optionen leben **auf dem Stab**, nicht in der Config: eine Einstellung
   pro Spieler statt einer fürs ganze Spiel, und im Tooltip sichtbar statt in einer
   Datei versteckt.
@@ -161,8 +166,10 @@ das anders verhalten hätte. Die Sabotage war ungültig, nicht der Test lückenh
 - [x] **Crafting-Rezepte** — beide Stäbe teilen eine Form (Amethyst oben rechts,
       Kern in der Mitte, Stock unten links). Der Kern setzt den Preis: Eisen für
       den harmlosen Auswahl-Stab, Diamant für den, der ganze Häuser setzt.
-- [ ] Survival-Anforderungen rund ums Bauen  ← *hier geht es weiter*
-- [ ] Mehr Hilfs-Items für den Spieler
+- [x] **Survival-Anforderungen** — wer nicht genug Material hat, bekommt erst
+      gesagt was fehlt (die drei größten Posten plus „und N weitere Sorten“).
+      Ein zweiter Klick innerhalb von 10 Sekunden baut trotzdem, so weit es reicht.
+- [ ] Mehr Hilfs-Items für den Spieler  ← *hier geht es weiter*
 
 ### D — Editor
 - [ ] Drehbares 3D-Modell des Bauwerks, **Blöcke löschen und bearbeiten**, abspeichern

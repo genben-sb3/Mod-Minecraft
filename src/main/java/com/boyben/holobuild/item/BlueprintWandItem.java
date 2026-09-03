@@ -1,6 +1,7 @@
 package com.boyben.holobuild.item;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
 import com.boyben.holobuild.Config;
@@ -9,16 +10,19 @@ import com.boyben.holobuild.build.BuildAnimator;
 import com.boyben.holobuild.build.BuildOutcome;
 import com.boyben.holobuild.build.Builder;
 import com.boyben.holobuild.component.BlueprintSettings;
+import com.boyben.holobuild.component.BuildConfirm;
 import com.boyben.holobuild.registry.ModComponents;
 import com.boyben.holobuild.schematic.LoadedSchematic;
 import com.boyben.holobuild.schematic.Placement;
 import com.boyben.holobuild.schematic.SchematicCache;
 import com.boyben.holobuild.schematic.SchematicLoader;
+import com.boyben.holobuild.survival.MaterialList;
 import com.boyben.holobuild.undo.UndoManager;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -155,6 +159,15 @@ public class BlueprintWandItem extends Item {
             return InteractionResult.FAIL;
         }
 
+        // In survival the blocks come out of the inventory, so a build that
+        // cannot be finished would leave a half house and an empty bag. Say
+        // what is missing first; a second click within ten seconds goes ahead
+        // anyway, because sometimes the foundation now is exactly what is wanted.
+        if (!player.isCreative() && Config.survivalBuilding()
+                && !confirmShortage(player, stack, schematic, settings.schematic(), level)) {
+            return InteractionResult.FAIL;
+        }
+
         BlockPos target = Placement.origin(context.getClickedPos(), context.getClickedFace(), settings);
         BuildOutcome outcome = Builder.build(player, level, schematic, target, settings);
 
@@ -166,6 +179,72 @@ public class BlueprintWandItem extends Item {
 
         return outcome.ok() ? InteractionResult.CONSUME : InteractionResult.FAIL;
     }
+
+    /**
+     * Checks the inventory against the build, and asks before starting one that
+     * will run out.
+     *
+     * @return true if the build may go ahead
+     */
+    private static boolean confirmShortage(ServerPlayer player, ItemStack stack,
+                                           LoadedSchematic schematic, String name,
+                                           ServerLevel level) {
+
+        MaterialList materials = MaterialList.of(schematic, player);
+        if (materials.complete()) {
+            // Enough for everything. Drop any old note so the next build that
+            // does fall short asks again rather than sailing through.
+            stack.remove(ModComponents.BUILD_CONFIRM.get());
+            return true;
+        }
+
+        long now = level.getGameTime();
+        BuildConfirm confirm = stack.getOrDefault(ModComponents.BUILD_CONFIRM.get(), BuildConfirm.NONE);
+        if (confirm.allows(name, now)) {
+            stack.remove(ModComponents.BUILD_CONFIRM.get());
+            return true;
+        }
+
+        stack.set(ModComponents.BUILD_CONFIRM.get(), new BuildConfirm(name, now));
+        tell(player, Component.translatable("message.holobuild.short_of", shortList(materials)),
+                ChatFormatting.RED);
+        tell(player, Component.translatable("message.holobuild.short_confirm"), ChatFormatting.YELLOW);
+        return false;
+    }
+
+    /**
+     * Names the few things most missing, rather than all of them.
+     *
+     * A cottage can be short of a dozen different blocks, and a chat line
+     * listing every one of them is a wall of text nobody reads. The material
+     * screen has the full list; this is the headline.
+     */
+    private static Component shortList(MaterialList materials) {
+        List<MaterialList.Entry> missing = materials.entries().stream()
+                .filter(entry -> !entry.enough())
+                .sorted(Comparator.comparingInt(MaterialList.Entry::missing).reversed())
+                .toList();
+
+        MutableComponent line = Component.empty();
+        int shown = Math.min(NAMED_IN_SHORTAGE, missing.size());
+        for (int i = 0; i < shown; i++) {
+            if (i > 0) {
+                line.append(Component.literal(", "));
+            }
+            MaterialList.Entry entry = missing.get(i);
+            line.append(Component.literal(entry.missing() + "x "))
+                    .append(new ItemStack(entry.item()).getHoverName());
+        }
+        if (missing.size() > shown) {
+            line.append(Component.literal(" "))
+                    .append(Component.translatable("message.holobuild.short_more",
+                            missing.size() - shown));
+        }
+        return line;
+    }
+
+    /** How many missing materials to name before saying "and N more". */
+    private static final int NAMED_IN_SHORTAGE = 3;
 
     private static void tell(Player player, Component message, ChatFormatting colour) {
         player.displayClientMessage(message.copy().withStyle(colour), false);
